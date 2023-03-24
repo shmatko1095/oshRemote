@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-oshremote-dev-215719-authRole",
+      "UnauthRoleArn": "arn:aws:iam::375674179313:role/amplify-oshremote-dev-215719-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::375674179313:role/amplify-oshremote-dev-215719-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-oshremote-dev-215719-deployment",
+      "UnauthRoleName": "amplify-oshremote-dev-215719-unauthRole",
+      "StackName": "amplify-oshremote-dev-215719",
+      "StackId": "arn:aws:cloudformation:us-east-1:375674179313:stack/amplify-oshremote-dev-215719/190e3a40-c5c7-11ed-84b1-12981ec870d5",
+      "AmplifyAppId": "d3jkfximlso1ef"
+    },
+    "categories": {
+      "auth": {
+        "oshremote8c4139b58c4139b5": {}
+      }
+    }
+  }
+}
