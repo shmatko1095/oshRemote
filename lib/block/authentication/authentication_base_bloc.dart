@@ -10,6 +10,8 @@ part 'authentication_state.dart';
 
 abstract class AuthenticationBaseBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
+  final exceptionStreamController = StreamController<Exception>.broadcast();
+
   AuthenticationBaseBloc({required this.authenticationRepository})
       : super(AuthenticationState(
             email: const Email.pure(),
@@ -26,7 +28,11 @@ abstract class AuthenticationBaseBloc
     on<AuthenticationConfirmEvent>(_onConfirmEvent);
   }
 
-  final exceptionStreamController = StreamController<Exception>();
+  @override
+  Future<void> close() async {
+    exceptionStreamController.close();
+    super.close();
+  }
 
   Stream<Exception> get exceptionStream async* {
     yield* exceptionStreamController.stream;

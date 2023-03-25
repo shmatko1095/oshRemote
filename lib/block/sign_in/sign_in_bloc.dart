@@ -7,10 +7,11 @@ import 'package:osh_remote/models/email.dart';
 import 'package:osh_remote/models/models.dart';
 
 part 'sign_in_event.dart';
+
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final exceptionStreamController = StreamController<Exception>();
+  final exceptionStreamController = StreamController<Exception>.broadcast();
   final AuthenticationRepository _authenticationRepository;
 
   SignInBloc(AuthenticationRepository authenticationRepository)
@@ -25,6 +26,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
     on<SignInFetchSessionRequested>(_onFetchSessionRequested);
+  }
+
+  @override
+  Future<void> close() async {
+    exceptionStreamController.close();
+    super.close();
   }
 
   Stream<Exception> get exceptionStream async* {
