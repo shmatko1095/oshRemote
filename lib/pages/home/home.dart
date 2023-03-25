@@ -22,29 +22,30 @@ class HomePage extends StatelessWidget {
 
   static Route<void> route() {
     return MaterialPageRoute<void>(
-        builder: (_) => const HomePage());
+        builder: (_) => HomePage());
   }
 
   @override
   Widget build(BuildContext context) {
-
     const region =  "us-east-1";
     const server = 'a3qrc8lpkkm4w-ats.iot.us-east-1.amazonaws.com';
-    final credentials = AwsClientCredentials(accessKey: "AKIAVO57NB3YRCS5QW2Y",
-        secretKey: "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");
-    final mqtt = MqttServerClientRepository(region, credentials, server);
+    final credentials = AwsClientCredentials(accessKey: "AKIAVO57NB3Y6D3TOTRF", secretKey: "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");
+    final mqttRepository = MqttServerClientRepository(region, credentials, server);
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<SignInBloc>(
-          create: (_) => SignInBloc(
-              authenticationRepository: getIt<AuthenticationRepository>()),
-        ),
-        BlocProvider<MqttClientBloc>(
-          create: (BuildContext context) => MqttClientBloc(repository: mqtt),
-        ),
-      ],
-      child: const HomePageContent(),
+    return RepositoryProvider.value(
+      value: mqttRepository,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<SignInBloc>(
+            create: (_) => SignInBloc(
+                authenticationRepository: getIt<AuthenticationRepository>()),
+          ),
+          BlocProvider<MqttClientBloc>(
+            create: (BuildContext context) => MqttClientBloc(repository: mqttRepository),
+          ),
+        ],
+        child: const HomePageContent(),
+      )
     );
   }
 }
@@ -53,11 +54,19 @@ class HomePageContent extends StatefulWidget {
   const HomePageContent({super.key});
 
   @override
-  State createState() => _HomePageContentState();
+  State createState() {
+    return _HomePageContentState();
+  }
 }
 
 class _HomePageContentState extends State<HomePageContent> {
   int _selectedPage = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<MqttClientBloc>().add(MqttClientConnectRequested(thingName: "oshRemote"));
+  }
 
   void signOutCurrentUser() {
     context.read<SignInBloc>().add(const SignInLogoutRequested());

@@ -13,13 +13,6 @@ enum MqttConnectionEvent {
 }
 
 class MqttServerClientRepository {
-  // final _region =  "us-east-1";
-  // final _policyName = "OSHdev";
-  // // final _policyName = "OSH_policy";
-  // final _thingName = "11:11:11:11:00:00_OSHdev";
-  // final _credentials = AwsClientCredentials(accessKey: "AKIAVO57NB3YRCS5QW2Y", secretKey: "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");
-  // late CreateThingResponse _thing;
-  // late CreateKeysAndCertificateResponse _certificateResponse;
 
   late final AWS.IoT _service;
   late final MqttServerClient client;
@@ -58,17 +51,15 @@ class MqttServerClientRepository {
     context.usePrivateKeyBytes(certificate.keyPair!.privateKey!.codeUnits);
 
     client.securityContext = context;
-    client.logging(on: true);
-    client.keepAlivePeriod = 20;
+    client.logging(on: false);
+    client.keepAlivePeriod = 30;
     client.port = 8883;
     client.secure = true;
     client.autoReconnect = true;
     client.onConnected = () => _eventStreamController.add(MqttConnectionEvent.onConnected);
     client.onDisconnected = () => _eventStreamController.add(MqttConnectionEvent.onDisconnected);
     client.pongCallback = () => _eventStreamController.add(MqttConnectionEvent.onPing);
-    client.logging(on: false);
-    client.connectionMessage = MqttConnectMessage()
-        .withClientIdentifier(thingName).startClean();
+    client.connectionMessage = MqttConnectMessage().withClientIdentifier(thingName).startClean();
 
     return await client.connect();
   }

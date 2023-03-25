@@ -70,6 +70,7 @@ class _AppViewState extends State<AppView> {
       builder: (context, child) {
         return BlocListener<SignInBloc, SignInState>(
           listener: (context, state) {
+            if (state.inProgress) return;
             if (state.isSignedIn) {
               _navigator.pushAndRemoveUntil<void>(HomePage.route(), (route) => false);
             } else {
