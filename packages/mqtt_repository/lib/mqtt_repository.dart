@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
+import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:flutter/services.dart';
-import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 
 enum MqttConnectionEvent {
   onConnected,
@@ -13,7 +13,6 @@ enum MqttConnectionEvent {
 }
 
 class MqttServerClientRepository {
-
   late final AWS.IoT _service;
   late final MqttServerClient client;
 
@@ -23,7 +22,8 @@ class MqttServerClientRepository {
     yield* _eventStreamController.stream;
   }
 
-  MqttServerClientRepository(String region, AWS.AwsClientCredentials credentials, String server) {
+  MqttServerClientRepository(
+      String region, AWS.AwsClientCredentials credentials, String server) {
     this._service = AWS.IoT(region: region, credentials: credentials);
     this.client = MqttServerClient(server, '');
   }
@@ -36,14 +36,20 @@ class MqttServerClientRepository {
     await _service.attachPolicy(policyName: policyName, target: target);
   }
 
-  Future<AWS.CreateThingResponse> createThingAndAttachPrincipal(String thingName, String principal) async {
-    AWS.CreateThingResponse response = await _service.createThing(thingName: thingName);
-    await _service.attachThingPrincipal(principal: principal, thingName: thingName);
+  Future<AWS.CreateThingResponse> createThingAndAttachPrincipal(
+      String thingName, String principal) async {
+    AWS.CreateThingResponse response =
+        await _service.createThing(thingName: thingName);
+    await _service.attachThingPrincipal(
+        principal: principal, thingName: thingName);
     return response;
   }
 
-  Future<MqttClientConnectionStatus?> connect(AWS.CreateKeysAndCertificateResponse certificate, String thingName) async {
-    final ByteData rootCA = await rootBundle.load('assets/certs/AmazonRootCA1.pem');
+  Future<MqttClientConnectionStatus?> connect(
+      AWS.CreateKeysAndCertificateResponse certificate,
+      String thingName) async {
+    final ByteData rootCA =
+        await rootBundle.load('assets/certs/AmazonRootCA1.pem');
 
     final SecurityContext context = SecurityContext.defaultContext;
     context.setClientAuthoritiesBytes(rootCA.buffer.asUint8List());
@@ -56,10 +62,14 @@ class MqttServerClientRepository {
     client.port = 8883;
     client.secure = true;
     client.autoReconnect = true;
-    client.onConnected = () => _eventStreamController.add(MqttConnectionEvent.onConnected);
-    client.onDisconnected = () => _eventStreamController.add(MqttConnectionEvent.onDisconnected);
-    client.pongCallback = () => _eventStreamController.add(MqttConnectionEvent.onPing);
-    client.connectionMessage = MqttConnectMessage().withClientIdentifier(thingName).startClean();
+    client.onConnected =
+        () => _eventStreamController.add(MqttConnectionEvent.onConnected);
+    client.onDisconnected =
+        () => _eventStreamController.add(MqttConnectionEvent.onDisconnected);
+    client.pongCallback =
+        () => _eventStreamController.add(MqttConnectionEvent.onPing);
+    client.connectionMessage =
+        MqttConnectMessage().withClientIdentifier(thingName).startClean();
 
     return await client.connect();
   }
