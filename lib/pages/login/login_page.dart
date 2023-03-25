@@ -21,6 +21,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _tabList = <Widget>[SignIn(), SignUp()];
 
   @override
   void initState() {
@@ -54,10 +55,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         ),
         body: TabBarView(
           controller: _tabController,
-          children: const <Widget>[
-            SignIn(),
-            SignUp(),
-          ],
+          children: _tabList,
         ),
       ),
     );
@@ -65,24 +63,26 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 }
 
 class SignIn extends StatelessWidget {
-  const SignIn({super.key});
+  final _bloc = SignInBloc(getIt<AuthenticationRepository>());
+  SignIn({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SignInBloc(authenticationRepository: getIt<AuthenticationRepository>()),
+      create: (_) => _bloc,
       child: const SignInForm(),
     );
   }
 }
 
 class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+  final _bloc = SignUpBloc(getIt<AuthenticationRepository>());
+  SignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => SignUpBloc(authenticationRepository: getIt<AuthenticationRepository>()),
+        create: (_) => _bloc,
         child: const SignUpForm(),
     );
   }

@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:authentication_repository/authentication_repository.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 
 class SignUpBloc extends AuthenticationBaseBloc {
-  SignUpBloc({required super.authenticationRepository});
+  SignUpBloc(AuthenticationRepository authenticationRepository)
+      : super(authenticationRepository: authenticationRepository);
 
   @override
   Future<void> authenticate(Emitter<AuthenticationState> emit) async {

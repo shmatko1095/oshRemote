@@ -17,7 +17,7 @@ class App extends StatelessWidget {
     return RepositoryProvider.value(
       value: getIt<AuthenticationRepository>(),
       child: BlocProvider(
-        create: (_) => SignInBloc(authenticationRepository: getIt<AuthenticationRepository>()),
+        create: (_) => SignInBloc(getIt<AuthenticationRepository>()),
         child: const AppView(),
       ),
     );

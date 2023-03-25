@@ -21,8 +21,7 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(
-        builder: (_) => HomePage());
+    return MaterialPageRoute<void>(builder: (_) => const HomePage());
   }
 
   @override
@@ -37,8 +36,7 @@ class HomePage extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<SignInBloc>(
-            create: (_) => SignInBloc(
-                authenticationRepository: getIt<AuthenticationRepository>()),
+            create: (_) => SignInBloc(getIt<AuthenticationRepository>()),
           ),
           BlocProvider<MqttClientBloc>(
             create: (BuildContext context) => MqttClientBloc(repository: mqttRepository),
@@ -65,24 +63,12 @@ class _HomePageContentState extends State<HomePageContent> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<MqttClientBloc>().add(MqttClientConnectRequested(thingName: "oshRemote"));
+    context.read<MqttClientBloc>().add(const MqttClientConnectRequested(thingName: "oshRemote"));
   }
 
   void signOutCurrentUser() {
     context.read<SignInBloc>().add(const SignInLogoutRequested());
     Navigator.of(context).pushAndRemoveUntil<void>(LoginPage.route(), (route) => false);
-
-    // try {
-    //   setState(() => _isWaiting = true);
-    //   Amplify.Auth.signOut().then((value) {
-    //     setState(() => _isWaiting = false);
-    //     Navigator.pop(context);
-    //     Navigator.pushNamedAndRemoveUntil(
-    //         context, "/authentication", (route) => false);
-    //   });
-    // } on Exception catch (e) {
-    //   showAlertDialog(context, e);
-    // }
   }
 
   Widget _buildDrawerHeader() {

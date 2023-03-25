@@ -1,36 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:authentication_repository/authentication_repository.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
-import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
+import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
 import 'package:osh_remote/widgets/confirm_code_field.dart';
 import 'package:osh_remote/widgets/password_field.dart';
 import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
-
-class SignUpPage extends StatelessWidget {
-  const SignUpPage({super.key});
-
-  static Route<void> route() {
-    return MaterialPageRoute<void>(
-        builder: (_) => const SignUpPage());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          SignUpBloc(
-              authenticationRepository: getIt<AuthenticationRepository>()),
-      child: const SignUpForm(),
-    );
-  }
-}
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});

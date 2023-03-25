@@ -13,7 +13,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final exceptionStreamController = StreamController<Exception>();
   final AuthenticationRepository _authenticationRepository;
 
-  SignInBloc({required AuthenticationRepository authenticationRepository})
+  SignInBloc(AuthenticationRepository authenticationRepository)
       : _authenticationRepository = authenticationRepository,
         super(SignInState(
             email: const Email.pure(),
