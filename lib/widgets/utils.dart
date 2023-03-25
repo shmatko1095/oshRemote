@@ -1,6 +1,6 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const padding = EdgeInsets.only(left: 32, right: 32, top: 48, bottom: 16);
 
@@ -29,7 +29,7 @@ void showAlertDialog(BuildContext context, Exception exception) {
     msg = exception.toString();
   }
 
-  showDialog (
+  showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {

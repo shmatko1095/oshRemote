@@ -45,8 +45,8 @@
   "temp_out": "Water output temperature",
   "pressure": "Water pressure",
   "power_usage": "Power usage",
-  "confirmation_code_sent" : "Confirmation code sent",
+  "confirmation_code_sent": "Confirmation code sent",
   "authenticationFailure": "Authentication Failure",
-  "user_not_confirmed_title" : "User not confirmed in the system",
-  "user_not_confirmed_message" : "Please, confirm user first and then retry operation"
+  "user_not_confirmed_title": "User not confirmed in the system",
+  "user_not_confirmed_message": "Please, confirm user first and then retry operation"
 }

@@ -29,45 +29,54 @@ class _SignUpFormState extends State<SignUpForm> {
     _widgets.add(_getPassword1Field(context));
     _widgets.add(_getConfirmButton(context));
 
-    context.read<SignUpBloc>().exceptionStream
+    context
+        .read<SignUpBloc>()
+        .exceptionStream
         .listen((exception) => onBlockException(context, exception));
   }
 
   UsernameField _getUsernameField(BuildContext context) {
     return UsernameField<SignUpBloc, AuthenticationState>(
       buildWhen: (previous, current) => previous.email != current.email,
-      onChanged: (username) => context.read<SignUpBloc>()
+      onChanged: (username) => context
+          .read<SignUpBloc>()
           .add(AuthenticationUsernameChanged(username)),
-      errorText: () => context.read<SignUpBloc>().state.email.isValid()
-          || context.read<SignUpBloc>().state.email.value.isEmpty
-          ? null : S.of(context)!.pleaseEnterYourEmail,
+      errorText: () => context.read<SignUpBloc>().state.email.isValid() ||
+              context.read<SignUpBloc>().state.email.value.isEmpty
+          ? null
+          : S.of(context)!.pleaseEnterYourEmail,
     );
   }
 
   PasswordField _getPassword0Field(BuildContext context) {
     return PasswordField<SignUpBloc, AuthenticationState>(
       buildWhen: (previous, current) => previous.password0 != current.password0,
-      onChanged: (password) => context.read<SignUpBloc>()
+      onChanged: (password) => context
+          .read<SignUpBloc>()
           .add(AuthenticationPassword0Changed(password)),
       labelText: S.of(context)!.password,
       hintText: S.of(context)!.enterPassword,
-      errorText: () => context.read<SignUpBloc>().state.password0.isValid()
-          || context.read<SignUpBloc>().state.password0.value.isEmpty
-          ? null : S.of(context)!.passwordValidatorWarning,
+      errorText: () => context.read<SignUpBloc>().state.password0.isValid() ||
+              context.read<SignUpBloc>().state.password0.value.isEmpty
+          ? null
+          : S.of(context)!.passwordValidatorWarning,
     );
   }
 
   PasswordField _getPassword1Field(BuildContext context) {
     return PasswordField<SignUpBloc, AuthenticationState>(
       buildWhen: (previous, current) => previous != current,
-      onChanged: (password) => context.read<SignUpBloc>()
+      onChanged: (password) => context
+          .read<SignUpBloc>()
           .add(AuthenticationPassword1Changed(password)),
       labelText: S.of(context)!.confirmPassword,
       hintText: S.of(context)!.reEnterPassword,
-      errorText: () => context.read<SignUpBloc>().state.password1.value.isEmpty ||
-          context.read<SignUpBloc>().state.password1.value
-              == context.read<SignUpBloc>().state.password0.value
-          ? null : S.of(context)!.duplicatePasswordValidatorMag,
+      errorText: () =>
+          context.read<SignUpBloc>().state.password1.value.isEmpty ||
+                  context.read<SignUpBloc>().state.password1.value ==
+                      context.read<SignUpBloc>().state.password0.value
+              ? null
+              : S.of(context)!.duplicatePasswordValidatorMag,
     );
   }
 
@@ -77,22 +86,28 @@ class _SignUpFormState extends State<SignUpForm> {
         isInProgress: () => context.read<SignUpBloc>().state.inProgress,
         onPressed: () {
           return context.read<SignUpBloc>().isConfirmAvailable()
-              ? () => context.read<SignUpBloc>().add(const AuthenticationConfirmEvent())
+              ? () => context
+                  .read<SignUpBloc>()
+                  .add(const AuthenticationConfirmEvent())
               : null;
-        }
-    );
+        });
   }
 
   ConfirmCodeField _getConfirmCodeInput(BuildContext context) {
     return ConfirmCodeField<SignUpBloc, AuthenticationState>(
-      buildWhen: (previous, current) => previous.confirmCode != current.confirmCode,
-      onChanged: (code) => context.read<SignUpBloc>().add(AuthenticationConfirmCodeChanged(code)),
-      resendCode: () => context.read<SignUpBloc>().add(const AuthenticationResendCodeRequested()),
-      errorText: () => context.read<SignUpBloc>().state.confirmCode.value.isEmpty
-        || context.read<SignUpBloc>().state.confirmCode.isValid()
-        ? null
-          : S.of(context)!.confirmationCodeValidatorWarning
-    );
+        buildWhen: (previous, current) =>
+            previous.confirmCode != current.confirmCode,
+        onChanged: (code) => context
+            .read<SignUpBloc>()
+            .add(AuthenticationConfirmCodeChanged(code)),
+        resendCode: () => context
+            .read<SignUpBloc>()
+            .add(const AuthenticationResendCodeRequested()),
+        errorText: () =>
+            context.read<SignUpBloc>().state.confirmCode.value.isEmpty ||
+                    context.read<SignUpBloc>().state.confirmCode.isValid()
+                ? null
+                : S.of(context)!.confirmationCodeValidatorWarning);
   }
 
   void onBlockEvent(context, AuthenticationState state) {
@@ -108,9 +123,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   void onBlockException(context, Exception exception) {
-    ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-      SnackBar(content: Text(ErrorMessageFactory.get(exception, context))),
-    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(ErrorMessageFactory.get(exception, context))),
+      );
   }
 
   @override
@@ -120,19 +137,13 @@ class _SignUpFormState extends State<SignUpForm> {
         child: SafeArea(
             child: Scaffold(
                 body: SingleChildScrollView(
-                  padding: padding,
-                  child: Column(
-                    children: [
-                      ..._widgets.expand((widget) =>
-                      [
-                        widget,
-                        const SizedBox(height: 24)
-                      ])
-                    ],
-                  ),
-                )
-            )
-        )
-    );
+          padding: padding,
+          child: Column(
+            children: [
+              ..._widgets
+                  .expand((widget) => [widget, const SizedBox(height: 24)])
+            ],
+          ),
+        ))));
   }
 }

@@ -2,27 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PasswordField<B extends StateStreamable<S>, S> extends StatefulWidget {
-
   final BlocBuilderCondition? buildWhen;
   final ValueChanged<String>? onChanged;
   final String? Function() errorText;
   final String? labelText;
   final String? hintText;
 
-  const PasswordField({
-    this.buildWhen,
-    this.onChanged,
-    this.labelText,
-    this.hintText,
-    required this.errorText,
-    super.key
-  });
+  const PasswordField(
+      {this.buildWhen,
+      this.onChanged,
+      this.labelText,
+      this.hintText,
+      required this.errorText,
+      super.key});
 
   @override
   State<StatefulWidget> createState() => _PasswordInputState<B, S>();
 }
 
-class _PasswordInputState<B extends StateStreamable<S>, S> extends State<PasswordField> {
+class _PasswordInputState<B extends StateStreamable<S>, S>
+    extends State<PasswordField> {
   bool _hide = true;
 
   @override
@@ -47,7 +46,7 @@ class _PasswordInputState<B extends StateStreamable<S>, S> extends State<Passwor
   Widget _getSuffixIcon() {
     return IconButton(
       icon:
-      Icon(Icons.remove_red_eye, color: _hide ? Colors.grey : Colors.blue),
+          Icon(Icons.remove_red_eye, color: _hide ? Colors.grey : Colors.blue),
       onPressed: () => setState(() {
         _hide = !_hide;
       }),

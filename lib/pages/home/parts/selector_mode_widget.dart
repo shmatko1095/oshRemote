@@ -22,8 +22,8 @@ class _SelectorModeWidgetState extends State<SelectorModeWidget> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        items: icons,
+      onTap: (i) => setState(() => _index = i),
+      items: icons,
       showSelectedLabels: true,
       showUnselectedLabels: false,
       selectedItemColor: Colors.blue,

@@ -45,8 +45,8 @@
   "temp_out": "Температура обратки",
   "pressure": "Тиск в системі",
   "power_usage": "Використання потужності",
-  "confirmation_code_sent" : "Код підтвердження відправленно",
+  "confirmation_code_sent": "Код підтвердження відправленно",
   "authenticationFailure": "Помилка автентифікації",
-  "user_not_confirmed_title" : "Користувача не підтверджено",
-  "user_not_confirmed_message" : "Спочатку підтвердьте користувача, а потім повторіть операцію"
+  "user_not_confirmed_title": "Користувача не підтверджено",
+  "user_not_confirmed_message": "Спочатку підтвердьте користувача, а потім повторіть операцію"
 }

@@ -40,22 +40,66 @@ class _HomeBodyState extends State<HomeBody> {
               ),
               delegate: SliverChildListDelegate(
                 [
-                  SmallHomeWidget(label: S.of(context)!.heater_status, value: "1/6", iconData: Icons.local_fire_department),
-                  SmallHomeWidget(label: S.of(context)!.pump_status, value: "46%", iconData: Icons.loop),
-                  SmallHomeWidget(label: S.of(context)!.temp_in, value: "31.0°C", iconData: Icons.arrow_upward),
-                  SmallHomeWidget(label: S.of(context)!.temp_out, value: "37.5°C", iconData: Icons.arrow_downward),
-                  SmallHomeWidget(label: S.of(context)!.pressure, value: "1.9bar", iconData: Icons.compare_arrows),
-                  SmallHomeWidget(label: S.of(context)!.power_usage, value: "32%", iconData: Icons.timelapse),
-                  SmallHomeWidget(label: S.of(context)!.pressure, value: "1.9bar", iconData: Icons.compare_arrows),
-                  SmallHomeWidget(label: S.of(context)!.power_usage, value: "32%", iconData: Icons.timelapse),SmallHomeWidget(label: S.of(context)!.pressure, value: "1.9bar", iconData: Icons.compare_arrows),
-                  SmallHomeWidget(label: S.of(context)!.power_usage, value: "32%", iconData: Icons.timelapse),SmallHomeWidget(label: S.of(context)!.pressure, value: "1.9bar", iconData: Icons.compare_arrows),
-                  SmallHomeWidget(label: S.of(context)!.power_usage, value: "32%", iconData: Icons.timelapse),SmallHomeWidget(label: S.of(context)!.pressure, value: "1.9bar", iconData: Icons.compare_arrows),
-                  SmallHomeWidget(label: S.of(context)!.power_usage, value: "32%", iconData: Icons.timelapse),
+                  SmallHomeWidget(
+                      label: S.of(context)!.heater_status,
+                      value: "1/6",
+                      iconData: Icons.local_fire_department),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pump_status,
+                      value: "46%",
+                      iconData: Icons.loop),
+                  SmallHomeWidget(
+                      label: S.of(context)!.temp_in,
+                      value: "31.0°C",
+                      iconData: Icons.arrow_upward),
+                  SmallHomeWidget(
+                      label: S.of(context)!.temp_out,
+                      value: "37.5°C",
+                      iconData: Icons.arrow_downward),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pressure,
+                      value: "1.9bar",
+                      iconData: Icons.compare_arrows),
+                  SmallHomeWidget(
+                      label: S.of(context)!.power_usage,
+                      value: "32%",
+                      iconData: Icons.timelapse),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pressure,
+                      value: "1.9bar",
+                      iconData: Icons.compare_arrows),
+                  SmallHomeWidget(
+                      label: S.of(context)!.power_usage,
+                      value: "32%",
+                      iconData: Icons.timelapse),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pressure,
+                      value: "1.9bar",
+                      iconData: Icons.compare_arrows),
+                  SmallHomeWidget(
+                      label: S.of(context)!.power_usage,
+                      value: "32%",
+                      iconData: Icons.timelapse),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pressure,
+                      value: "1.9bar",
+                      iconData: Icons.compare_arrows),
+                  SmallHomeWidget(
+                      label: S.of(context)!.power_usage,
+                      value: "32%",
+                      iconData: Icons.timelapse),
+                  SmallHomeWidget(
+                      label: S.of(context)!.pressure,
+                      value: "1.9bar",
+                      iconData: Icons.compare_arrows),
+                  SmallHomeWidget(
+                      label: S.of(context)!.power_usage,
+                      value: "32%",
+                      iconData: Icons.timelapse),
                 ],
               ),
             ),
           ],
-        )
-    );
+        ));
   }
 }

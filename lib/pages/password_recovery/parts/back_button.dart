@@ -6,7 +6,8 @@ class _BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.of(context).pushAndRemoveUntil<void>(LoginPage.route(), (route) => false),
+      onPressed: () => Navigator.of(context)
+          .pushAndRemoveUntil<void>(LoginPage.route(), (route) => false),
       child: Text(S.of(context)!.backToSignIn),
     );
   }

@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
-import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 
 part "mqtt_client_event.dart";
 part "mqtt_client_state.dart";
@@ -36,8 +36,8 @@ class MqttClientBloc extends Bloc<MqttClientEvent, MqttClientState> {
     final policyName = "OSHdev";
 
     try {
-      AWS.CreateKeysAndCertificateResponse cert = await _mqttRepository
-          .createCertificate();
+      AWS.CreateKeysAndCertificateResponse cert =
+          await _mqttRepository.createCertificate();
       await _mqttRepository.attachPolicy(policyName, cert.certificateArn!);
       await _mqttRepository.createThingAndAttachPrincipal(
           event.thingName, cert.certificateArn!);
