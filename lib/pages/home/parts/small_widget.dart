@@ -21,26 +21,32 @@ class SmallHomeWidget extends StatefulWidget {
 class _SmallHomeWidgetState extends State<SmallHomeWidget> {
   @override
   Widget build(BuildContext context) {
+    // return Text(
+    //   widget.label,
+    //   overflow: TextOverflow.ellipsis,
+    //   style: const TextStyle(fontWeight: FontWeight.w300),
+    // );
+
     return Container(
         // width: 48.0,
         // height: 48.0,
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          backgroundBlendMode: BlendMode.src,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.black26
-              : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              blurStyle: BlurStyle.solid,
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              offset: const Offset(3, 3), // changes position of shadow
-            ),
-          ],
-        ),
+        // decoration: BoxDecoration(
+        //   borderRadius: const BorderRadius.all(Radius.circular(15)),
+        //   backgroundBlendMode: BlendMode.src,
+        //   color: Theme.of(context).brightness == Brightness.dark
+        //       ? Colors.black26
+        //       : Colors.white,
+        //   boxShadow: [
+        //     BoxShadow(
+        //       blurStyle: BlurStyle.solid,
+        //       color: Colors.grey.withOpacity(0.2),
+        //       spreadRadius: 2,
+        //       offset: const Offset(3, 3), // changes position of shadow
+        //     ),
+        //   ],
+        // ),
         child: Column(
           children: [
             Text(

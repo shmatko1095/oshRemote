@@ -60,6 +60,14 @@ class _AppViewState extends State<AppView> {
 
     return MaterialApp(
       title: "OSH Remote",
+      // theme: ThemeData(
+      //   textTheme: GoogleFonts.rajdhaniTextTheme(),
+        // appBarTheme: AppBarTheme(
+        //   titleTextStyle: GoogleFonts.rajdhaniTextTheme(textTheme)
+        //   .apply(bodyColor: Colors.white)
+        // .titleLarge,
+    // ),
+
       theme: ThemeData(brightness: Brightness.light),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,

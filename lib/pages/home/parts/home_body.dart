@@ -20,11 +20,12 @@ class _HomeBodyState extends State<HomeBody> {
   void initState() {
     super.initState();
 
-    _scrollController = ScrollController()..addListener(() {
-      setState(() {
-        _title = _isSliverAppBarExpanded ? const Text("Title") : null;
+    _scrollController = ScrollController()
+      ..addListener(() {
+        setState(() {
+          _title = _isSliverAppBarExpanded ? const Text("Title") : null;
+        });
       });
-    });
   }
 
   bool get _isSliverAppBarExpanded {
@@ -45,8 +46,12 @@ class _HomeBodyState extends State<HomeBody> {
           ],
           pinned: true,
           expandedHeight: kExpandedHeight,
-          flexibleSpace: const FlexibleSpaceBar(
-            background: HomeTempIndicator(),
+          flexibleSpace: FlexibleSpaceBar(
+            background: HomeTempIndicator(height: kExpandedHeight, 
+                actualTemp: 25.2, 
+                targetTemp: 25, 
+                nextPointTemp: 30, 
+                nextPointTime: DateTime(2022, 12, 10, 17, 20)),
           ),
         ),
         SliverList(
@@ -103,22 +108,22 @@ class _HomeBodyState extends State<HomeBody> {
                   label: S.of(context)!.power_usage,
                   value: "32%",
                   iconData: Icons.timelapse),
-              SmallHomeWidget(
-                  label: S.of(context)!.pressure,
-                  value: "1.9bar",
-                  iconData: Icons.compare_arrows),
-              SmallHomeWidget(
-                  label: S.of(context)!.power_usage,
-                  value: "32%",
-                  iconData: Icons.timelapse),
-              SmallHomeWidget(
-                  label: S.of(context)!.pressure,
-                  value: "1.9bar",
-                  iconData: Icons.compare_arrows),
-              SmallHomeWidget(
-                  label: S.of(context)!.power_usage,
-                  value: "32%",
-                  iconData: Icons.timelapse),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.pressure,
+              //     value: "1.9bar",
+              //     iconData: Icons.compare_arrows),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.power_usage,
+              //     value: "32%",
+              //     iconData: Icons.timelapse),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.pressure,
+              //     value: "1.9bar",
+              //     iconData: Icons.compare_arrows),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.power_usage,
+              //     value: "32%",
+              //     iconData: Icons.timelapse),
             ],
           ),
         ),

@@ -1,34 +1,41 @@
 import 'package:flutter/material.dart';
 
-class HomeTempIndicator extends StatefulWidget {
-  const HomeTempIndicator({super.key});
+class HomeTempIndicator extends StatelessWidget {
+  final double height;
+  final double actualTemp;
+  final double targetTemp;
+  final double nextPointTemp;
+  final DateTime nextPointTime;
 
-  @override
-  State<HomeTempIndicator> createState() => _HomeTempIndicatorState();
-}
+  const HomeTempIndicator({super.key, required this.height, required this.actualTemp, required this.targetTemp, required this.nextPointTemp, required this.nextPointTime});
 
-class _HomeTempIndicatorState extends State<HomeTempIndicator> {
+  Color? _getColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.light
+        ? Colors.white
+        : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      color: Theme.of(context).brightness == Brightness.light
-          ? Colors.white
-          : null,
-      height: 300.0,
+      // color: _getColor(context),
+      height: height,
       child: Column(
-        children: const <Widget>[
-          Spacer(flex: 1),
-          Text("25.2°C", style: _actualStyle),
-          Text("25.2°C", style: _targetStyle),
-          Text("next point 25.0°C at 17:30", style: _nextPointStyle),
-          Spacer(flex: 1),
-        ],
+          children: <Widget>[
+            const Spacer(flex: 1),
+            Text('$actualTemp°C', style: _actualStyle),
+            const SizedBox(height: 20),
+            Text('$targetTemp°C', style: _targetStyle),
+            const SizedBox(height: 20),
+            Text('next $nextPointTemp°C at ${TimeOfDay.fromDateTime(nextPointTime).format(context)}'),
+            const Spacer(flex: 1),
+          ]
       ),
     );
   }
 }
 
-const TextStyle _actualStyle = TextStyle(fontSize: 64);
+const TextStyle _actualStyle = TextStyle(fontSize: 64, fontWeight: FontWeight.bold);
 const TextStyle _targetStyle = TextStyle(fontSize: 32);
-const TextStyle _nextPointStyle = TextStyle(fontSize: 16);
+// const TextStyle _nextPointStyle = TextStyle(fontSize: 16);
