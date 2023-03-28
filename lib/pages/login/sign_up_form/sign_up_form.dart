@@ -133,6 +133,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<SignUpBloc, AuthenticationState>(
+        listenWhen: (previous, current) => previous.step != current.step,
         listener: (context, state) => onBlockEvent(context, state),
         child: SafeArea(
             child: Scaffold(

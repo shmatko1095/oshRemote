@@ -19,7 +19,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         super(SignInState(
             email: const Email.pure(),
             password: const Password.pure(),
-            isSignedIn: false,
+            status: SignInStatus.unknown,
             inProgress: false)) {
     on<SignInUsernameChanged>(_onUsernameChanged);
     on<SignInPasswordChanged>(_onPasswordChanged);
@@ -60,7 +60,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         username: state.email.value,
         password: state.password.value,
       );
-      emit(state.copyWith(isSignedIn: [result.isSignedIn]));
+      emit(state.copyWith(
+          status: result.isSignedIn
+              ? SignInStatus.authorized
+              : SignInStatus.unauthorized));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
@@ -72,7 +75,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(state.copyWith(inProgress: [true]));
     try {
       await _authenticationRepository.signOut();
-      emit(state.copyWith(isSignedIn: [false]));
+      emit(state.copyWith(status: SignInStatus.unauthorized));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
@@ -84,7 +87,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(state.copyWith(inProgress: [true]));
     try {
       AuthSession result = await _authenticationRepository.fetchAuthSession();
-      emit(state.copyWith(isSignedIn: [result.isSignedIn]));
+      emit(state.copyWith(
+          status: result.isSignedIn
+              ? SignInStatus.authorized
+              : SignInStatus.unauthorized));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }

@@ -1,10 +1,5 @@
-import 'package:authentication_repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
-import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/login/sign_in_form/sign_in_form.dart';
 import 'package:osh_remote/pages/login/sign_up_form/sign_up_form.dart';
 
@@ -22,7 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final _tabList = <Widget>[SignIn(), SignUp()];
+  final _tabList = <Widget>[const SignInForm(), const SignUpForm()];
 
   @override
   void initState() {
@@ -59,34 +54,6 @@ class _LoginPageState extends State<LoginPage>
           children: _tabList,
         ),
       ),
-    );
-  }
-}
-
-class SignIn extends StatelessWidget {
-  final _bloc = SignInBloc(getIt<AuthenticationRepository>());
-
-  SignIn({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => _bloc,
-      child: const SignInForm(),
-    );
-  }
-}
-
-class SignUp extends StatelessWidget {
-  final _bloc = SignUpBloc(getIt<AuthenticationRepository>());
-
-  SignUp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => _bloc,
-      child: const SignUpForm(),
     );
   }
 }

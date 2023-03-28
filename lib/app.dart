@@ -2,6 +2,7 @@ import 'package:authentication_repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/home/home.dart';
@@ -14,13 +15,21 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authRepo = AuthenticationRepository();
+
     return RepositoryProvider.value(
-      value: getIt<AuthenticationRepository>(),
-      child: BlocProvider(
-        create: (_) => SignInBloc(getIt<AuthenticationRepository>()),
-        child: const AppView(),
-      ),
-    );
+        value: authRepo,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<SignInBloc>(
+              create: (_) => SignInBloc(authRepo),
+            ),
+            BlocProvider<SignUpBloc>(
+              create: (_) => SignUpBloc(authRepo),
+            ),
+          ],
+          child: const AppView(),
+        ));
   }
 }
 
@@ -60,14 +69,6 @@ class _AppViewState extends State<AppView> {
 
     return MaterialApp(
       title: "OSH Remote",
-      // theme: ThemeData(
-      //   textTheme: GoogleFonts.rajdhaniTextTheme(),
-        // appBarTheme: AppBarTheme(
-        //   titleTextStyle: GoogleFonts.rajdhaniTextTheme(textTheme)
-        //   .apply(bodyColor: Colors.white)
-        // .titleLarge,
-    // ),
-
       theme: ThemeData(brightness: Brightness.light),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
@@ -77,9 +78,9 @@ class _AppViewState extends State<AppView> {
       navigatorKey: _navigatorKey,
       builder: (context, child) {
         return BlocListener<SignInBloc, SignInState>(
+          listenWhen: (previous, current) => previous.status != current.status,
           listener: (context, state) {
-            if (state.inProgress) return;
-            if (state.isSignedIn) {
+            if (state.status == SignInStatus.authorized) {
               _navigator.pushAndRemoveUntil<void>(
                   HomePage.route(), (route) => false);
             } else {

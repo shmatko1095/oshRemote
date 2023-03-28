@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 import 'package:osh_remote/block/authentication/user_confirmation_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
 import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
@@ -27,7 +26,8 @@ class UserConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => UserConfirmationBloc(
-          authenticationRepository: getIt<AuthenticationRepository>()),
+          authenticationRepository:
+              RepositoryProvider.of<AuthenticationRepository>(context)),
       child: const UserConfirmationForm(),
     );
   }
@@ -129,6 +129,7 @@ class _UserConfirmationFormState extends State<UserConfirmationForm> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<UserConfirmationBloc, AuthenticationState>(
+        listenWhen: (previous, current) => previous.step != current.step,
         listener: (context, state) => onBlockEvent(context, state),
         child: SafeArea(
             child: Scaffold(

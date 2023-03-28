@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 import 'package:osh_remote/block/authentication/password_recovery_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
 import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
@@ -14,6 +13,7 @@ import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/back_button.dart';
+
 part 'parts/title.dart';
 
 class PasswordRecoveryPage extends StatelessWidget {
@@ -28,7 +28,8 @@ class PasswordRecoveryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => PasswordRecoveryBloc(
-          authenticationRepository: getIt<AuthenticationRepository>()),
+          authenticationRepository:
+              RepositoryProvider.of<AuthenticationRepository>(context)),
       child: const PasswordRecoveryForm(),
     );
   }
@@ -168,6 +169,7 @@ class _PasswordRecoveryFormState extends State<PasswordRecoveryForm> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<PasswordRecoveryBloc, AuthenticationState>(
+        listenWhen: (previous, current) => previous.step != current.step,
         listener: (context, state) => onBlockEvent(context, state),
         child: SafeArea(
             child: Scaffold(

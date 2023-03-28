@@ -15,6 +15,7 @@ import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/forgot_password_button.dart';
+
 part 'parts/try_demo_button.dart';
 
 class SignInForm extends StatelessWidget {
@@ -58,13 +59,6 @@ class SignInForm extends StatelessWidget {
         ..showSnackBar(
           SnackBar(content: Text(ErrorMessageFactory.get(exception, context))),
         );
-    }
-  }
-
-  void _blockEventHandler(context, SignInState state) {
-    if (state.isSignedIn) {
-      Navigator.of(context)
-          .pushAndRemoveUntil(HomePage.route(), (route) => false);
     }
   }
 
@@ -113,20 +107,18 @@ class SignInForm extends StatelessWidget {
         .exceptionStream
         .listen((exception) => onBlockException(context, exception));
 
-    return BlocListener<SignInBloc, SignInState>(
-        listener: (context, state) => _blockEventHandler(context, state),
-        child: SingleChildScrollView(
-            padding: padding,
-            child: Column(
-              children: [
-                ...[
-                  _getUsernameField(context),
-                  _getPasswordField(context),
-                  _getConfirmButton(context),
-                  const _ForgotPasswordButton(),
-                  const _TryDemoButton(),
-                ].expand((element) => [element, const SizedBox(height: 24)])
-              ],
-            )));
+    return SingleChildScrollView(
+        padding: padding,
+        child: Column(
+          children: [
+            ...[
+              _getUsernameField(context),
+              _getPasswordField(context),
+              _getConfirmButton(context),
+              const _ForgotPasswordButton(),
+              const _TryDemoButton(),
+            ].expand((element) => [element, const SizedBox(height: 24)])
+          ],
+        ));
   }
 }

@@ -1,26 +1,28 @@
 part of 'sign_in_bloc.dart';
 
+enum SignInStatus { unknown, authorized, unauthorized }
+
 class SignInState {
   SignInState(
       {required this.email,
       required this.password,
-      required this.isSignedIn,
+      required this.status,
       required this.inProgress});
 
   Email email;
   Password password;
-  bool isSignedIn;
+  SignInStatus status;
   bool inProgress;
 
   SignInState copyWith(
       {Email? email,
       Password? password,
-      List<bool>? isSignedIn,
+      SignInStatus? status,
       List<bool>? inProgress}) {
     var res = SignInState(
       email: email ?? this.email,
       password: password ?? this.password,
-      isSignedIn: isSignedIn?.first ?? this.isSignedIn,
+      status: status ?? this.status,
       inProgress: inProgress?.first ?? this.inProgress,
     );
 

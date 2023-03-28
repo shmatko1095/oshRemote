@@ -1,4 +1,3 @@
-import 'package:authentication_repository/authentication_repository.dart';
 import 'package:aws_iot_api/iot-2015-05-28.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +5,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
 
@@ -29,49 +27,15 @@ class HomePage extends StatelessWidget {
     final mqttRepository =
         MqttServerClientRepository(region, credentials, server);
 
-    return
-      // RepositoryProvider.value(
-      //   value: mqttRepository,
-      //   child:
-    MultiBlocProvider(
-          providers: [
-            BlocProvider<SignInBloc>(
-              create: (_) => SignInBloc(getIt<AuthenticationRepository>()),
-            ),
-            BlocProvider<MqttClientBloc>(
-              create: (_) => MqttClientBloc(repository: mqttRepository),
-            ),
-          ],
-          child: const HomePageContent(),
-        // )
-    );
-  }
-}
+    final bloc = MqttClientBloc(repository: mqttRepository);
+    bloc.add(const MqttClientConnectRequested(thingName: "oshRemote"));
 
-class HomePageContent extends StatefulWidget {
-  const HomePageContent({super.key});
-
-  @override
-  State createState() => _HomePageContentState();
-
-}
-
-class _HomePageContentState extends State<HomePageContent> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context
-        .read<MqttClientBloc>()
-        .add(const MqttClientConnectRequested(thingName: "oshRemote"));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    return BlocProvider<MqttClientBloc>(
+        create: (_) => bloc,
+        child: SafeArea(
+            child: Scaffold(
           drawer: _getDrawer(context),
           body: const HomeBody(),
-        )
-    );
+        )));
   }
 }
