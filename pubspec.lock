@@ -5,74 +5,74 @@ packages:
     dependency: "direct main"
     description:
       name: amplify_auth_cognito
-      sha256: "3427ef57d806d1a9f11f061dbc64e038a14263a0367fd8150b1d6b4f28ed5b3b"
+      sha256: "006c31e92ca15c6cb08f4a92d751a2feb0f03c945ebefb752b6cc872ad44317c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_auth_cognito_android:
     dependency: transitive
     description:
       name: amplify_auth_cognito_android
-      sha256: "81d494f1b41f7bbd7abc923040870f30aeb645731edc122b6d5647e8d510e132"
+      sha256: "2268e372d7c906d69d144a17f54a771176e9621165541e0655f16c77173dbcba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_auth_cognito_ios:
     dependency: transitive
     description:
       name: amplify_auth_cognito_ios
-      sha256: "33f00126998f744e2d5981560821de363dce0c2671a2f15b6f1eb308f0776f38"
+      sha256: "25fc2ff13e0f347e51b402146141c26e2604c0073ffdb94549649c3851f7323d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_authenticator:
     dependency: "direct main"
     description:
       name: amplify_authenticator
-      sha256: "8392871bc851477234babe859dbba4402c83b7ec14d445d589ae7bc120b4a5f2"
+      sha256: bfb1b9876359497ea302e8d65fda9b7fb6423a11267ef223fca5f59ae400cef8
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.4"
+    version: "0.2.5"
   amplify_core:
     dependency: transitive
     description:
       name: amplify_core
-      sha256: c6ba039ddfce18b0738379bff1cc5b488c7c27102a43046d5e533d88ce9dedfc
+      sha256: dc4d489e661cf5cb127a449045f9ed164475c7c128bfa41df46895411069827b
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_datastore_plugin_interface:
     dependency: transitive
     description:
       name: amplify_datastore_plugin_interface
-      sha256: "52c86859546f6da3ad547b23b4fe5cd38ea3584aefddeab301c5475eb6d1bcf2"
+      sha256: b1a5d4016f6cad43d4198fd7daaabed1c91a23b985c8b04f0f908b90500f73ee
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_flutter:
     dependency: "direct main"
     description:
       name: amplify_flutter
-      sha256: "832ead9bbc8ef392c0d27ccea81e2bd977871115d013b155015533bea5f99ca8"
+      sha256: "1993a8bb4c10f0354fc79c4abe0afeccfc0fb867d3d480bc29ee9dcc14f66de5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_flutter_android:
     dependency: transitive
     description:
       name: amplify_flutter_android
-      sha256: b81daf0b08677b4d2cb47142bace5625a041b3de0b89c9eba246780d39d920b2
+      sha256: "056330c97bff2b5d5f94c463555f9ea9e16bf636b3fa5b255de2d8fdb118f8af"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   amplify_flutter_ios:
     dependency: transitive
     description:
       name: amplify_flutter_ios
-      sha256: "2433b4a2b0902be886f6d204316e7091df5187df33b4494868b565c291d52233"
+      sha256: "17a6dac42e41cc256c2aa18040e9e91fa6c50559f4d39ec01bd705e3db05a9af"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.12"
+    version: "0.6.13"
   async:
     dependency: transitive
     description:
@@ -255,14 +255,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.1"
-  get_it:
-    dependency: "direct main"
-    description:
-      name: get_it
-      sha256: "290fde3a86072e4b37dbb03c07bec6126f0ecc28dad403c12ffe2e5a2d751ab7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.2.0"
   google_fonts:
     dependency: "direct main"
     description:
@@ -347,10 +339,10 @@ packages:
     dependency: "direct main"
     description:
       name: mqtt_client
-      sha256: "53186347058f0eb84b6b5e0591f8442cb05183abb787afc4d95a3c7a494068df"
+      sha256: ba10ec490ded55dc4e77bbc992529d823fb15d0d5ec68c2895f960312060c541
       url: "https://pub.dev"
     source: hosted
-    version: "9.8.0"
+    version: "9.8.1"
   mqtt_repository:
     dependency: "direct main"
     description:
@@ -394,10 +386,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_foundation
-      sha256: "12eee51abdf4d34c590f043f45073adbb45514a108bd9db4491547a2fd891059"
+      sha256: "818b2dc38b0f178e0ea3f7cf3b28146faab11375985d815942a68eee11c2d0f7"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   path_provider_linux:
     dependency: transitive
     description:

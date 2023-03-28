@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
-import 'package:osh_remote/injection_container.dart';
 import 'package:osh_remote/pages/home/home.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
 import 'package:osh_remote/pages/splash_page.dart';
@@ -64,8 +63,13 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
-    getIt<AuthenticationRepository>().configure().whenComplete(() =>
-        {context.read<SignInBloc>().add(const SignInFetchSessionRequested())});
+    RepositoryProvider.of<AuthenticationRepository>(context)
+        .configure()
+        .whenComplete(() => {
+              context
+                  .read<SignInBloc>()
+                  .add(const SignInFetchSessionRequested())
+            });
 
     return MaterialApp(
       title: "OSH Remote",
