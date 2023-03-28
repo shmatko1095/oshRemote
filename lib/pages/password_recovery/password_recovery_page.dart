@@ -13,7 +13,6 @@ import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/back_button.dart';
-
 part 'parts/title.dart';
 
 class PasswordRecoveryPage extends StatelessWidget {

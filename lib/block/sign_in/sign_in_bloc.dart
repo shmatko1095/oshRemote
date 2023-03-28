@@ -7,7 +7,6 @@ import 'package:osh_remote/models/email.dart';
 import 'package:osh_remote/models/models.dart';
 
 part 'sign_in_event.dart';
-
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {

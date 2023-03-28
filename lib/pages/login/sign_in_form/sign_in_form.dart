@@ -15,7 +15,6 @@ import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/forgot_password_button.dart';
-
 part 'parts/try_demo_button.dart';
 
 class SignInForm extends StatelessWidget {

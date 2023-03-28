@@ -54,7 +54,6 @@ dependencies:
   formz: ^0.4.0
   equatable: ^2.0.5
   bloc: ^8.1.1
-  get_it: ^7.2.0
   google_fonts: ^4.0.3
 
 dev_dependencies:
