@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
+import 'package:osh_remote/models/mqtt_message_descriptor.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
+import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key});
@@ -13,7 +17,8 @@ class HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<HomeBody> {
   late ScrollController _scrollController;
-  static const kExpandedHeight = 300.0;
+  static const kExpandedHeight = 350.0;
+  final _adapter = StreamWidgetAdapter();
   Widget? _title;
 
   @override
@@ -26,6 +31,28 @@ class _HomeBodyState extends State<HomeBody> {
           _title = _isSliverAppBarExpanded ? const Text("Title") : null;
         });
       });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _adapter.add(
+        MqttMessageDescriptor("topic"),
+        SmallHomeWidget(
+          label: S.of(context)!.heater_status,
+          iconData: Icons.local_fire_department,
+        ));
+
+    _adapter.getTopicList().forEach((desc) {
+      BlocProvider.of<MqttClientBloc>(context)
+          .add(MqttSubscribeRequestedEvent(desc: desc));
+    });
+
+    BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
+      _adapter.notifyWidget(
+          MqttMessageDescriptor(event.topic), event.payload.toString());
+    });
   }
 
   bool get _isSliverAppBarExpanded {
@@ -47,10 +74,11 @@ class _HomeBodyState extends State<HomeBody> {
           pinned: true,
           expandedHeight: kExpandedHeight,
           flexibleSpace: FlexibleSpaceBar(
-            background: HomeTempIndicator(height: kExpandedHeight, 
-                actualTemp: 25.2, 
-                targetTemp: 25, 
-                nextPointTemp: 30, 
+            background: HomeTempIndicator(
+                height: kExpandedHeight,
+                actualTemp: 25.2,
+                targetTemp: 25,
+                nextPointTemp: 30,
                 nextPointTime: DateTime(2022, 12, 10, 17, 20)),
           ),
         ),
@@ -66,48 +94,26 @@ class _HomeBodyState extends State<HomeBody> {
             crossAxisCount: 2,
             mainAxisExtent: 120.0, //height
           ),
-          delegate: SliverChildListDelegate(
-            [
-              SmallHomeWidget(
-                  label: S.of(context)!.heater_status,
-                  value: "1/6",
-                  iconData: Icons.local_fire_department),
-              SmallHomeWidget(
-                  label: S.of(context)!.pump_status,
-                  value: "46%",
-                  iconData: Icons.loop),
-              SmallHomeWidget(
-                  label: S.of(context)!.temp_in,
-                  value: "31.0°C",
-                  iconData: Icons.arrow_upward),
-              SmallHomeWidget(
-                  label: S.of(context)!.temp_out,
-                  value: "37.5°C",
-                  iconData: Icons.arrow_downward),
-              SmallHomeWidget(
-                  label: S.of(context)!.pressure,
-                  value: "1.9bar",
-                  iconData: Icons.compare_arrows),
-              SmallHomeWidget(
-                  label: S.of(context)!.power_usage,
-                  value: "32%",
-                  iconData: Icons.timelapse),
-              SmallHomeWidget(
-                  label: S.of(context)!.pressure,
-                  value: "1.9bar",
-                  iconData: Icons.compare_arrows),
-              SmallHomeWidget(
-                  label: S.of(context)!.power_usage,
-                  value: "32%",
-                  iconData: Icons.timelapse),
-              SmallHomeWidget(
-                  label: S.of(context)!.pressure,
-                  value: "1.9bar",
-                  iconData: Icons.compare_arrows),
-              SmallHomeWidget(
-                  label: S.of(context)!.power_usage,
-                  value: "32%",
-                  iconData: Icons.timelapse),
+          delegate: SliverChildListDelegate(_adapter.getWidgetList()
+              // [
+              //   SmallHomeWidget(
+              //       label: S.of(context)!.heater_status,
+              //       value: "1/6",
+              //       iconData: Icons.local_fire_department,
+              //     inStream: BlocProvider.of<MqttClientBloc>(context).,
+              // ),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.pump_status,
+              //     value: "46%",
+              //     iconData: Icons.loop),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.temp_in,
+              //     value: "31.0°C",
+              //     iconData: Icons.arrow_upward),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.temp_out,
+              //     value: "37.5°C",
+              //     iconData: Icons.arrow_downward),
               // SmallHomeWidget(
               //     label: S.of(context)!.pressure,
               //     value: "1.9bar",
@@ -124,8 +130,16 @@ class _HomeBodyState extends State<HomeBody> {
               //     label: S.of(context)!.power_usage,
               //     value: "32%",
               //     iconData: Icons.timelapse),
-            ],
-          ),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.pressure,
+              //     value: "1.9bar",
+              //     iconData: Icons.compare_arrows),
+              // SmallHomeWidget(
+              //     label: S.of(context)!.power_usage,
+              //     value: "32%",
+              //     iconData: Icons.timelapse),
+              // ],
+              ),
         ),
       ],
       // )

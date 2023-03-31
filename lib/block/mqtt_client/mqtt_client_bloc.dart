@@ -2,37 +2,51 @@ import 'dart:async';
 
 import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 import 'package:bloc/bloc.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
+import 'package:osh_remote/models/mqtt_message_descriptor.dart';
 
-part "mqtt_client_event.dart";
-part "mqtt_client_state.dart";
+part 'mqtt_client_event.dart';
+part 'mqtt_client_state.dart';
 
-class MqttClientBloc extends Bloc<MqttClientEvent, MqttClientState> {
+class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   MqttClientBloc({required MqttServerClientRepository repository})
       : _mqttRepository = repository,
-        super(const MqttClientState()) {
-    on<MqttClientConnectionEvent>(_onMqttConnectionEvent);
-    on<MqttClientConnectRequested>(_onMqttConnectRequested);
-    _receivedMqttEvent = _mqttRepository.eventStream
-        .listen((msg) => add(MqttClientConnectionEvent(msg)));
+        super(MqttClientState(
+            connectionState: MqttClientConnectionStatus.disconnected,
+            subscribedTopics: List.empty(),
+            thingName: "name")) {
+    on<MqttConnectRequested>(_onMqttConnectRequested);
+    on<MqttConnectedEvent>(_onMqttConnectedEvent);
+    on<MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
+    on<MqttSubscribedEvent>(_onMqttSubscribedEvent);
+    on<MqttSubscribeFailEvent>(_onMqttSubscribeFailEvent);
+    on<MqttSubscribeRequestedEvent>(_onMqttSubscribeRequestedEvent);
+    on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
+    on<MqttPongEvent>(_onMqttPongEvent);
   }
 
   final MqttServerClientRepository _mqttRepository;
-  late StreamSubscription<MqttConnectionEvent> _receivedMqttEvent;
+  late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
+      _receivedMqttMessage;
+  final _mqttMessageStreamController =
+      StreamController<MqttReceivedMessage<MqttMessage>>();
 
   @override
   Future<void> close() {
-    _receivedMqttEvent.cancel();
+    _receivedMqttMessage.cancel();
+    _mqttMessageStreamController.close();
     return super.close();
   }
 
-  FutureOr<void> _onMqttConnectionEvent(
-      MqttClientConnectionEvent event, Emitter<MqttClientState> emit) {
-    print(event.connectionEvent);
+  Stream<MqttReceivedMessage<MqttMessage>> get mqttMessageStream {
+    return _mqttMessageStreamController.stream;
   }
 
-  Future<FutureOr<void>> _onMqttConnectRequested(
-      MqttClientConnectRequested event, Emitter<MqttClientState> emit) async {
+  Future<void> _onMqttConnectRequested(
+      MqttConnectRequested event, Emitter<MqttClientState> emit) async {
+    emit(
+        state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
     final policyName = "OSHdev";
 
     try {
@@ -41,9 +55,63 @@ class MqttClientBloc extends Bloc<MqttClientEvent, MqttClientState> {
       await _mqttRepository.attachPolicy(policyName, cert.certificateArn!);
       await _mqttRepository.createThingAndAttachPrincipal(
           event.thingName, cert.certificateArn!);
-      await _mqttRepository.connect(cert, event.thingName);
+      await _mqttRepository.connect(
+        cert,
+        event.thingName,
+        () => {add(const MqttConnectedEvent())},
+        () => {add(const MqttDisconnectedEvent())},
+        (topic) => {add(MqttSubscribedEvent(topic: topic))},
+        (topic) => {add(MqttSubscribeFailEvent(topic: topic))},
+        () => {add(const MqttPongEvent())},
+      );
     } on Exception catch (e) {
+      emit(state.copyWith(
+          connectionState: MqttClientConnectionStatus.disconnected));
       print(e);
+    }
+  }
+
+  Future<void> _onMqttConnectedEvent(
+      MqttConnectedEvent event, Emitter<MqttClientState> emit) async {
+    emit(state.copyWith(connectionState: MqttClientConnectionStatus.connected));
+  }
+
+  Future<void> _onMqttDisconnectedEvent(
+      MqttDisconnectedEvent event, Emitter<MqttClientState> emit) async {
+    emit(state.copyWith(
+        connectionState: MqttClientConnectionStatus.disconnected));
+  }
+
+  Future<void> _onMqttSubscribedEvent(
+      MqttSubscribedEvent event, Emitter<MqttClientState> emit) async {
+    if (_mqttRepository.getMessagesStream() != null) {
+      _receivedMqttMessage = _mqttRepository
+          .getMessagesStream()!
+          .listen((msg) => add(MqttReceivedMessageEvent(msg)));
+
+      state.subscribedTopics.add(event.topic);
+      emit(state);
+    }
+  }
+
+  Future<void> _onMqttSubscribeFailEvent(
+      MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {
+    print(event);
+  }
+
+  Future<void> _onMqttSubscribeRequestedEvent(
+      MqttSubscribeRequestedEvent event, Emitter<MqttClientState> emit) async {
+    _mqttRepository.subscribe(
+        state.thingName + event.desc.topic, MqttQos.values[event.desc.qos]);
+  }
+
+  Future<void> _onMqttPongEvent(
+      MqttPongEvent event, Emitter<MqttClientState> emit) async {}
+
+  Future<void> _onMqttReceivedMessageEvent(
+      MqttReceivedMessageEvent event, Emitter<MqttClientState> emit) async {
+    for (var element in event.data) {
+      _mqttMessageStreamController.add(element);
     }
   }
 }

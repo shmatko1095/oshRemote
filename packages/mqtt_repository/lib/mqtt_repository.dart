@@ -6,21 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
-enum MqttConnectionEvent {
-  onConnected,
-  onDisconnected,
-  onPing,
-}
-
 class MqttServerClientRepository {
   late final AWS.IoT _service;
   late final MqttServerClient client;
-
-  final _eventStreamController = StreamController<MqttConnectionEvent>();
-
-  Stream<MqttConnectionEvent> get eventStream async* {
-    yield* _eventStreamController.stream;
-  }
 
   MqttServerClientRepository(
       String region, AWS.AwsClientCredentials credentials, String server) {
@@ -47,7 +35,12 @@ class MqttServerClientRepository {
 
   Future<MqttClientConnectionStatus?> connect(
       AWS.CreateKeysAndCertificateResponse certificate,
-      String thingName) async {
+      String thingName,
+      ConnectCallback onConnected,
+      DisconnectCallback onDisconnected,
+      SubscribeCallback onSubscribed,
+      SubscribeFailCallback onSubscribeFail,
+      PongCallback onPong) async {
     final ByteData rootCA =
         await rootBundle.load('assets/certs/AmazonRootCA1.pem');
 
@@ -62,12 +55,12 @@ class MqttServerClientRepository {
     client.port = 8883;
     client.secure = true;
     client.autoReconnect = true;
-    client.onConnected =
-        () => _eventStreamController.add(MqttConnectionEvent.onConnected);
-    client.onDisconnected =
-        () => _eventStreamController.add(MqttConnectionEvent.onDisconnected);
-    client.pongCallback =
-        () => _eventStreamController.add(MqttConnectionEvent.onPing);
+    client.onConnected = onConnected;
+    client.onDisconnected = onDisconnected;
+    client.onSubscribed = onSubscribed;
+    client.onSubscribeFail = onSubscribeFail;
+    client.pongCallback = onPong;
+
     client.connectionMessage =
         MqttConnectMessage().withClientIdentifier(thingName).startClean();
 
@@ -80,5 +73,9 @@ class MqttServerClientRepository {
 
   void subscribe(String topic, MqttQos qos) {
     client.subscribe(topic, qos);
+  }
+
+  Stream<List<MqttReceivedMessage<MqttMessage>>>? getMessagesStream() {
+    return client.updates;
   }
 }

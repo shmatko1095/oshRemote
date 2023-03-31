@@ -19,13 +19,11 @@ class SignInState {
       Password? password,
       SignInStatus? status,
       List<bool>? inProgress}) {
-    var res = SignInState(
+    return SignInState(
       email: email ?? this.email,
       password: password ?? this.password,
       status: status ?? this.status,
       inProgress: inProgress?.first ?? this.inProgress,
     );
-
-    return res;
   }
 }
