@@ -50,7 +50,7 @@ class Home extends StatelessWidget {
                       builder: (context, state) {
                         if (state.connectionState ==
                             MqttClientConnectionStatus.connected) {
-                          return const HomeBody();
+                          return const HomePage();
                         } else {
                           return const SplashPage();
                         }

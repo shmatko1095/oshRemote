@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
-import 'package:osh_remote/models/mqtt_message_descriptor.dart';
+import 'package:osh_remote/models/mqtt_message_header.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
 import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
 
-class HomeBody extends StatefulWidget {
-  const HomeBody({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State createState() => _HomeBodyState();
+  State createState() => _HomePageState();
 }
 
-class _HomeBodyState extends State<HomeBody> {
+class _HomePageState extends State<HomePage> {
   late ScrollController _scrollController;
   static const kExpandedHeight = 350.0;
   final _adapter = StreamWidgetAdapter();
@@ -38,20 +38,26 @@ class _HomeBodyState extends State<HomeBody> {
     super.didChangeDependencies();
 
     _adapter.add(
-        const MqttMessageDescriptor("topic", 2),
+        const MqttMessageHeader("In1", 1),
         SmallHomeWidget(
           label: S.of(context)!.heater_status,
           iconData: Icons.local_fire_department,
         ));
 
-    // _adapter.getTopicList().forEach((desc) {
-    //   BlocProvider.of<MqttClientBloc>(context)
-    //       .add(MqttSubscribeRequestedEvent(desc: desc));
-    // });
+    _adapter.add(
+        const MqttMessageHeader("In2", 1),
+        SmallHomeWidget(
+          label: S.of(context)!.pump_status,
+          iconData: Icons.loop,
+        ));
+
+    _adapter.getTopicList().forEach((desc) {
+      BlocProvider.of<MqttClientBloc>(context)
+          .add(MqttSubscribeRequestedEvent(desc: desc));
+    });
 
     BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
-      _adapter.notifyWidget(
-          MqttMessageDescriptor(event.topic), event.payload.toString());
+      _adapter.notifyWidget(event.header, event.message);
     });
   }
 
@@ -91,8 +97,7 @@ class _HomeBodyState extends State<HomeBody> {
         ),
         SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisExtent: 120.0, //height
+            crossAxisCount: 2, mainAxisExtent: 120.0, //height
           ),
           delegate: SliverChildListDelegate(_adapter.getWidgetList()
               // [
