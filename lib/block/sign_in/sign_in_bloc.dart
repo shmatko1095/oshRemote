@@ -5,6 +5,7 @@ import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:osh_remote/models/email.dart';
 import 'package:osh_remote/models/models.dart';
+import 'package:osh_remote/models/user.dart';
 
 part 'sign_in_event.dart';
 part 'sign_in_state.dart';
@@ -16,6 +17,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   SignInBloc(AuthenticationRepository authenticationRepository)
       : _authenticationRepository = authenticationRepository,
         super(SignInState(
+            user: User.empty(),
             email: const Email.pure(),
             password: const Password.pure(),
             status: SignInStatus.unknown,
@@ -25,6 +27,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
     on<SignInFetchSessionRequested>(_onFetchSessionRequested);
+    on<SignInFetchUserRequested>(_onSignInFetchUserRequested);
   }
 
   @override
@@ -90,6 +93,19 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           status: result.isSignedIn
               ? SignInStatus.authorized
               : SignInStatus.unauthorized));
+    } on Exception catch (e) {
+      exceptionStreamController.add(e);
+    }
+    emit(state.copyWith(inProgress: [false]));
+  }
+
+  Future<void> _onSignInFetchUserRequested(
+      SignInFetchUserRequested event, Emitter<SignInState> emit) async {
+    emit(state.copyWith(inProgress: [true]));
+    try {
+      AuthUser result = await _authenticationRepository.getCurrentUser();
+      emit(state.copyWith(
+          user: User(userId: result.userId, username: result.username)));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }

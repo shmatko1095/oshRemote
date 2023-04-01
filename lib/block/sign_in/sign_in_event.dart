@@ -27,3 +27,7 @@ class SignInLogoutRequested extends SignInEvent {
 class SignInFetchSessionRequested extends SignInEvent {
   const SignInFetchSessionRequested();
 }
+
+class SignInFetchUserRequested extends SignInEvent {
+  const SignInFetchUserRequested();
+}

@@ -1,6 +1,5 @@
 part of 'mqtt_client_bloc.dart';
 
-// enum MqttClientStatus { initial, loading, success, failure }
 enum MqttClientConnectionStatus {
   unknown,
   connecting,
@@ -13,20 +12,21 @@ class MqttClientState {
   MqttClientState(
       {required this.connectionState,
       required this.subscribedTopics,
-      required this.thingName});
+      required this.thingId});
 
   MqttClientConnectionStatus connectionState;
   List<String> subscribedTopics;
-  String thingName;
+  String thingId;
 
   MqttClientState copyWith({
     MqttClientConnectionStatus? connectionState,
     List<String>? subscribedTopics,
-    String? thingName,
+    String? thingId,
   }) {
     return MqttClientState(
-        connectionState: connectionState ?? this.connectionState,
-        subscribedTopics: subscribedTopics ?? this.subscribedTopics,
-        thingName: thingName ?? this.thingName);
+      connectionState: connectionState ?? this.connectionState,
+      subscribedTopics: subscribedTopics ?? this.subscribedTopics,
+      thingId: thingId ?? this.thingId,
+    );
   }
 }

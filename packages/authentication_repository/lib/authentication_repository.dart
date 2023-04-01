@@ -59,4 +59,8 @@ class AuthenticationRepository {
   Future<AuthSession> fetchAuthSession() async {
     return await Amplify.Auth.fetchAuthSession();
   }
+
+  Future<AuthUser> getCurrentUser() async {
+    return await Amplify.Auth.getCurrentUser();
+  }
 }

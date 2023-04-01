@@ -56,7 +56,7 @@ class _SmallHomeWidgetState extends State<SmallHomeWidget> {
                         : Colors.black,
                     size: 40),
                 const Spacer(),
-                _getValue(widget.counterStream),
+                // _getValue(widget.counterStream),
               ],
             )
           ],

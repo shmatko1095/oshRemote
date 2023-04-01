@@ -86,7 +86,7 @@ class _AppViewState extends State<AppView> {
           listener: (context, state) {
             if (state.status == SignInStatus.authorized) {
               _navigator.pushAndRemoveUntil<void>(
-                  HomePage.route(), (route) => false);
+                  Home.route(), (route) => false);
             } else {
               _navigator.pushAndRemoveUntil<void>(
                   LoginPage.route(), (route) => false);

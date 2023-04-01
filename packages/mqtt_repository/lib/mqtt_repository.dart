@@ -8,12 +8,12 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MqttServerClientRepository {
   late final AWS.IoT _service;
-  late final MqttServerClient client;
+  late final MqttServerClient _client;
 
   MqttServerClientRepository(
       String region, AWS.AwsClientCredentials credentials, String server) {
-    this._service = AWS.IoT(region: region, credentials: credentials);
-    this.client = MqttServerClient(server, '');
+    _service = AWS.IoT(region: region, credentials: credentials);
+    _client = MqttServerClient(server, '');
   }
 
   Future<AWS.CreateKeysAndCertificateResponse> createCertificate() async {
@@ -21,7 +21,7 @@ class MqttServerClientRepository {
   }
 
   Future<void> attachPolicy(String policyName, String target) async {
-    await _service.attachPolicy(policyName: policyName, target: target);
+    return await _service.attachPolicy(policyName: policyName, target: target);
   }
 
   Future<AWS.CreateThingResponse> createThingAndAttachPrincipal(
@@ -35,47 +35,46 @@ class MqttServerClientRepository {
 
   Future<MqttClientConnectionStatus?> connect(
       AWS.CreateKeysAndCertificateResponse certificate,
+      ByteData rootCA,
       String thingName,
       ConnectCallback onConnected,
       DisconnectCallback onDisconnected,
       SubscribeCallback onSubscribed,
       SubscribeFailCallback onSubscribeFail,
       PongCallback onPong) async {
-    final ByteData rootCA =
-        await rootBundle.load('assets/certs/AmazonRootCA1.pem');
-
     final SecurityContext context = SecurityContext.defaultContext;
     context.setClientAuthoritiesBytes(rootCA.buffer.asUint8List());
     context.useCertificateChainBytes(certificate.certificatePem!.codeUnits);
     context.usePrivateKeyBytes(certificate.keyPair!.privateKey!.codeUnits);
 
-    client.securityContext = context;
-    client.logging(on: false);
-    client.keepAlivePeriod = 30;
-    client.port = 8883;
-    client.secure = true;
-    client.autoReconnect = true;
-    client.onConnected = onConnected;
-    client.onDisconnected = onDisconnected;
-    client.onSubscribed = onSubscribed;
-    client.onSubscribeFail = onSubscribeFail;
-    client.pongCallback = onPong;
+    _client.securityContext = context;
+    _client.logging(on: true);
+    _client.keepAlivePeriod = 30;
+    _client.port = 8883;
+    _client.secure = true;
+    _client.autoReconnect = true;
+    _client.onConnected = onConnected;
+    _client.onDisconnected = onDisconnected;
+    _client.onSubscribed = onSubscribed;
+    _client.onSubscribeFail = onSubscribeFail;
+    _client.pongCallback = onPong;
+    _client.setProtocolV311();
 
-    client.connectionMessage =
+    _client.connectionMessage =
         MqttConnectMessage().withClientIdentifier(thingName).startClean();
 
-    return await client.connect();
+    return await _client.connect();
   }
 
   void publish(String topic, MqttQos qos, MqttClientPayloadBuilder builder) {
-    client.publishMessage(topic, qos, builder.payload!);
+    _client.publishMessage(topic, qos, builder.payload!);
   }
 
   void subscribe(String topic, MqttQos qos) {
-    client.subscribe(topic, qos);
+    _client.subscribe(topic, qos);
   }
 
   Stream<List<MqttReceivedMessage<MqttMessage>>>? getMessagesStream() {
-    return client.updates;
+    return _client.updates;
   }
 }

@@ -7,7 +7,7 @@ class _TryDemoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => Navigator.of(context)
-          .pushAndRemoveUntil(HomePage.route(), (route) => false),
+          .pushAndRemoveUntil(Home.route(), (route) => false),
       child: Text(S.of(context)!.tryDemo),
     );
   }

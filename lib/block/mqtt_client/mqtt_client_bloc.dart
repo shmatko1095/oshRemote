@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
 
-import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 import 'package:bloc/bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
@@ -13,9 +15,10 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   MqttClientBloc({required MqttServerClientRepository repository})
       : _mqttRepository = repository,
         super(MqttClientState(
-            connectionState: MqttClientConnectionStatus.disconnected,
-            subscribedTopics: List.empty(),
-            thingName: "name")) {
+          connectionState: MqttClientConnectionStatus.disconnected,
+          subscribedTopics: List.empty(),
+          thingId: "",
+        )) {
     on<MqttConnectRequested>(_onMqttConnectRequested);
     on<MqttConnectedEvent>(_onMqttConnectedEvent);
     on<MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
@@ -47,22 +50,24 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
       MqttConnectRequested event, Emitter<MqttClientState> emit) async {
     emit(
         state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
-    final policyName = "OSHdev";
+    const policyName = "OSHdev";
+    final ByteData rootCA =
+        await rootBundle.load('assets/certs/AmazonRootCA1.pem');
 
     try {
-      AWS.CreateKeysAndCertificateResponse cert =
-          await _mqttRepository.createCertificate();
+      final cert = await _mqttRepository.createCertificate();
       await _mqttRepository.attachPolicy(policyName, cert.certificateArn!);
       await _mqttRepository.createThingAndAttachPrincipal(
-          event.thingName, cert.certificateArn!);
+          event.thingId, cert.certificateArn!);
       await _mqttRepository.connect(
         cert,
-        event.thingName,
-        () => {add(const MqttConnectedEvent())},
-        () => {add(const MqttDisconnectedEvent())},
-        (topic) => {add(MqttSubscribedEvent(topic: topic))},
-        (topic) => {add(MqttSubscribeFailEvent(topic: topic))},
-        () => {add(const MqttPongEvent())},
+        rootCA,
+        event.thingId,
+        () => add(MqttConnectedEvent(thingId: event.thingId)),
+        () => add(const MqttDisconnectedEvent()),
+        (topic) => add(MqttSubscribedEvent(topic: topic)),
+        (topic) => add(MqttSubscribeFailEvent(topic: topic)),
+        () => add(const MqttPongEvent()),
       );
     } on Exception catch (e) {
       emit(state.copyWith(
@@ -73,7 +78,9 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
 
   Future<void> _onMqttConnectedEvent(
       MqttConnectedEvent event, Emitter<MqttClientState> emit) async {
-    emit(state.copyWith(connectionState: MqttClientConnectionStatus.connected));
+    emit(state.copyWith(
+        connectionState: MqttClientConnectionStatus.connected,
+        thingId: event.thingId));
   }
 
   Future<void> _onMqttDisconnectedEvent(
@@ -101,12 +108,24 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
 
   Future<void> _onMqttSubscribeRequestedEvent(
       MqttSubscribeRequestedEvent event, Emitter<MqttClientState> emit) async {
-    _mqttRepository.subscribe(
-        state.thingName + event.desc.topic, MqttQos.values[event.desc.qos]);
+    final topic = "$state.thingId/${event.desc.topic}";
+    _mqttRepository.subscribe(topic, MqttQos.values[event.desc.qos]);
   }
 
   Future<void> _onMqttPongEvent(
-      MqttPongEvent event, Emitter<MqttClientState> emit) async {}
+      MqttPongEvent event, Emitter<MqttClientState> emit) async {
+    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+    builder.addString(
+      json.encode(
+        {
+          "type": "msgText",
+          "data": "Works!",
+          "identifier": Random().nextInt(1000000),
+        },
+      ),
+    );
+    _mqttRepository.publish(state.thingId, MqttQos.atLeastOnce, builder);
+  }
 
   Future<void> _onMqttReceivedMessageEvent(
       MqttReceivedMessageEvent event, Emitter<MqttClientState> emit) async {

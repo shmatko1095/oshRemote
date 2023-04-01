@@ -38,16 +38,16 @@ class _HomeBodyState extends State<HomeBody> {
     super.didChangeDependencies();
 
     _adapter.add(
-        MqttMessageDescriptor("topic"),
+        const MqttMessageDescriptor("topic", 2),
         SmallHomeWidget(
           label: S.of(context)!.heater_status,
           iconData: Icons.local_fire_department,
         ));
 
-    _adapter.getTopicList().forEach((desc) {
-      BlocProvider.of<MqttClientBloc>(context)
-          .add(MqttSubscribeRequestedEvent(desc: desc));
-    });
+    // _adapter.getTopicList().forEach((desc) {
+    //   BlocProvider.of<MqttClientBloc>(context)
+    //       .add(MqttSubscribeRequestedEvent(desc: desc));
+    // });
 
     BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
       _adapter.notifyWidget(

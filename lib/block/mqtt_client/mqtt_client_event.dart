@@ -7,13 +7,15 @@ abstract class MqttEvent {
 // class AuthenticationLogoutRequested extends MqttEvent {}
 
 class MqttConnectRequested extends MqttEvent {
-  final String thingName;
+  final String thingId;
 
-  const MqttConnectRequested({required this.thingName});
+  const MqttConnectRequested({required this.thingId});
 }
 
 class MqttConnectedEvent extends MqttEvent {
-  const MqttConnectedEvent();
+  final String thingId;
+
+  const MqttConnectedEvent({required this.thingId});
 }
 
 class MqttDisconnectedEvent extends MqttEvent {

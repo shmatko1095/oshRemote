@@ -11,11 +11,11 @@ import 'package:osh_remote/pages/splash_page.dart';
 
 part 'parts/drawer/home_page_drawer.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class Home extends StatelessWidget {
+  const Home({super.key});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const HomePage());
+    return MaterialPageRoute<void>(builder: (_) => const Home());
   }
 
   @override
@@ -26,26 +26,35 @@ class HomePage extends StatelessWidget {
         accessKey: "AKIAVO57NB3Y6D3TOTRF",
         secretKey: "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");
     final mqttRepository = MqttServerClientRepository(region, cred, server);
+    final bloc = MqttClientBloc(repository: mqttRepository);
 
-    final bloc = MqttClientBloc(repository: mqttRepository)
-      ..add(const MqttConnectRequested(thingName: "oshRemote"));
+    context.read<SignInBloc>().add(const SignInFetchUserRequested());
+
+    onSignInEvent(BuildContext context, SignInState state) {
+      final thingNameByUserId = state.user.userId;
+      bloc.add(MqttConnectRequested(thingId: thingNameByUserId));
+    }
 
     return BlocProvider<MqttClientBloc>(
         create: (_) => bloc,
         child: SafeArea(
             child: Scaffold(
                 drawer: _getDrawer(context),
-                body: BlocBuilder<MqttClientBloc, MqttClientState>(
-                  buildWhen: (previous, current) =>
-                      previous.connectionState != current.connectionState,
-                  builder: (context, state) {
-                    if (state.connectionState ==
-                        MqttClientConnectionStatus.connected) {
-                      return const HomeBody();
-                    } else {
-                      return const SplashPage();
-                    }
-                  },
-                ))));
+                body: BlocListener<SignInBloc, SignInState>(
+                    listenWhen: (previous, current) =>
+                        previous.user != current.user,
+                    listener: (context, state) => onSignInEvent(context, state),
+                    child: BlocBuilder<MqttClientBloc, MqttClientState>(
+                      buildWhen: (previous, current) =>
+                          previous.connectionState != current.connectionState,
+                      builder: (context, state) {
+                        if (state.connectionState ==
+                            MqttClientConnectionStatus.connected) {
+                          return const HomeBody();
+                        } else {
+                          return const SplashPage();
+                        }
+                      },
+                    )))));
   }
 }
