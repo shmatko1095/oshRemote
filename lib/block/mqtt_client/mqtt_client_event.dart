@@ -23,7 +23,7 @@ class MqttDisconnectedEvent extends MqttEvent {
 }
 
 class MqttSubscribeRequestedEvent extends MqttEvent {
-  final MqttMessageDescriptor desc;
+  final MqttMessageHeader desc;
 
   const MqttSubscribeRequestedEvent({required this.desc});
 }

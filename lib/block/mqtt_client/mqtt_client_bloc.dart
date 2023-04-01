@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
+import 'package:osh_remote/models/mqtt_message_header.dart';
 
 part 'mqtt_client_event.dart';
+
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
@@ -33,7 +33,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
   final _mqttMessageStreamController =
-      StreamController<MqttReceivedMessage<MqttMessage>>();
+      StreamController<MqttMessageDescriptor>();
 
   @override
   Future<void> close() {
@@ -42,7 +42,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     return super.close();
   }
 
-  Stream<MqttReceivedMessage<MqttMessage>> get mqttMessageStream {
+  Stream<MqttMessageDescriptor> get mqttMessageStream {
     return _mqttMessageStreamController.stream;
   }
 
@@ -102,35 +102,28 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   }
 
   Future<void> _onMqttSubscribeFailEvent(
-      MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {
-    print(event);
-  }
+      MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {}
 
   Future<void> _onMqttSubscribeRequestedEvent(
       MqttSubscribeRequestedEvent event, Emitter<MqttClientState> emit) async {
-    final topic = "$state.thingId/${event.desc.topic}";
+    final topic = "${state.thingId}/${event.desc.topic}";
     _mqttRepository.subscribe(topic, MqttQos.values[event.desc.qos]);
   }
 
   Future<void> _onMqttPongEvent(
-      MqttPongEvent event, Emitter<MqttClientState> emit) async {
-    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString(
-      json.encode(
-        {
-          "type": "msgText",
-          "data": "Works!",
-          "identifier": Random().nextInt(1000000),
-        },
-      ),
-    );
-    _mqttRepository.publish(state.thingId, MqttQos.atLeastOnce, builder);
-  }
+      MqttPongEvent event, Emitter<MqttClientState> emit) async {}
 
   Future<void> _onMqttReceivedMessageEvent(
       MqttReceivedMessageEvent event, Emitter<MqttClientState> emit) async {
     for (var element in event.data) {
-      _mqttMessageStreamController.add(element);
+      final msg = element.payload as MqttPublishMessage;
+      final String message =
+          MqttPublishPayload.bytesToStringAsString(msg.payload.message);
+
+      final topicIndex = state.thingId.length + "/".length;
+      final header = MqttMessageHeader(element.topic.substring(topicIndex));
+      final descriptor = MqttMessageDescriptor(message, header);
+      _mqttMessageStreamController.add(descriptor);
     }
   }
 }
