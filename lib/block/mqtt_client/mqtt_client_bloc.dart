@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_repository/mqtt_repository.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
@@ -16,7 +15,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
       : _mqttRepository = repository,
         super(MqttClientState(
           connectionState: MqttClientConnectionStatus.disconnected,
-          subscribedTopics: List.empty(),
+          subscribedTopics: [],
           thingId: "",
         )) {
     on<MqttConnectRequested>(_onMqttConnectRequested);
@@ -51,8 +50,6 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     emit(
         state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
     const policyName = "OSHdev";
-    final ByteData rootCA =
-        await rootBundle.load('assets/certs/AmazonRootCA1.pem');
 
     try {
       final cert = await _mqttRepository.createCertificate();
@@ -61,7 +58,6 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
           event.thingId, cert.certificateArn!);
       await _mqttRepository.connect(
         cert,
-        rootCA,
         event.thingId,
         () => add(MqttConnectedEvent(thingId: event.thingId)),
         () => add(const MqttDisconnectedEvent()),

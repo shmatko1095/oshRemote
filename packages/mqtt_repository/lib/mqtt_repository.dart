@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
+import 'package:mqtt_repository/cert_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -35,20 +36,22 @@ class MqttServerClientRepository {
 
   Future<MqttClientConnectionStatus?> connect(
       AWS.CreateKeysAndCertificateResponse certificate,
-      ByteData rootCA,
       String thingName,
       ConnectCallback onConnected,
       DisconnectCallback onDisconnected,
       SubscribeCallback onSubscribed,
       SubscribeFailCallback onSubscribeFail,
       PongCallback onPong) async {
+
+    ByteData rootCA = await CertificateManager.getRootCertificate();
+
     final SecurityContext context = SecurityContext.defaultContext;
     context.setClientAuthoritiesBytes(rootCA.buffer.asUint8List());
     context.useCertificateChainBytes(certificate.certificatePem!.codeUnits);
     context.usePrivateKeyBytes(certificate.keyPair!.privateKey!.codeUnits);
 
     _client.securityContext = context;
-    _client.logging(on: true);
+    _client.logging(on: false);
     _client.keepAlivePeriod = 30;
     _client.port = 8883;
     _client.secure = true;
