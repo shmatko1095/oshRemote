@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
+import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/models/mqtt_message_header.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
 import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
+import 'package:osh_remote/pages/login/login_page.dart';
+
+part 'drawer/home_page_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -56,7 +60,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
+    return Scaffold(
+      drawer: _getDrawer(context),
+      body: CustomScrollView(
       controller: _scrollController,
       slivers: <Widget>[
         SliverAppBar(
@@ -91,7 +97,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
       // )
-    );
+    ));
   }
 
   void addWidgetsToAdapter() {

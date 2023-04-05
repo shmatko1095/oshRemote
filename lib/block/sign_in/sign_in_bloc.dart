@@ -103,12 +103,29 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       SignInFetchUserRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
-      AuthUser result = await _authenticationRepository.getCurrentUser();
-      emit(state.copyWith(
-          user: User(userId: result.userId, username: result.username)));
+      AuthUser result = await _getCurrentUser();
+      String name = await _getUserNameFromAttributes();
+
+      emit(state.copyWith(user: User(userId: result.userId,
+              username: result.username, name: name)));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
+  }
+
+  Future<AuthUser> _getCurrentUser() async {
+    return await _authenticationRepository.getCurrentUser();
+  }
+
+  Future<String> _getUserNameFromAttributes() async {
+    String result = "";
+    List<AuthUserAttribute> attrib = await _authenticationRepository.fetchUserAttributes();
+    for (var element in attrib) {
+      if (element.userAttributeKey == AuthenticationRepository.NameUserAttributeKey) {
+        result = element.value;
+      }
+    }
+    return result;
   }
 }

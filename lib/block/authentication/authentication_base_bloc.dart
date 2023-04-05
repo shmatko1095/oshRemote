@@ -15,11 +15,13 @@ abstract class AuthenticationBaseBloc
   AuthenticationBaseBloc({required this.authenticationRepository})
       : super(AuthenticationState(
             email: const Email.pure(),
+            name: "",
             password0: const Password.pure(),
             password1: const Password.pure(),
             confirmCode: const Password.pure(),
             step: AuthenticationStep.step1,
             inProgress: false)) {
+    on<AuthenticationNameChanged>(_onNameChanged);
     on<AuthenticationUsernameChanged>(_onUsernameChanged);
     on<AuthenticationPassword0Changed>(_onPassword0Changed);
     on<AuthenticationPassword1Changed>(_onPassword1Changed);
@@ -52,6 +54,11 @@ abstract class AuthenticationBaseBloc
       default:
         break;
     }
+  }
+
+  void _onNameChanged(
+      AuthenticationNameChanged event, Emitter<AuthenticationState> emit) {
+    emit(state.copyWith(name: event.name));
   }
 
   void _onUsernameChanged(

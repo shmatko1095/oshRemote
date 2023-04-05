@@ -1,0 +1,9 @@
+-DynamicThingGroup
+queryString: attributes.device_owner=userId
+thingGroupName: "username@email.com"
+
+    -Thing
+    thingName: device SN
+    attributePayload: <device_owner, userId>
+
+

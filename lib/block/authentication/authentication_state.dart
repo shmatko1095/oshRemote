@@ -11,6 +11,7 @@ enum AuthenticationStep {
 class AuthenticationState {
   AuthenticationState({
     required this.email,
+    required this.name,
     required this.password0,
     required this.password1,
     required this.confirmCode,
@@ -19,6 +20,7 @@ class AuthenticationState {
   });
 
   Email email;
+  String name;
   Password password0;
   Password password1;
   Password confirmCode;
@@ -27,6 +29,7 @@ class AuthenticationState {
 
   AuthenticationState copyWith(
       {Email? email,
+      String? name,
       Password? password0,
       Password? password1,
       Password? confirmCode,
@@ -34,6 +37,7 @@ class AuthenticationState {
       List<bool>? inProgress}) {
     return AuthenticationState(
       email: email ?? this.email,
+      name: name ?? this.name,
       password0: password0 ?? this.password0,
       password1: password1 ?? this.password1,
       confirmCode: confirmCode ?? this.confirmCode,

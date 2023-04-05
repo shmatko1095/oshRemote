@@ -4,6 +4,12 @@ abstract class AuthenticationEvent {
   const AuthenticationEvent();
 }
 
+class AuthenticationNameChanged extends AuthenticationEvent {
+  const AuthenticationNameChanged(this.name);
+
+  final String name;
+}
+
 class AuthenticationUsernameChanged extends AuthenticationEvent {
   const AuthenticationUsernameChanged(this.email);
 

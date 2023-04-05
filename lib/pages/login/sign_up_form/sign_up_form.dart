@@ -24,6 +24,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _widgets.add(_getNameField(context));
     _widgets.add(_getUsernameField(context));
     _widgets.add(_getPassword0Field(context));
     _widgets.add(_getPassword1Field(context));
@@ -45,6 +46,23 @@ class _SignUpFormState extends State<SignUpForm> {
               context.read<SignUpBloc>().state.email.value.isEmpty
           ? null
           : S.of(context)!.pleaseEnterYourEmail,
+    );
+  }
+
+  Widget _getNameField(BuildContext context) {
+    return BlocBuilder<SignUpBloc, AuthenticationState>(
+      buildWhen: (previous, current) => previous.name != current.name,
+      builder: (context, state) {
+        return TextField(
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: S.of(context)!.name,
+              hintText: S.of(context)!.enterName,
+            ),
+            onChanged: (name) => context
+                .read<SignUpBloc>()
+                .add(AuthenticationNameChanged(name)),);
+      },
     );
   }
 

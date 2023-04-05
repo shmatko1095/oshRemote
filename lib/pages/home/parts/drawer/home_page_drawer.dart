@@ -1,13 +1,18 @@
-part of '../../home.dart';
+part of '../home_body.dart';
 
 Widget _buildDrawerHeader() {
-  return const UserAccountsDrawerHeader(
-    accountName: Text('User Name'),
-    accountEmail: Text('user.name@email.com'),
-    currentAccountPicture: CircleAvatar(
-      backgroundColor: Colors.white,
-      child: FlutterLogo(size: 42.0),
-    ),
+  return Builder(
+    builder: (context) {
+      final user = context.select((SignInBloc bloc) => bloc.state.user);
+      return UserAccountsDrawerHeader(
+        accountName: Text(user.name),
+        accountEmail: Text(user.username),
+        // currentAccountPicture: const CircleAvatar(
+        //   backgroundColor: Colors.white,
+        //   child: FlutterLogo(size: 42.0),
+        // ),
+      );
+    },
   );
 }
 
@@ -22,13 +27,7 @@ Widget _getDrawer(BuildContext context) {
       child: Column(
     children: <Widget>[
       _buildDrawerHeader(),
-      Builder(
-        builder: (context) {
-          final userId =
-              context.select((SignInBloc bloc) => bloc.state.email.value);
-          return Text('UserID: $userId');
-        },
-      ),
+
       ListTile(
         leading: const Icon(Icons.home),
         title: const Text('Device 1'),

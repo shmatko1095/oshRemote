@@ -13,7 +13,9 @@ class SignUpBloc extends AuthenticationBaseBloc {
     emit(state.copyWith(inProgress: [true]));
     try {
       await authenticationRepository.signUp(
-          username: state.email.value, password: state.password0.value);
+          username: state.email.value,
+          password: state.password0.value,
+          name: state.name);
       emit(state.copyWith(step: AuthenticationStep.step1Done));
       emit(state.copyWith(step: AuthenticationStep.step2));
     } on Exception catch (e) {
