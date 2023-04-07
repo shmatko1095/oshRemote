@@ -20,6 +20,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
         super(MqttClientState(
           connectionState: MqttClientConnectionStatus.disconnected,
           subscribedTopics: [],
+          thingGroup: "",
           thingId: "",
         )) {
     on<MqttConnectRequested>(_onMqttConnectRequested);
@@ -30,6 +31,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttSubscribeRequestedEvent>(_onMqttSubscribeRequestedEvent);
     on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
     on<MqttPongEvent>(_onMqttPongEvent);
+    on<MqttCreateThingGroupRequestedEvent>(_onMqttCreateThingGroupRequestedEvent);
   }
 
   final MqttClientRepository _mqttRepository;
@@ -84,6 +86,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     emit(state.copyWith(
         connectionState: MqttClientConnectionStatus.connected,
         thingId: event.thingId));
+    await _iotRepository.addThingToThingGroup(state.thingGroup, event.thingId);
   }
 
   Future<void> _onMqttDisconnectedEvent(
@@ -129,4 +132,10 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
       _mqttMessageStreamController.add(descriptor);
     }
   }
+
+  Future<void> _onMqttCreateThingGroupRequestedEvent(MqttCreateThingGroupRequestedEvent event, Emitter<MqttClientState> emit) async {
+    String? name = await _iotRepository.createThingGroup(event.groupName);
+    emit(state.copyWith(thingGroup: name));
+  }
+
 }

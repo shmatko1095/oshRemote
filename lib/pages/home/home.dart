@@ -17,9 +17,11 @@ class Home extends StatelessWidget {
     context.read<SignInBloc>().add(const SignInFetchUserRequested());
 
     onSignInEvent(BuildContext context, SignInState state) {
-      final thingNameByUserId = state.user.userId;
+      final userId = state.user.userId;
       BlocProvider.of<MqttClientBloc>(context)
-          .add(MqttConnectRequested(thingId: thingNameByUserId));
+          .add(MqttCreateThingGroupRequestedEvent(groupName: userId));
+      BlocProvider.of<MqttClientBloc>(context)
+          .add(MqttConnectRequested(thingId: "${userId}_client"));
     }
 
     return SafeArea(

@@ -49,3 +49,9 @@ class MqttReceivedMessageEvent extends MqttEvent {
 
   const MqttReceivedMessageEvent(this.data);
 }
+
+class MqttCreateThingGroupRequestedEvent extends MqttEvent {
+  final String groupName;
+
+  const MqttCreateThingGroupRequestedEvent({required this.groupName});
+}

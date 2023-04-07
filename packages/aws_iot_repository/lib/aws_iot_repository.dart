@@ -25,4 +25,13 @@ class AwsIotRepository {
         principal: principal, thingName: thingName);
     return response;
   }
+
+  Future<String?> createThingGroup(String groupName) async {
+    var response = await _service.createThingGroup(thingGroupName: groupName);
+    return response.thingGroupName;
+  }
+
+  Future<void> addThingToThingGroup(String group, String thing) async {
+    await _service.addThingToThingGroup(thingName: thing, thingGroupName: group);
+  }
 }

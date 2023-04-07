@@ -12,20 +12,24 @@ class MqttClientState {
   MqttClientState(
       {required this.connectionState,
       required this.subscribedTopics,
+      required this.thingGroup,
       required this.thingId});
 
   MqttClientConnectionStatus connectionState;
   List<String> subscribedTopics;
+  String thingGroup;
   String thingId;
 
   MqttClientState copyWith({
     MqttClientConnectionStatus? connectionState,
     List<String>? subscribedTopics,
+    String? thingGroup,
     String? thingId,
   }) {
     return MqttClientState(
       connectionState: connectionState ?? this.connectionState,
       subscribedTopics: subscribedTopics ?? this.subscribedTopics,
+      thingGroup: thingGroup ?? this.thingGroup,
       thingId: thingId ?? this.thingId,
     );
   }
