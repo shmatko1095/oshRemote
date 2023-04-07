@@ -12,10 +12,10 @@ part 'mqtt_client_event.dart';
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
-  MqttClientBloc({
-    required MqttClientRepository mqttRepository,
-    required AwsIotRepository iotRepository,
-  })  : _mqttRepository = mqttRepository,
+  MqttClientBloc(
+    MqttClientRepository mqttRepository,
+    AwsIotRepository iotRepository,
+  )  : _mqttRepository = mqttRepository,
         _iotRepository = iotRepository,
         super(MqttClientState(
           connectionState: MqttClientConnectionStatus.disconnected,

@@ -1,8 +1,12 @@
 import 'package:authentication_repository/authentication_repository.dart';
+import 'package:aws_iot_api/iot-2015-05-28.dart';
+import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mqtt_client_repository/mqtt_client_repository.dart';
 import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
+import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/home.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
@@ -16,6 +20,14 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     final authRepo = AuthenticationRepository();
 
+    const region = "us-east-1";
+    const server = 'a3qrc8lpkkm4w-ats.iot.us-east-1.amazonaws.com';
+    final cred = AwsClientCredentials(
+        accessKey: "AKIAVO57NB3Y6D3TOTRF",
+        secretKey: "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");
+    final mqttRepository = MqttClientRepository(server);
+    final iotRepository = AwsIotRepository(region, cred);
+
     return RepositoryProvider.value(
         value: authRepo,
         child: MultiBlocProvider(
@@ -26,6 +38,9 @@ class App extends StatelessWidget {
             BlocProvider<SignUpBloc>(
               create: (_) => SignUpBloc(authRepo),
             ),
+            BlocProvider<MqttClientBloc>(
+              create: (_) => MqttClientBloc(mqttRepository, iotRepository),
+            )
           ],
           child: const AppView(),
         ));
