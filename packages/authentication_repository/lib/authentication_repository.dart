@@ -23,7 +23,7 @@ class AuthenticationRepository {
     return await Amplify.Auth.resetPassword(username: username);
   }
 
-  Future<UpdatePasswordResult> confirmResetPassword(
+  Future<ResetPasswordResult> confirmResetPassword(
       {required String username,
       required String password,
       required String code}) async {
@@ -36,10 +36,11 @@ class AuthenticationRepository {
     return await Amplify.Auth.resendSignUpCode(username: username);
   }
 
-  Future<SignUpResult> confirmSignUp(
+  Future<bool> confirmSignUp(
       {required String username, required String code}) async {
-    return await Amplify.Auth.confirmSignUp(
+    var result = await Amplify.Auth.confirmSignUp(
         username: username, confirmationCode: code);
+    return result.isSignUpComplete;
   }
 
   Future<SignUpResult> signUp(

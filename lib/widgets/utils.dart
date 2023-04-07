@@ -19,7 +19,7 @@ void showAlertDialog(BuildContext context, Exception exception) {
     msg = S.of(context)!.usernameExistsException;
   } else if (exception.runtimeType == UserNotFoundException) {
     msg = S.of(context)!.userNotFoundException;
-  } else if (exception.runtimeType == NotAuthorizedException) {
+  } else if (exception.runtimeType == AuthNotAuthorizedException) {
     msg = S.of(context)!.notAuthorizedException;
   } else if (exception.runtimeType == LimitExceededException) {
     msg = S.of(context)!.limitExceededException;

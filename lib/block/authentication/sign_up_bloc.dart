@@ -28,13 +28,16 @@ class SignUpBloc extends AuthenticationBaseBloc {
   Future<void> authenticateConfirmation(
       Emitter<AuthenticationState> emit) async {
     emit(state.copyWith(inProgress: [true]));
+    bool result = false;
     try {
-      await authenticationRepository.confirmSignUp(
+      result = await authenticationRepository.confirmSignUp(
           username: state.email.value, code: state.confirmCode.value);
-      emit(state.copyWith(step: AuthenticationStep.step2Done));
-      emit(state.copyWith(step: AuthenticationStep.success));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
+    }
+    if (result) {
+      emit(state.copyWith(step: AuthenticationStep.step2Done));
+      emit(state.copyWith(step: AuthenticationStep.success));
     }
     emit(state.copyWith(inProgress: [false]));
   }

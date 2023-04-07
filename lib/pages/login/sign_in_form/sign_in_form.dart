@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -50,7 +50,7 @@ class SignInForm extends StatelessWidget {
   }
 
   void onBlockException(context, Exception exception) {
-    if (exception.runtimeType == UserNotConfirmedException) {
+    if (exception.runtimeType == auth.UserNotConfirmedException) {
       _userNotConfirmedDialogBuilder(context);
     } else {
       ScaffoldMessenger.of(context)

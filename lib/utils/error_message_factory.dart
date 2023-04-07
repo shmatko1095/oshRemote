@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -12,7 +12,7 @@ class ErrorMessageFactory {
       return S.of(context)!.usernameExistsException;
     } else if (exception.runtimeType == UserNotFoundException) {
       return S.of(context)!.userNotFoundException;
-    } else if (exception.runtimeType == NotAuthorizedException) {
+    } else if (exception.runtimeType == AuthNotAuthorizedException) {
       return S.of(context)!.notAuthorizedException;
     } else if (exception.runtimeType == LimitExceededException) {
       return S.of(context)!.limitExceededException;
