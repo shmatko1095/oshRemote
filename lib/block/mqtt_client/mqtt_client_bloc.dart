@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_repository/mqtt_repository.dart';
+import 'package:mqtt_client_repository/mqtt_client_repository.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
 import 'package:osh_remote/models/mqtt_message_header.dart';
 
@@ -11,8 +12,11 @@ part 'mqtt_client_event.dart';
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
-  MqttClientBloc({required MqttServerClientRepository repository})
-      : _mqttRepository = repository,
+  MqttClientBloc({
+    required MqttClientRepository mqttRepository,
+    required AwsIotRepository iotRepository,
+  })  : _mqttRepository = mqttRepository,
+        _iotRepository = iotRepository,
         super(MqttClientState(
           connectionState: MqttClientConnectionStatus.disconnected,
           subscribedTopics: [],
@@ -28,7 +32,9 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttPongEvent>(_onMqttPongEvent);
   }
 
-  final MqttServerClientRepository _mqttRepository;
+  final MqttClientRepository _mqttRepository;
+  final AwsIotRepository _iotRepository;
+
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
   final _mqttMessageStreamController =
@@ -52,12 +58,13 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     const policyName = "OSHdev";
 
     try {
-      final cert = await _mqttRepository.createCertificate();
-      await _mqttRepository.attachPolicy(policyName, cert.certificateArn!);
-      await _mqttRepository.createThingAndAttachPrincipal(
+      final cert = await _iotRepository.createCertificate();
+      await _iotRepository.attachPolicy(policyName, cert.certificateArn!);
+      await _iotRepository.createThingAndAttachPrincipal(
           event.thingId, cert.certificateArn!);
       await _mqttRepository.connect(
-        cert,
+        cert.certificatePem!,
+        cert.keyPair!.privateKey!,
         event.thingId,
         () => add(MqttConnectedEvent(thingId: event.thingId)),
         () => add(const MqttDisconnectedEvent()),

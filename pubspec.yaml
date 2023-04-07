@@ -35,8 +35,10 @@ dependencies:
 
   authentication_repository:
     path: packages/authentication_repository
-  mqtt_repository:
-    path: packages/mqtt_repository
+  mqtt_client_repository:
+    path: packages/mqtt_client_repository
+  aws_iot_repository:
+    path: packages/aws_iot_repository
 
   cupertino_icons: ^1.0.5
   email_validator: ^2.1.17

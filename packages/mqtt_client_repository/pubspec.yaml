@@ -1,4 +1,4 @@
-name: mqtt_repository
+name: mqtt_client_repository
 description: Dart package which manages the AWS IoT domain.
 publish_to: none
 
@@ -8,7 +8,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  aws_iot_api: ^2.0.0
   mqtt_client: ^9.8.0
 
 flutter:

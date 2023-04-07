@@ -1,7 +1,8 @@
 import 'package:aws_iot_api/iot-2015-05-28.dart';
+import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mqtt_repository/mqtt_repository.dart';
+import 'package:mqtt_client_repository/mqtt_client_repository.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
@@ -21,8 +22,12 @@ class Home extends StatelessWidget {
     final cred = AwsClientCredentials(
         accessKey: "AKIAVO57NB3Y6D3TOTRF",
         secretKey: "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");
-    final mqttRepository = MqttServerClientRepository(region, cred, server);
-    final bloc = MqttClientBloc(repository: mqttRepository);
+    final mqttRepository = MqttClientRepository(server);
+    final iotRepository = AwsIotRepository(region, cred);
+    final bloc = MqttClientBloc(
+        mqttRepository: mqttRepository,
+        iotRepository: iotRepository
+    );
 
     context.read<SignInBloc>().add(const SignInFetchUserRequested());
 
