@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
-import 'package:osh_remote/pages/splash_page.dart';
+import 'package:osh_remote/pages/home/widget/drawer/drawer_presenter.dart';
+import 'package:osh_remote/pages/login/login_page.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -12,33 +12,27 @@ class Home extends StatelessWidget {
     return MaterialPageRoute<void>(builder: (_) => const Home());
   }
 
+  void _onSignOut(BuildContext context) {
+    context.read<SignInBloc>().add(const SignInLogoutRequested());
+    Navigator.of(context)
+        .pushAndRemoveUntil<void>(LoginPage.route(), (route) => false);
+  }
+
+  void _onDeviceTap(BuildContext context, String device) {
+    print("Selected device: $device");
+  }
+
   @override
   Widget build(BuildContext context) {
-    context.read<SignInBloc>().add(const SignInFetchUserRequested());
+    context.read<SignInBloc>().add(const SignInFetchUserDataRequested());
 
-    onSignInEvent(BuildContext context, SignInState state) {
-      final userId = state.user.userId;
-      BlocProvider.of<MqttClientBloc>(context)
-          .add(MqttCreateThingGroupRequestedEvent(groupName: userId));
-      BlocProvider.of<MqttClientBloc>(context)
-          .add(MqttConnectRequested(thingId: "${userId}_client"));
-    }
+    final drawer = DrawerPresenter(
+        onSignOut: () => _onSignOut(context),
+        onDeviceTap: (device) => _onDeviceTap(context, device));
 
-    return SafeArea(
-        child: BlocListener<SignInBloc, SignInState>(
-            listenWhen: (previous, current) => previous.user != current.user,
-            listener: (context, state) => onSignInEvent(context, state),
-            child: BlocBuilder<MqttClientBloc, MqttClientState>(
-              buildWhen: (previous, current) =>
-                  previous.connectionState != current.connectionState,
-              builder: (context, state) {
-                if (state.connectionState ==
-                    MqttClientConnectionStatus.connected) {
-                  return const HomePage();
-                } else {
-                  return const SplashPage();
-                }
-              },
-            )));
+    return Scaffold(
+      drawer: drawer,
+      body: const HomePage(),
+    );
   }
 }

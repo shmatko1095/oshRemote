@@ -28,6 +28,6 @@ class SignInFetchSessionRequested extends SignInEvent {
   const SignInFetchSessionRequested();
 }
 
-class SignInFetchUserRequested extends SignInEvent {
-  const SignInFetchUserRequested();
+class SignInFetchUserDataRequested extends SignInEvent {
+  const SignInFetchUserDataRequested();
 }

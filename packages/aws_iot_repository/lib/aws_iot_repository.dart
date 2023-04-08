@@ -14,24 +14,47 @@ class AwsIotRepository {
   }
 
   Future<void> attachPolicy(String policyName, String target) async {
-    return await _service.attachPolicy(policyName: policyName, target: target);
+    await _service.attachPolicy(policyName: policyName, target: target);
   }
 
-  Future<CreateThingResponse> createThingAndAttachPrincipal(
-      String thingName, String principal) async {
-    CreateThingResponse response =
-        await _service.createThing(thingName: thingName);
+  Future<void> attachThingPrincipal(String thingName, String principal) async {
     await _service.attachThingPrincipal(
         principal: principal, thingName: thingName);
-    return response;
   }
 
-  Future<String?> createThingGroup(String groupName) async {
-    var response = await _service.createThingGroup(thingGroupName: groupName);
+  Future<CreateThingResponse> createThing(String thing) async {
+    return await _service.createThing(thingName: thing);
+  }
+
+  Future<String?> createGroup(String group) async {
+    var response = await _service.createThingGroup(thingGroupName: group);
     return response.thingGroupName;
   }
 
-  Future<void> addThingToThingGroup(String group, String thing) async {
-    await _service.addThingToThingGroup(thingName: thing, thingGroupName: group);
+  Future<void> addThingToGroup(String group, String thing) async {
+    await _service.addThingToThingGroup(
+        thingName: thing, thingGroupName: group);
+  }
+
+  Future<List<String>> listThingsInGroup(String group) async {
+    final res = await _service.listThingsInThingGroup(thingGroupName: group);
+    return res.things != null ? res.things! : [];
+  }
+
+  Future<List<String>> listThingGroups() async {
+    List<String> result = [];
+    ListThingGroupsResponse list = await _service.listThingGroups();
+    list.thingGroups?.forEach((e) => e.groupName ?? result.add(e.groupName!));
+    return result;
+  }
+
+  Future<bool> isGroupExist(String name) async {
+    final response = await _service.describeThingGroup(thingGroupName: name);
+    return response.thingGroupArn != null;
+  }
+
+  Future<bool> isThingExist(String name) async {
+    final response = await _service.describeThing(thingName: name);
+    return response.thingName != null;
   }
 }

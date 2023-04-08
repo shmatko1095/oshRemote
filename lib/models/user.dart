@@ -13,4 +13,15 @@ class User {
       : userId = "",
         username = "",
         name = "";
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is User &&
+          userId == other.userId &&
+          username == other.username &&
+          name == other.name;
+
+  @override
+  int get hashCode => userId.hashCode ^ username.hashCode ^ name.hashCode;
 }

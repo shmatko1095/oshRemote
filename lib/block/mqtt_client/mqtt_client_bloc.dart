@@ -15,14 +15,16 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   MqttClientBloc(
     MqttClientRepository mqttRepository,
     AwsIotRepository iotRepository,
-  )  : _mqttRepository = mqttRepository,
+  )   : _mqttRepository = mqttRepository,
         _iotRepository = iotRepository,
         super(MqttClientState(
           connectionState: MqttClientConnectionStatus.disconnected,
           subscribedTopics: [],
+          userThingsList: [],
           thingGroup: "",
           thingId: "",
         )) {
+    on<MqttGetUserThingsRequested>(_onMqttGetUserThingsEvent);
     on<MqttConnectRequested>(_onMqttConnectRequested);
     on<MqttConnectedEvent>(_onMqttConnectedEvent);
     on<MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
@@ -31,11 +33,13 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttSubscribeRequestedEvent>(_onMqttSubscribeRequestedEvent);
     on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
     on<MqttPongEvent>(_onMqttPongEvent);
-    on<MqttCreateThingGroupRequestedEvent>(_onMqttCreateThingGroupRequestedEvent);
+    on<MqttCreateThingGroupRequestedEvent>(
+        _onMqttCreateThingGroupRequestedEvent);
   }
 
   final MqttClientRepository _mqttRepository;
   final AwsIotRepository _iotRepository;
+  static const _thingGroupPolicyName = "OshGroupPolicy";
 
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
@@ -62,7 +66,8 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     try {
       final cert = await _iotRepository.createCertificate();
       await _iotRepository.attachPolicy(policyName, cert.certificateArn!);
-      await _iotRepository.createThingAndAttachPrincipal(
+      await _iotRepository.createThing(event.thingId);
+      await _iotRepository.attachThingPrincipal(
           event.thingId, cert.certificateArn!);
       await _mqttRepository.connect(
         cert.certificatePem!,
@@ -86,7 +91,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     emit(state.copyWith(
         connectionState: MqttClientConnectionStatus.connected,
         thingId: event.thingId));
-    await _iotRepository.addThingToThingGroup(state.thingGroup, event.thingId);
+    await _iotRepository.addThingToGroup(state.thingGroup, event.thingId);
   }
 
   Future<void> _onMqttDisconnectedEvent(
@@ -133,9 +138,44 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     }
   }
 
-  Future<void> _onMqttCreateThingGroupRequestedEvent(MqttCreateThingGroupRequestedEvent event, Emitter<MqttClientState> emit) async {
-    String? name = await _iotRepository.createThingGroup(event.groupName);
+  Future<void> _onMqttCreateThingGroupRequestedEvent(
+      MqttCreateThingGroupRequestedEvent event,
+      Emitter<MqttClientState> emit) async {
+    String? name = await _iotRepository.createGroup(event.groupName);
     emit(state.copyWith(thingGroup: name));
   }
 
+  Future<void> checkGroupOrCreate(String userId) async {
+    bool exist = await _iotRepository.isGroupExist(userId);
+    if (!exist) {
+      await _iotRepository.createGroup(userId);
+      // await _iotRepository.attachPolicy(_thingGroupPolicyName, userId);
+    }
+  }
+
+  Future<void> checkThingOrCreate(String userId) async {
+    bool exist = await _iotRepository.isThingExist(userId);
+    if (!exist) {
+      await _iotRepository.createThing(userId);
+      // await _iotRepository.attachPolicy(_thingGroupPolicyName, userId);
+    }
+  }
+
+  Future<void> _onMqttGetUserThingsEvent(
+      MqttGetUserThingsRequested event, Emitter<MqttClientState> emit) async {
+    await checkGroupOrCreate(event.userId);
+    List<String> things = await _iotRepository.listThingsInGroup(event.userId);
+    emit(state.copyWith(userThingsList: things));
+  }
+
+/**
+ * 1)createThingGroup
+ * 2)check cert. If not available then:
+ * 2.1)createCertificate
+ * 2.2)attachPolicy(policyName, cert.certificateArn!);
+ * 3)check thing. If not available then:
+ * 3.1)createThing(event.thingId)
+ * 3.2)attachThingPrincipal(event.thingId, cert.certificateArn!);
+ * 4)connect
+ **/
 }

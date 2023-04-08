@@ -9,6 +9,7 @@ import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
 import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
+import 'package:osh_remote/pages/splash_page.dart';
 
 part 'drawer/home_page_drawer.dart';
 
@@ -43,10 +44,10 @@ class _HomePageState extends State<HomePage> {
 
     addWidgetsToAdapter();
 
-    _adapter.getTopicList().forEach((desc) {
-      BlocProvider.of<MqttClientBloc>(context)
-          .add(MqttSubscribeRequestedEvent(desc: desc));
-    });
+    // _adapter.getTopicList().forEach((desc) {
+    //   BlocProvider.of<MqttClientBloc>(context).add(
+    //       MqttSubscribeRequestedEvent(desc: desc));
+    // });
 
     BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
       _adapter.notifyWidget(event.header, event.message);
@@ -60,44 +61,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _getDrawer(context),
-      body: CustomScrollView(
-      controller: _scrollController,
-      slivers: <Widget>[
-        SliverAppBar(
-          title: _title,
-          centerTitle: true,
-          actions: [
-            IconButton(onPressed: () => {}, icon: const Icon(Icons.settings))
-          ],
-          pinned: true,
-          expandedHeight: kExpandedHeight,
-          flexibleSpace: FlexibleSpaceBar(
-            background: HomeTempIndicator(
-                height: kExpandedHeight,
-                actualTemp: 25.2,
-                targetTemp: 25,
-                nextPointTemp: 30,
-                nextPointTime: DateTime(2022, 12, 10, 17, 20)),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              const SelectorModeWidget(),
-            ],
-          ),
-        ),
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisExtent: 120.0, //height
-          ),
-          delegate: SliverChildListDelegate(_adapter.getWidgetList()),
-        ),
-      ],
-      // )
-    ));
+    return BlocBuilder<MqttClientBloc, MqttClientState>(
+      buildWhen: (previous, current) =>
+          previous.connectionState != current.connectionState,
+      builder: (context, state) {
+        // if (state.connectionState == MqttClientConnectionStatus.connected) {
+        return _getBody();
+        // } else {
+        //   return const SplashPage();
+        // }
+      },
+    );
   }
 
   void addWidgetsToAdapter() {
@@ -184,6 +158,45 @@ class _HomePageState extends State<HomePage> {
           label: S.of(context)!.power_usage,
           postfix: "%",
           iconData: Icons.timelapse),
+    );
+  }
+
+  Widget _getBody() {
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: <Widget>[
+        SliverAppBar(
+          title: _title,
+          centerTitle: true,
+          actions: [
+            IconButton(onPressed: () => {}, icon: const Icon(Icons.settings))
+          ],
+          pinned: true,
+          expandedHeight: kExpandedHeight,
+          flexibleSpace: FlexibleSpaceBar(
+            background: HomeTempIndicator(
+                height: kExpandedHeight,
+                actualTemp: 25.2,
+                targetTemp: 25,
+                nextPointTemp: 30,
+                nextPointTime: DateTime(2022, 12, 10, 17, 20)),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              const SelectorModeWidget(),
+            ],
+          ),
+        ),
+        SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, mainAxisExtent: 120.0, //height
+          ),
+          delegate: SliverChildListDelegate(_adapter.getWidgetList()),
+        ),
+      ],
+      // )
     );
   }
 }

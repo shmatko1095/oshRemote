@@ -27,7 +27,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
     on<SignInFetchSessionRequested>(_onFetchSessionRequested);
-    on<SignInFetchUserRequested>(_onSignInFetchUserRequested);
+    on<SignInFetchUserDataRequested>(_onSignInFetchUserRequested);
   }
 
   @override
@@ -100,14 +100,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   Future<void> _onSignInFetchUserRequested(
-      SignInFetchUserRequested event, Emitter<SignInState> emit) async {
+      SignInFetchUserDataRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
       AuthUser result = await _getCurrentUser();
       String name = await _getUserNameFromAttributes();
 
-      emit(state.copyWith(user: User(userId: result.userId,
-              username: result.username, name: name)));
+      emit(state.copyWith(
+          user: User(
+              userId: result.userId, username: result.username, name: name)));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
@@ -120,9 +121,11 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
   Future<String> _getUserNameFromAttributes() async {
     String result = "";
-    List<AuthUserAttribute> attrib = await _authenticationRepository.fetchUserAttributes();
+    List<AuthUserAttribute> attrib =
+        await _authenticationRepository.fetchUserAttributes();
     for (var element in attrib) {
-      if (element.userAttributeKey == AuthenticationRepository.NameUserAttributeKey) {
+      if (element.userAttributeKey ==
+          AuthenticationRepository.NameUserAttributeKey) {
         result = element.value;
       }
     }
