@@ -88,9 +88,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       SignInFetchSessionRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
-      AuthSession result = await _authenticationRepository.fetchAuthSession();
+      final authUser = await _authenticationRepository.getCurrentUser();
       emit(state.copyWith(
-          status: result.isSignedIn
+          status: authUser.userId.isNotEmpty
               ? SignInStatus.authorized
               : SignInStatus.unauthorized));
     } on Exception catch (e) {
@@ -103,32 +103,25 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       SignInFetchUserDataRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
-      AuthUser result = await _getCurrentUser();
-      String name = await _getUserNameFromAttributes();
+      final attrib = await _authenticationRepository.fetchUserAttributes();
+      String userId = attrib
+          .firstWhere((element) =>
+              element.userAttributeKey == AuthenticationRepository.SubKey)
+          .value;
+      String name = attrib
+          .firstWhere((element) =>
+              element.userAttributeKey == AuthenticationRepository.NameKey)
+          .value;
+      String email = attrib
+          .firstWhere((element) =>
+              element.userAttributeKey == AuthenticationRepository.EmailKey)
+          .value;
 
-      emit(state.copyWith(
-          user: User(
-              userId: result.userId, username: result.username, name: name)));
+      emit(
+          state.copyWith(user: User(userId: userId, email: email, name: name)));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
-  }
-
-  Future<AuthUser> _getCurrentUser() async {
-    return await _authenticationRepository.getCurrentUser();
-  }
-
-  Future<String> _getUserNameFromAttributes() async {
-    String result = "";
-    List<AuthUserAttribute> attrib =
-        await _authenticationRepository.fetchUserAttributes();
-    for (var element in attrib) {
-      if (element.userAttributeKey ==
-          AuthenticationRepository.NameUserAttributeKey) {
-        result = element.value;
-      }
-    }
-    return result;
   }
 }

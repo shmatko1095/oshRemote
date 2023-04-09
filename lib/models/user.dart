@@ -1,17 +1,17 @@
 class User {
   String userId;
-  String username;
+  String email;
   String name;
 
   User({
     required this.userId,
-    required this.username,
+    required this.email,
     required this.name,
   });
 
   User.empty()
       : userId = "",
-        username = "",
+        email = "",
         name = "";
 
   @override
@@ -19,9 +19,9 @@ class User {
       identical(this, other) ||
       other is User &&
           userId == other.userId &&
-          username == other.username &&
+          email == other.email &&
           name == other.name;
 
   @override
-  int get hashCode => userId.hashCode ^ username.hashCode ^ name.hashCode;
+  int get hashCode => userId.hashCode ^ email.hashCode ^ name.hashCode;
 }

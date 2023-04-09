@@ -5,7 +5,9 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:authentication_repository/amplifyconfiguration.dart';
 
 class AuthenticationRepository {
-  static const NameUserAttributeKey = CognitoUserAttributeKey.name;
+  static const SubKey = CognitoUserAttributeKey.sub;
+  static const NameKey = CognitoUserAttributeKey.name;
+  static const EmailKey = CognitoUserAttributeKey.email;
 
   Future<SignInResult> signIn(
       {required String username, required String password}) async {
@@ -44,14 +46,17 @@ class AuthenticationRepository {
   }
 
   Future<SignUpResult> signUp(
-      {required String username, required String password,
+      {required String email, required String password,
         required String name}) async {
     final attributes = <CognitoUserAttributeKey, String>{
-      NameUserAttributeKey: name,
+      NameKey: name,
+      EmailKey: email,
     };
 
-    return await Amplify.Auth.signUp(username: username, password: password,
-        options: CognitoSignUpOptions(userAttributes: attributes));
+    return await Amplify.Auth.signUp(
+        username: email,
+        password: password,
+        options: SignUpOptions(userAttributes: attributes));
   }
 
   Future<void> deleteUser() async {

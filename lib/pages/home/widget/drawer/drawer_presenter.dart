@@ -5,8 +5,8 @@ import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 
 class DrawerPresenter extends StatelessWidget {
-  final void Function() onSignOut;
-  final void Function(String) onDeviceTap;
+  final Function() onSignOut;
+  final Function(String) onDeviceTap;
 
   const DrawerPresenter(
       {required this.onSignOut, required this.onDeviceTap, super.key});
@@ -23,7 +23,7 @@ class DrawerPresenter extends StatelessWidget {
           _requestUserThingList(context, state.user.userId);
           return UserAccountsDrawerHeader(
               accountName: Text(state.user.name),
-              accountEmail: Text(state.user.username));
+              accountEmail: Text(state.user.email));
         });
   }
 
@@ -36,7 +36,7 @@ class DrawerPresenter extends StatelessWidget {
             return ListTile(
                 leading: const Icon(Icons.home),
                 title: Text(state.userThingsList[index]),
-                onTap: () => onDeviceTap(state.userThingsList[index]));
+                onTap: onDeviceTap(state.userThingsList[index]));
           });
     });
   }
@@ -55,7 +55,7 @@ class DrawerPresenter extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.power_settings_new, color: Colors.red),
           title: Text(S.of(context)!.signOut),
-          onTap: () => onSignOut,
+          onTap: onSignOut,
         ),
       ],
     ));

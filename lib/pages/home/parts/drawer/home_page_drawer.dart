@@ -6,11 +6,7 @@ Widget _buildDrawerHeader() {
       final user = context.select((SignInBloc bloc) => bloc.state.user);
       return UserAccountsDrawerHeader(
         accountName: Text(user.name),
-        accountEmail: Text(user.username),
-        // currentAccountPicture: const CircleAvatar(
-        //   backgroundColor: Colors.white,
-        //   child: FlutterLogo(size: 42.0),
-        // ),
+        accountEmail: Text(user.email),
       );
     },
   );

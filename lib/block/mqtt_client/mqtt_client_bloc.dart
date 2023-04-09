@@ -145,7 +145,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     emit(state.copyWith(thingGroup: name));
   }
 
-  Future<void> checkGroupOrCreate(String userId) async {
+  Future<void> _checkGroupOrCreate(String userId) async {
     bool exist = await _iotRepository.isGroupExist(userId);
     if (!exist) {
       await _iotRepository.createGroup(userId);
@@ -163,7 +163,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
 
   Future<void> _onMqttGetUserThingsEvent(
       MqttGetUserThingsRequested event, Emitter<MqttClientState> emit) async {
-    await checkGroupOrCreate(event.userId);
+    await _checkGroupOrCreate(event.userId);
     List<String> things = await _iotRepository.listThingsInGroup(event.userId);
     emit(state.copyWith(userThingsList: things));
   }
