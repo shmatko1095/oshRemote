@@ -4,28 +4,20 @@ abstract class MqttEvent {
   const MqttEvent();
 }
 
-// class AuthenticationLogoutRequested extends MqttEvent {}
-
 class MqttGetUserThingsRequested extends MqttEvent {
   final String userId;
 
   const MqttGetUserThingsRequested({required this.userId});
 }
 
-class MqttConnectRequested extends MqttEvent {
+class _MqttConnectedEvent extends MqttEvent {
   final String thingId;
 
-  const MqttConnectRequested({required this.thingId});
+  const _MqttConnectedEvent({required this.thingId});
 }
 
-class MqttConnectedEvent extends MqttEvent {
-  final String thingId;
-
-  const MqttConnectedEvent({required this.thingId});
-}
-
-class MqttDisconnectedEvent extends MqttEvent {
-  const MqttDisconnectedEvent();
+class _MqttDisconnectedEvent extends MqttEvent {
+  const _MqttDisconnectedEvent();
 }
 
 class MqttSubscribeRequestedEvent extends MqttEvent {
@@ -34,20 +26,20 @@ class MqttSubscribeRequestedEvent extends MqttEvent {
   const MqttSubscribeRequestedEvent({required this.desc});
 }
 
-class MqttSubscribedEvent extends MqttEvent {
+class _MqttSubscribedEvent extends MqttEvent {
   final String topic;
 
-  const MqttSubscribedEvent({required this.topic});
+  const _MqttSubscribedEvent({required this.topic});
 }
 
-class MqttSubscribeFailEvent extends MqttEvent {
+class _MqttSubscribeFailEvent extends MqttEvent {
   final String topic;
 
-  const MqttSubscribeFailEvent({required this.topic});
+  const _MqttSubscribeFailEvent({required this.topic});
 }
 
-class MqttPongEvent extends MqttEvent {
-  const MqttPongEvent();
+class _MqttPongEvent extends MqttEvent {
+  const _MqttPongEvent();
 }
 
 class MqttReceivedMessageEvent extends MqttEvent {
@@ -56,8 +48,8 @@ class MqttReceivedMessageEvent extends MqttEvent {
   const MqttReceivedMessageEvent(this.data);
 }
 
-class MqttCreateThingGroupRequestedEvent extends MqttEvent {
-  final String groupName;
+class MqttStartRequestedEvent extends MqttEvent {
+  final String userId;
 
-  const MqttCreateThingGroupRequestedEvent({required this.groupName});
+  const MqttStartRequestedEvent({required this.userId});
 }

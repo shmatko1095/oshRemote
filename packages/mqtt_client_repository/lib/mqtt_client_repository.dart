@@ -31,7 +31,8 @@ class MqttClientRepository {
     context.usePrivateKeyBytes(privateKey.codeUnits);
 
     _client.securityContext = context;
-    _client.logging(on: false);
+    _client.clientIdentifier = thingName;
+    _client.logging(on: true);
     _client.keepAlivePeriod = 30;
     _client.port = 8883;
     _client.secure = true;
@@ -42,9 +43,6 @@ class MqttClientRepository {
     _client.onSubscribeFail = onSubscribeFail;
     _client.pongCallback = onPong;
     _client.setProtocolV311();
-
-    _client.connectionMessage =
-        MqttConnectMessage().withClientIdentifier(thingName).startClean();
 
     return await _client.connect();
   }

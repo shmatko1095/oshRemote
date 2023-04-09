@@ -83,7 +83,7 @@ class _AppViewState extends State<AppView> {
         .whenComplete(() => {
               context
                   .read<SignInBloc>()
-                  .add(const SignInFetchSessionRequested())
+                  .add(const SignInFetchUserDataRequested())
             });
 
     return MaterialApp(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
 import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -21,25 +22,27 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
           connectionState: MqttClientConnectionStatus.disconnected,
           subscribedTopics: [],
           userThingsList: [],
-          thingGroup: "",
-          thingId: "",
+          groupName: "",
+          clientName: "",
         )) {
     on<MqttGetUserThingsRequested>(_onMqttGetUserThingsEvent);
-    on<MqttConnectRequested>(_onMqttConnectRequested);
-    on<MqttConnectedEvent>(_onMqttConnectedEvent);
-    on<MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
-    on<MqttSubscribedEvent>(_onMqttSubscribedEvent);
-    on<MqttSubscribeFailEvent>(_onMqttSubscribeFailEvent);
+    on<_MqttConnectedEvent>(_onMqttConnectedEvent);
+    on<_MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
+    on<_MqttSubscribedEvent>(_onMqttSubscribedEvent);
+    on<_MqttSubscribeFailEvent>(_onMqttSubscribeFailEvent);
     on<MqttSubscribeRequestedEvent>(_onMqttSubscribeRequestedEvent);
     on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
-    on<MqttPongEvent>(_onMqttPongEvent);
-    on<MqttCreateThingGroupRequestedEvent>(
-        _onMqttCreateThingGroupRequestedEvent);
+    on<_MqttPongEvent>(_onMqttPongEvent);
+    on<MqttStartRequestedEvent>(_onMqttStartInGroupRequestedEvent);
   }
 
   final MqttClientRepository _mqttRepository;
   final AwsIotRepository _iotRepository;
   static const _thingGroupPolicyName = "OshGroupPolicy";
+  static const _thingPolicyName = "OSHdev";
+  static const _clientPrefix = "client-";
+
+  AWS.CreateKeysAndCertificateResponse? clientCert;
 
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
@@ -57,51 +60,21 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     return _mqttMessageStreamController.stream;
   }
 
-  Future<void> _onMqttConnectRequested(
-      MqttConnectRequested event, Emitter<MqttClientState> emit) async {
-    emit(
-        state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
-    const policyName = "OSHdev";
-
-    try {
-      final cert = await _iotRepository.createCertificate();
-      await _iotRepository.attachPolicy(policyName, cert.certificateArn!);
-      await _iotRepository.createThing(event.thingId);
-      await _iotRepository.attachThingPrincipal(
-          event.thingId, cert.certificateArn!);
-      await _mqttRepository.connect(
-        cert.certificatePem!,
-        cert.keyPair!.privateKey!,
-        event.thingId,
-        () => add(MqttConnectedEvent(thingId: event.thingId)),
-        () => add(const MqttDisconnectedEvent()),
-        (topic) => add(MqttSubscribedEvent(topic: topic)),
-        (topic) => add(MqttSubscribeFailEvent(topic: topic)),
-        () => add(const MqttPongEvent()),
-      );
-    } on Exception catch (e) {
-      emit(state.copyWith(
-          connectionState: MqttClientConnectionStatus.disconnected));
-      print(e);
-    }
-  }
-
   Future<void> _onMqttConnectedEvent(
-      MqttConnectedEvent event, Emitter<MqttClientState> emit) async {
+      _MqttConnectedEvent event, Emitter<MqttClientState> emit) async {
     emit(state.copyWith(
         connectionState: MqttClientConnectionStatus.connected,
-        thingId: event.thingId));
-    await _iotRepository.addThingToGroup(state.thingGroup, event.thingId);
+        clientName: event.thingId));
   }
 
   Future<void> _onMqttDisconnectedEvent(
-      MqttDisconnectedEvent event, Emitter<MqttClientState> emit) async {
+      _MqttDisconnectedEvent event, Emitter<MqttClientState> emit) async {
     emit(state.copyWith(
         connectionState: MqttClientConnectionStatus.disconnected));
   }
 
   Future<void> _onMqttSubscribedEvent(
-      MqttSubscribedEvent event, Emitter<MqttClientState> emit) async {
+      _MqttSubscribedEvent event, Emitter<MqttClientState> emit) async {
     if (_mqttRepository.getMessagesStream() != null) {
       _receivedMqttMessage = _mqttRepository
           .getMessagesStream()!
@@ -113,16 +86,16 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   }
 
   Future<void> _onMqttSubscribeFailEvent(
-      MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {}
+      _MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {}
 
   Future<void> _onMqttSubscribeRequestedEvent(
       MqttSubscribeRequestedEvent event, Emitter<MqttClientState> emit) async {
-    final topic = "${state.thingId}/${event.desc.topic}";
+    final topic = "${state.clientName}/${event.desc.topic}";
     _mqttRepository.subscribe(topic, MqttQos.values[event.desc.qos]);
   }
 
   Future<void> _onMqttPongEvent(
-      MqttPongEvent event, Emitter<MqttClientState> emit) async {}
+      _MqttPongEvent event, Emitter<MqttClientState> emit) async {}
 
   Future<void> _onMqttReceivedMessageEvent(
       MqttReceivedMessageEvent event, Emitter<MqttClientState> emit) async {
@@ -131,41 +104,83 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
       final String message =
           MqttPublishPayload.bytesToStringAsString(msg.payload.message);
 
-      final topicIndex = state.thingId.length + "/".length;
+      final topicIndex = state.clientName.length + "/".length;
       final header = MqttMessageHeader(element.topic.substring(topicIndex));
       final descriptor = MqttMessageDescriptor(message, header);
       _mqttMessageStreamController.add(descriptor);
     }
   }
 
-  Future<void> _onMqttCreateThingGroupRequestedEvent(
-      MqttCreateThingGroupRequestedEvent event,
+  Future<void> _onMqttStartInGroupRequestedEvent(
+      MqttStartRequestedEvent event,
       Emitter<MqttClientState> emit) async {
-    String? name = await _iotRepository.createGroup(event.groupName);
-    emit(state.copyWith(thingGroup: name));
-  }
+    final clientThingName = _clientPrefix + event.userId;
+    String? clientName = await _checkOrCreateThing(clientThingName);
+    await _checkOrCreateCertificateWithPolicyAndAttachToThing(clientThingName);
+    String? groupName = await _checkOrCreateGroup(event.userId);
+    await _checkOrAddThingToGroup(groupName, clientName);
 
-  Future<void> _checkGroupOrCreate(String userId) async {
-    bool exist = await _iotRepository.isGroupExist(userId);
-    if (!exist) {
-      await _iotRepository.createGroup(userId);
-      // await _iotRepository.attachPolicy(_thingGroupPolicyName, userId);
-    }
-  }
-
-  Future<void> checkThingOrCreate(String userId) async {
-    bool exist = await _iotRepository.isThingExist(userId);
-    if (!exist) {
-      await _iotRepository.createThing(userId);
-      // await _iotRepository.attachPolicy(_thingGroupPolicyName, userId);
-    }
+    emit(state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
+    _connectClient(clientThingName);
+    emit(state.copyWith(groupName: groupName, clientName: clientName));
   }
 
   Future<void> _onMqttGetUserThingsEvent(
       MqttGetUserThingsRequested event, Emitter<MqttClientState> emit) async {
-    await _checkGroupOrCreate(event.userId);
-    List<String> things = await _iotRepository.listThingsInGroup(event.userId);
-    emit(state.copyWith(userThingsList: things));
+    final things = await _iotRepository.listThingsInGroup(event.userId);
+    final devices = things.where((s) => !s.startsWith(_clientPrefix)).toList();
+    emit(state.copyWith(userThingsList: devices));
+  }
+
+  Future<String?> _checkOrCreateGroup(String groupName) async {
+    bool exist = await _iotRepository.isGroupExist(groupName);
+    String? name = exist
+        ? groupName
+        : await _iotRepository.createGroup(groupName);
+    return name;
+  }
+
+  Future<String?> _checkOrCreateThing(String thingName) async {
+    bool exist = await _iotRepository.isThingExist(thingName);
+    String? name;
+    if (exist) {
+      name = thingName; 
+    } else {
+      final resp = await _iotRepository.createThing(thingName);
+
+      name = resp.thingName;
+    }
+    return name;
+  }
+
+  Future<void> _checkOrAddThingToGroup(String? group, String? thing) async {
+    final thingList = await _iotRepository.listThingsInGroup(group!);
+    if (!thingList.contains(thing)) {
+      await _iotRepository.addThingToGroup(group, thing);
+    }
+  }
+
+  Future<void> _checkOrCreateCertificateWithPolicyAndAttachToThing(String thingName) async {
+    String? id = clientCert?.certificateId;
+    bool isActive = await _iotRepository.isCertificateActive(id);
+    if (!isActive) {
+      clientCert = await _iotRepository.createCertificate();
+      await _iotRepository.attachPolicy(_thingPolicyName, clientCert!.certificateArn!);
+      await _iotRepository.attachThingPrincipal(thingName, clientCert!.certificateArn!);
+    }
+  }
+
+  Future<void> _connectClient(String thingName) async {
+    await _mqttRepository.connect(
+      clientCert!.certificatePem!,
+      clientCert!.keyPair!.privateKey!,
+      thingName,
+      () => add(_MqttConnectedEvent(thingId: thingName)),
+      () => add(const _MqttDisconnectedEvent()),
+      (topic) => add(_MqttSubscribedEvent(topic: topic)),
+      (topic) => add(_MqttSubscribeFailEvent(topic: topic)),
+      () => add(const _MqttPongEvent()),
+    );
   }
 
 /**

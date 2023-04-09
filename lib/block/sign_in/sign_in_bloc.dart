@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:osh_remote/models/email.dart';
@@ -26,7 +25,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInPasswordChanged>(_onPasswordChanged);
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
-    on<SignInFetchSessionRequested>(_onFetchSessionRequested);
     on<SignInFetchUserDataRequested>(_onSignInFetchUserRequested);
   }
 
@@ -58,15 +56,18 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       SignInLoginRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
-      SignInResult result = await _authenticationRepository.signIn(
+      await _authenticationRepository.signIn(
         username: state.email.value,
         password: state.password.value,
       );
+      final user = await _fetchUser();
       emit(state.copyWith(
-          status: result.isSignedIn
+          status: user.userId.isNotEmpty
               ? SignInStatus.authorized
-              : SignInStatus.unauthorized));
+              : SignInStatus.unauthorized,
+          user: user));
     } on Exception catch (e) {
+      emit(state.copyWith(status: SignInStatus.unauthorized));
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
@@ -84,44 +85,37 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(state.copyWith(inProgress: [false]));
   }
 
-  Future<void> _onFetchSessionRequested(
-      SignInFetchSessionRequested event, Emitter<SignInState> emit) async {
+  Future<void> _onSignInFetchUserRequested(
+      SignInFetchUserDataRequested event, Emitter<SignInState> emit) async {
     emit(state.copyWith(inProgress: [true]));
     try {
-      final authUser = await _authenticationRepository.getCurrentUser();
+      final user = await _fetchUser();
       emit(state.copyWith(
-          status: authUser.userId.isNotEmpty
+          status: user.userId.isNotEmpty
               ? SignInStatus.authorized
-              : SignInStatus.unauthorized));
+              : SignInStatus.unauthorized,
+          user: user));
     } on Exception catch (e) {
+      emit(state.copyWith(status: SignInStatus.unauthorized));
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
   }
 
-  Future<void> _onSignInFetchUserRequested(
-      SignInFetchUserDataRequested event, Emitter<SignInState> emit) async {
-    emit(state.copyWith(inProgress: [true]));
-    try {
-      final attrib = await _authenticationRepository.fetchUserAttributes();
-      String userId = attrib
-          .firstWhere((element) =>
-              element.userAttributeKey == AuthenticationRepository.SubKey)
-          .value;
-      String name = attrib
-          .firstWhere((element) =>
-              element.userAttributeKey == AuthenticationRepository.NameKey)
-          .value;
-      String email = attrib
-          .firstWhere((element) =>
-              element.userAttributeKey == AuthenticationRepository.EmailKey)
-          .value;
-
-      emit(
-          state.copyWith(user: User(userId: userId, email: email, name: name)));
-    } on Exception catch (e) {
-      exceptionStreamController.add(e);
-    }
-    emit(state.copyWith(inProgress: [false]));
+  Future<User> _fetchUser() async {
+    final attrib = await _authenticationRepository.fetchUserAttributes();
+    String userId = attrib
+        .firstWhere((element) =>
+            element.userAttributeKey == AuthenticationRepository.SubKey)
+        .value;
+    String name = attrib
+        .firstWhere((element) =>
+            element.userAttributeKey == AuthenticationRepository.NameKey)
+        .value;
+    String email = attrib
+        .firstWhere((element) =>
+            element.userAttributeKey == AuthenticationRepository.EmailKey)
+        .value;
+    return User(userId: userId, email: email, name: name);
   }
 }

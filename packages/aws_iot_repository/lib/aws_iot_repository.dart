@@ -31,7 +31,7 @@ class AwsIotRepository {
     return response.thingGroupName;
   }
 
-  Future<void> addThingToGroup(String group, String thing) async {
+  Future<void> addThingToGroup(String? group, String? thing) async {
     await _service.addThingToThingGroup(
         thingName: thing, thingGroupName: group);
   }
@@ -49,12 +49,35 @@ class AwsIotRepository {
   }
 
   Future<bool> isGroupExist(String name) async {
-    final response = await _service.describeThingGroup(thingGroupName: name);
-    return response.thingGroupArn != null;
+    bool result;
+    try {
+      final response = await _service.describeThingGroup(thingGroupName: name);
+      result = response.thingGroupArn != null;
+    } on ResourceNotFoundException {
+      result = false;
+    }
+    return result;
   }
 
   Future<bool> isThingExist(String name) async {
-    final response = await _service.describeThing(thingName: name);
-    return response.thingName != null;
+    bool result;
+    try {
+      final response = await _service.describeThing(thingName: name);
+      result = response.thingName != null;
+    } on ResourceNotFoundException {
+      result = false;
+    }
+    return result;
+  }
+
+  Future<bool> isCertificateActive(String? certificateId) async {
+    bool result = false;
+    if (certificateId != null) {
+      final response = await _service.describeCertificate(certificateId: certificateId);
+      if (response.certificateDescription != null) {
+        result = response.certificateDescription!.status == CertificateStatus.active;
+      }
+    }
+    return result;
   }
 }

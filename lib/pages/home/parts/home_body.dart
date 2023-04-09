@@ -44,6 +44,8 @@ class _HomePageState extends State<HomePage> {
     //       MqttSubscribeRequestedEvent(desc: desc));
     // });
 
+
+    /**@TODO: NEED to unsubscribe from stream ae logout*/
     BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
       _adapter.notifyWidget(event.header, event.message);
     });
