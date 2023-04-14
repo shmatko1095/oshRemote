@@ -47,7 +47,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
   final _mqttMessageStreamController =
-      StreamController<MqttMessageDescriptor>();
+      StreamController<MqttMessageDescriptor>.broadcast();
 
   @override
   Future<void> close() {
@@ -112,15 +112,15 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   }
 
   Future<void> _onMqttStartInGroupRequestedEvent(
-      MqttStartRequestedEvent event,
-      Emitter<MqttClientState> emit) async {
+      MqttStartRequestedEvent event, Emitter<MqttClientState> emit) async {
     final clientThingName = _clientPrefix + event.userId;
     String? clientName = await _checkOrCreateThing(clientThingName);
     await _checkOrCreateCertificateWithPolicyAndAttachToThing(clientThingName);
     String? groupName = await _checkOrCreateGroup(event.userId);
     await _checkOrAddThingToGroup(groupName, clientName);
 
-    emit(state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
+    emit(
+        state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
     _connectClient(clientThingName);
     emit(state.copyWith(groupName: groupName, clientName: clientName));
   }
@@ -134,9 +134,8 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
 
   Future<String?> _checkOrCreateGroup(String groupName) async {
     bool exist = await _iotRepository.isGroupExist(groupName);
-    String? name = exist
-        ? groupName
-        : await _iotRepository.createGroup(groupName);
+    String? name =
+        exist ? groupName : await _iotRepository.createGroup(groupName);
     return name;
   }
 
@@ -144,7 +143,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     bool exist = await _iotRepository.isThingExist(thingName);
     String? name;
     if (exist) {
-      name = thingName; 
+      name = thingName;
     } else {
       final resp = await _iotRepository.createThing(thingName);
 
@@ -160,13 +159,16 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     }
   }
 
-  Future<void> _checkOrCreateCertificateWithPolicyAndAttachToThing(String thingName) async {
+  Future<void> _checkOrCreateCertificateWithPolicyAndAttachToThing(
+      String thingName) async {
     String? id = clientCert?.certificateId;
     bool isActive = await _iotRepository.isCertificateActive(id);
     if (!isActive) {
       clientCert = await _iotRepository.createCertificate();
-      await _iotRepository.attachPolicy(_thingPolicyName, clientCert!.certificateArn!);
-      await _iotRepository.attachThingPrincipal(thingName, clientCert!.certificateArn!);
+      await _iotRepository.attachPolicy(
+          _thingPolicyName, clientCert!.certificateArn!);
+      await _iotRepository.attachThingPrincipal(
+          thingName, clientCert!.certificateArn!);
     }
   }
 

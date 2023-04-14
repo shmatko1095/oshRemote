@@ -27,3 +27,11 @@ class SignInLogoutRequested extends SignInEvent {
 class SignInFetchUserDataRequested extends SignInEvent {
   const SignInFetchUserDataRequested();
 }
+
+class SignedInEvent extends SignInEvent {
+  const SignedInEvent();
+}
+
+class SignedOutEvent extends SignInEvent {
+  const SignedOutEvent();
+}

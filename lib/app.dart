@@ -11,7 +11,6 @@ import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/home.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
 import 'package:osh_remote/pages/splash_page.dart';
-import 'package:osh_remote/utils/error_message_factory.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -58,23 +57,6 @@ class _AppViewState extends State<AppView> {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   NavigatorState get _navigator => _navigatorKey.currentState!;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context
-        .read<SignInBloc>()
-        .exceptionStream
-        .listen((exception) => onBlockException(context, exception));
-  }
-
-  void onBlockException(context, Exception exception) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(ErrorMessageFactory.get(exception, context))),
-      );
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -4,10 +4,47 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:authentication_repository/amplifyconfiguration.dart';
 
+enum AuthenticationEvent {
+  SignedIn,
+  SignedOut,
+  SessionExpired,
+  UserDeleted,
+}
+
 class AuthenticationRepository {
   static const SubKey = CognitoUserAttributeKey.sub;
   static const NameKey = CognitoUserAttributeKey.name;
   static const EmailKey = CognitoUserAttributeKey.email;
+
+  final StreamController<AuthenticationEvent> _eventStreamController =
+      StreamController<AuthenticationEvent>();
+  late final StreamSubscription<HubEvent> _hubSubscription;
+
+  Stream<AuthenticationEvent> get eventStream => _eventStreamController.stream;
+
+  void startListen() {
+    HubChannel<dynamic, HubEvent<dynamic>> channel = HubChannel.Auth;
+    _hubSubscription = Amplify.Hub.listen(channel, (hubEvent) {
+      switch (hubEvent.eventName) {
+        case 'SIGNED_IN':
+          _eventStreamController.add(AuthenticationEvent.SignedIn);
+          break;
+        case 'SIGNED_OUT':
+          _eventStreamController.add(AuthenticationEvent.SignedOut);
+          break;
+        case 'SESSION_EXPIRED':
+          _eventStreamController.add(AuthenticationEvent.SessionExpired);
+          break;
+        case 'USER_DELETED':
+          _eventStreamController.add(AuthenticationEvent.UserDeleted);
+          break;
+      }
+    });
+  }
+
+  void stopListen() {
+    _hubSubscription.cancel();
+  }
 
   Future<SignInResult> signIn(
       {required String username, required String password}) async {
@@ -46,8 +83,9 @@ class AuthenticationRepository {
   }
 
   Future<SignUpResult> signUp(
-      {required String email, required String password,
-        required String name}) async {
+      {required String email,
+      required String password,
+      required String name}) async {
     final attributes = <CognitoUserAttributeKey, String>{
       NameKey: name,
       EmailKey: email,

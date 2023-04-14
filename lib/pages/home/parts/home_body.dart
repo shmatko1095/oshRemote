@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,7 +18,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late ScrollController _scrollController;
+  late final StreamSubscription _mqttMessageSubscription;
+  late final ScrollController _scrollController;
   static const kExpandedHeight = 350.0;
   final _adapter = StreamWidgetAdapter();
   Widget? _title;
@@ -39,16 +42,24 @@ class _HomePageState extends State<HomePage> {
 
     addWidgetsToAdapter();
 
+    _mqttMessageSubscription = context
+        .read<MqttClientBloc>()
+        .mqttMessageStream
+        .listen((event) {
+      _adapter.notifyWidget(event.header, event.message);
+    });
+
+
     // _adapter.getTopicList().forEach((desc) {
     //   BlocProvider.of<MqttClientBloc>(context).add(
     //       MqttSubscribeRequestedEvent(desc: desc));
     // });
+  }
 
-
-    /**@TODO: NEED to unsubscribe from stream ae logout*/
-    BlocProvider.of<MqttClientBloc>(context).mqttMessageStream.listen((event) {
-      _adapter.notifyWidget(event.header, event.message);
-    });
+  @override
+  void dispose() {
+    _mqttMessageSubscription.cancel();
+    super.dispose();
   }
 
   bool get _isSliverAppBarExpanded {

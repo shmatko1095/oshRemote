@@ -4,7 +4,6 @@ import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
 import 'package:osh_remote/pages/home/widget/drawer/drawer_presenter.dart';
-import 'package:osh_remote/pages/login/login_page.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -15,8 +14,6 @@ class Home extends StatelessWidget {
 
   void _onSignOut(BuildContext context) {
     context.read<SignInBloc>().add(const SignInLogoutRequested());
-    Navigator.of(context)
-        .pushAndRemoveUntil<void>(LoginPage.route(), (route) => false);
   }
 
   void _onDeviceTap(BuildContext context, String device) {

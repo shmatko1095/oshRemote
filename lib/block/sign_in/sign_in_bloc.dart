@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:osh_remote/models/email.dart';
@@ -10,7 +11,7 @@ part 'sign_in_event.dart';
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final exceptionStreamController = StreamController<Exception>.broadcast();
+  final exceptionStreamController = StreamController<Exception>();
   final AuthenticationRepository _authenticationRepository;
 
   SignInBloc(AuthenticationRepository authenticationRepository)
@@ -26,17 +27,24 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
     on<SignInFetchUserDataRequested>(_onSignInFetchUserRequested);
+    on<SignedInEvent>(_onSignedInEvent);
+    on<SignedOutEvent>(_onSignedOutEvent);
+    _authenticationRepository.startListen();
+    _authenticationRepository.eventStream.listen((event) {
+      event == AuthenticationEvent.SignedIn
+          ? add(const SignedInEvent())
+          : add(const SignedOutEvent());
+    });
   }
 
   @override
   Future<void> close() async {
+    _authenticationRepository.stopListen();
     exceptionStreamController.close();
     super.close();
   }
 
-  Stream<Exception> get exceptionStream async* {
-    yield* exceptionStreamController.stream;
-  }
+  Stream<Exception> get exceptionStream => exceptionStreamController.stream;
 
   bool isConfirmAvailable() {
     return state.email.isValid() && state.password.isValid();
@@ -60,14 +68,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         username: state.email.value,
         password: state.password.value,
       );
-      final user = await _fetchUser();
-      emit(state.copyWith(
-          status: user.userId.isNotEmpty
-              ? SignInStatus.authorized
-              : SignInStatus.unauthorized,
-          user: user));
     } on Exception catch (e) {
-      emit(state.copyWith(status: SignInStatus.unauthorized));
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
@@ -78,7 +79,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(state.copyWith(inProgress: [true]));
     try {
       await _authenticationRepository.signOut();
-      emit(state.copyWith(status: SignInStatus.unauthorized));
     } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
@@ -95,11 +95,22 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
               ? SignInStatus.authorized
               : SignInStatus.unauthorized,
           user: user));
-    } on Exception catch (e) {
+    } on SignedOutException {
       emit(state.copyWith(status: SignInStatus.unauthorized));
+    } on Exception catch (e) {
       exceptionStreamController.add(e);
     }
     emit(state.copyWith(inProgress: [false]));
+  }
+
+  Future<void> _onSignedInEvent(
+      SignedInEvent event, Emitter<SignInState> emit) async {
+    add(const SignInFetchUserDataRequested());
+  }
+
+  Future<void> _onSignedOutEvent(
+      SignedOutEvent event, Emitter<SignInState> emit) async {
+    emit(state.copyWith(status: SignInStatus.unauthorized));
   }
 
   Future<User> _fetchUser() async {
