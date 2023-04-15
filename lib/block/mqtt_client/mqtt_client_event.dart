@@ -53,3 +53,7 @@ class MqttStartRequestedEvent extends MqttEvent {
 
   const MqttStartRequestedEvent({required this.userId});
 }
+
+class MqttStopRequestedEvent extends MqttEvent {
+  const MqttStopRequestedEvent();
+}

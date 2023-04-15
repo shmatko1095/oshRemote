@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,20 +22,33 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final List _widgets = [];
+  late final StreamSubscription _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _subscription = context
+        .read<SignUpBloc>()
+        .exceptionStream
+        .listen((exception) => onBlockException(context, exception));
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     _widgets.add(_getNameField(context));
     _widgets.add(_getUsernameField(context));
     _widgets.add(_getPassword0Field(context));
     _widgets.add(_getPassword1Field(context));
     _widgets.add(_getConfirmButton(context));
+  }
 
-    context
-        .read<SignUpBloc>()
-        .exceptionStream
-        .listen((exception) => onBlockException(context, exception));
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    _subscription.cancel();
   }
 
   UsernameField _getUsernameField(BuildContext context) {

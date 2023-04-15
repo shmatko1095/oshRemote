@@ -34,6 +34,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
     on<_MqttPongEvent>(_onMqttPongEvent);
     on<MqttStartRequestedEvent>(_onMqttStartInGroupRequestedEvent);
+    on<MqttStopRequestedEvent>(_onMqttStopInGroupRequestedEvent);
   }
 
   final MqttClientRepository _mqttRepository;
@@ -119,10 +120,11 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     String? groupName = await _checkOrCreateGroup(event.userId);
     await _checkOrAddThingToGroup(groupName, clientName);
 
-    emit(
-        state.copyWith(connectionState: MqttClientConnectionStatus.connecting));
+    emit(state.copyWith(
+        groupName: groupName,
+        clientName: clientName,
+        connectionState: MqttClientConnectionStatus.connecting));
     _connectClient(clientThingName);
-    emit(state.copyWith(groupName: groupName, clientName: clientName));
   }
 
   Future<void> _onMqttGetUserThingsEvent(
@@ -183,6 +185,13 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
       (topic) => add(_MqttSubscribeFailEvent(topic: topic)),
       () => add(const _MqttPongEvent()),
     );
+  }
+
+  Future<void> _onMqttStopInGroupRequestedEvent(
+      MqttStopRequestedEvent event, Emitter<MqttClientState> emit) async {
+    emit(state.copyWith(
+        connectionState: MqttClientConnectionStatus.disconnecting));
+    _mqttRepository.disconnect();
   }
 
 /**

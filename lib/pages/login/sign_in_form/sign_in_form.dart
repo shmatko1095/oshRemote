@@ -15,10 +15,34 @@ import 'package:osh_remote/widgets/username_field.dart';
 import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/forgot_password_button.dart';
+
 part 'parts/try_demo_button.dart';
 
-class SignInForm extends StatelessWidget {
+class SignInForm extends StatefulWidget {
   const SignInForm({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _SignInFormState();
+}
+
+class _SignInFormState extends State<SignInForm> {
+  late final StreamSubscription _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _subscription = context
+        .read<SignInBloc>()
+        .exceptionStream
+        .listen((exception) => onBlockException(context, exception));
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 
   Future<void> _userNotConfirmedDialogBuilder(BuildContext context) {
     return showDialog<void>(
@@ -101,11 +125,6 @@ class SignInForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context
-        .read<SignInBloc>()
-        .exceptionStream
-        .listen((exception) => onBlockException(context, exception));
-
     return SingleChildScrollView(
         padding: padding,
         child: Column(

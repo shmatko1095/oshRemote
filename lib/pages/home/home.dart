@@ -14,6 +14,7 @@ class Home extends StatelessWidget {
 
   void _onSignOut(BuildContext context) {
     context.read<SignInBloc>().add(const SignInLogoutRequested());
+    context.read<MqttClientBloc>().add(const MqttStopRequestedEvent());
   }
 
   void _onDeviceTap(BuildContext context, String device) {

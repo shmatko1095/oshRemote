@@ -47,6 +47,10 @@ class MqttClientRepository {
     return await _client.connect();
   }
 
+  void disconnect() {
+     _client.disconnect();
+  }
+
   void publish(String topic, MqttQos qos, MqttClientPayloadBuilder builder) {
     _client.publishMessage(topic, qos, builder.payload!);
   }

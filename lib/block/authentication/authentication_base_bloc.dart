@@ -36,9 +36,7 @@ abstract class AuthenticationBaseBloc
     super.close();
   }
 
-  Stream<Exception> get exceptionStream async* {
-    yield* exceptionStreamController.stream;
-  }
+  Stream<Exception> get exceptionStream => exceptionStreamController.stream;
 
   final AuthenticationRepository authenticationRepository;
 

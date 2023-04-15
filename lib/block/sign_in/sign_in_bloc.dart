@@ -11,7 +11,7 @@ part 'sign_in_event.dart';
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  final exceptionStreamController = StreamController<Exception>();
+  final exceptionStreamController = StreamController<Exception>.broadcast();
   final AuthenticationRepository _authenticationRepository;
 
   SignInBloc(AuthenticationRepository authenticationRepository)
