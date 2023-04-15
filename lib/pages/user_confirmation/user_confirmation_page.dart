@@ -5,11 +5,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 import 'package:osh_remote/block/authentication/user_confirmation_bloc.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
+import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
 import 'package:osh_remote/widgets/confirm_code_field.dart';
 import 'package:osh_remote/widgets/username_field.dart';
-import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/back_button.dart';
 part 'parts/title.dart';
@@ -134,7 +134,7 @@ class _UserConfirmationFormState extends State<UserConfirmationForm> {
         child: SafeArea(
             child: Scaffold(
                 body: SingleChildScrollView(
-          padding: padding,
+          padding: Constants.formPadding,
           child: Column(
             children: [
               ..._widgets

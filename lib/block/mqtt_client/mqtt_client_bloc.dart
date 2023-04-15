@@ -9,7 +9,6 @@ import 'package:osh_remote/models/mqtt_message_descriptor.dart';
 import 'package:osh_remote/models/mqtt_message_header.dart';
 
 part 'mqtt_client_event.dart';
-
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
@@ -57,9 +56,8 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     return super.close();
   }
 
-  Stream<MqttMessageDescriptor> get mqttMessageStream {
-    return _mqttMessageStreamController.stream;
-  }
+  Stream<MqttMessageDescriptor> get mqttMessageStream =>
+      _mqttMessageStreamController.stream;
 
   Future<void> _onMqttConnectedEvent(
       _MqttConnectedEvent event, Emitter<MqttClientState> emit) async {

@@ -49,5 +49,11 @@
   "confirmation_code_sent": "Confirmation code sent",
   "authenticationFailure": "Authentication Failure",
   "user_not_confirmed_title": "User not confirmed in the system",
-  "user_not_confirmed_message": "Please, confirm user first and then retry operation"
+  "user_not_confirmed_message": "Please, confirm user first and then retry operation",
+  "serialNumberLabel": "SN:",
+  "serialNumberHint": "Serial number",
+  "serialNumberError": "Serial number must contains 8 character",
+  "secureCodeLabel": "SC:",
+  "secureCodeHint": "Secure code",
+  "secureCodeError": "Secure code must contains 12 character"
 }

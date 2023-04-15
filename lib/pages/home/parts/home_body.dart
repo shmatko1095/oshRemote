@@ -34,6 +34,11 @@ class _HomePageState extends State<HomePage> {
           _title = _isSliverAppBarExpanded ? const Text("Title") : null;
         });
       });
+
+    _mqttMessageSubscription =
+        context.read<MqttClientBloc>().mqttMessageStream.listen((event) {
+      _adapter.notifyWidget(event.header, event.message);
+    });
   }
 
   @override
@@ -41,14 +46,6 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
 
     addWidgetsToAdapter();
-
-    _mqttMessageSubscription = context
-        .read<MqttClientBloc>()
-        .mqttMessageStream
-        .listen((event) {
-      _adapter.notifyWidget(event.header, event.message);
-    });
-
 
     // _adapter.getTopicList().forEach((desc) {
     //   BlocProvider.of<MqttClientBloc>(context).add(

@@ -6,12 +6,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/authentication/authentication_base_bloc.dart';
 import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
 import 'package:osh_remote/pages/login/login_page.dart';
+import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
 import 'package:osh_remote/widgets/confirm_code_field.dart';
 import 'package:osh_remote/widgets/password_field.dart';
 import 'package:osh_remote/widgets/username_field.dart';
-import 'package:osh_remote/widgets/utils.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -69,14 +69,14 @@ class _SignUpFormState extends State<SignUpForm> {
       buildWhen: (previous, current) => previous.name != current.name,
       builder: (context, state) {
         return TextField(
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: S.of(context)!.name,
-              hintText: S.of(context)!.enterName,
-            ),
-            onChanged: (name) => context
-                .read<SignUpBloc>()
-                .add(AuthenticationNameChanged(name)),);
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            labelText: S.of(context)!.name,
+            hintText: S.of(context)!.enterName,
+          ),
+          onChanged: (name) =>
+              context.read<SignUpBloc>().add(AuthenticationNameChanged(name)),
+        );
       },
     );
   }
@@ -171,7 +171,7 @@ class _SignUpFormState extends State<SignUpForm> {
         child: SafeArea(
             child: Scaffold(
                 body: SingleChildScrollView(
-          padding: padding,
+          padding: Constants.formPadding,
           child: Column(
             children: [
               ..._widgets

@@ -49,5 +49,11 @@
   "confirmation_code_sent": "Код підтвердження відправленно",
   "authenticationFailure": "Помилка автентифікації",
   "user_not_confirmed_title": "Користувача не підтверджено",
-  "user_not_confirmed_message": "Спочатку підтвердьте користувача, а потім повторіть операцію"
+  "user_not_confirmed_message": "Спочатку підтвердьте користувача, а потім повторіть операцію",
+  "serialNumberLabel": "SN:",
+  "serialNumberHint": "Серійний номер",
+  "serialNumberError": "SN повинен містити не менше 8 символів",
+  "secureCodeLabel": "SC:",
+  "secureCodeHint": "Захисній код",
+  "secureCodeError": "SC повинен містити не менше 12 символів"
 }

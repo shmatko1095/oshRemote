@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
-      sdk: flutter
+    sdk: flutter
 
   authentication_repository:
     path: packages/authentication_repository
@@ -55,6 +55,7 @@ dependencies:
   equatable: ^2.0.5
   bloc: ^8.1.1
   google_fonts: ^4.0.3
+  mobile_scanner: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -82,7 +83,7 @@ flutter:
   generate: true
 
   # To add assets to your application, add an assets section, like this:
-#  assets:
+  #  assets:
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

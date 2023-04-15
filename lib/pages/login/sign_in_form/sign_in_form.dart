@@ -8,14 +8,13 @@ import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/home.dart';
 import 'package:osh_remote/pages/password_recovery/password_recovery_page.dart';
 import 'package:osh_remote/pages/user_confirmation/user_confirmation_page.dart';
+import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/utils/error_message_factory.dart';
 import 'package:osh_remote/widgets/confirm_button.dart';
 import 'package:osh_remote/widgets/password_field.dart';
 import 'package:osh_remote/widgets/username_field.dart';
-import 'package:osh_remote/widgets/utils.dart';
 
 part 'parts/forgot_password_button.dart';
-
 part 'parts/try_demo_button.dart';
 
 class SignInForm extends StatefulWidget {
@@ -126,7 +125,7 @@ class _SignInFormState extends State<SignInForm> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        padding: padding,
+        padding: Constants.formPadding,
         child: Column(
           children: [
             ...[
