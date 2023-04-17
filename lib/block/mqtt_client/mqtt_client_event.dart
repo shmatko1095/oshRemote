@@ -57,3 +57,10 @@ class MqttStartRequestedEvent extends MqttEvent {
 class MqttStopRequestedEvent extends MqttEvent {
   const MqttStopRequestedEvent();
 }
+
+class MqttAddDeviceRequestedEvent extends MqttEvent {
+  final String sn;
+  final String sc;
+
+  const MqttAddDeviceRequestedEvent({required this.sn, required this.sc});
+}

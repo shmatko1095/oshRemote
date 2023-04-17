@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 class AddDeviceForm extends StatefulWidget {
@@ -52,6 +54,12 @@ class _AddDeviceFormState extends State<AddDeviceForm> {
         (_scValue != null && _scValue!.length >= Constants.minSecureCodeLength);
   }
 
+  void _confirmHandler() {
+    context
+        .read<MqttClientBloc>()
+        .add(MqttAddDeviceRequestedEvent(sn: _snValue!, sc: _scValue!));
+  }
+
   Widget _getQrCodeScanner(BuildContext context) {
     return SizedBox(
         height: 300,
@@ -63,8 +71,8 @@ class _AddDeviceFormState extends State<AddDeviceForm> {
             if (barcodes.isNotEmpty && barcodes.last.rawValue != null) {
               //jsonString example: {"SN":"848445","SC":"00005lplplplp81"}
               final data = jsonDecode(barcodes.last.rawValue!);
-              _snFieldController.text = data[Constants.serialNumberJsonKey]!;
-              _scFieldController.text = data[Constants.secureCodeJsonKey]!;
+              _snFieldController.text = data[Constants.serialNumberKey]!;
+              _scFieldController.text = data[Constants.secureCodeKey]!;
             }
           },
         ));
@@ -99,15 +107,23 @@ class _AddDeviceFormState extends State<AddDeviceForm> {
   }
 
   Widget _getConfirmButton(BuildContext context) {
-    return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-            onPressed: _isConfirmAvailable() ? () {} : null,
-            child: Text(S.of(context)!.addDevice)));
+    return BlocBuilder<MqttClientBloc, MqttClientState>(
+      buildWhen: (previous, current) =>
+          previous.iotResp.inProgress != current.iotResp.inProgress,
+      builder: (context, state) {
+        return state.iotResp.inProgress
+            ? const CircularProgressIndicator()
+            : SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                    onPressed:
+                        _isConfirmAvailable() ? () => _confirmHandler() : null,
+                    child: Text(S.of(context)!.addDevice)));
+      },
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _getContent() {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -142,6 +158,19 @@ class _AddDeviceFormState extends State<AddDeviceForm> {
           ),
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<MqttClientBloc, MqttClientState>(
+      listenWhen: (previous, current) => previous.iotResp != current.iotResp,
+      listener: (context, state) {
+        if (state.iotResp.successful) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: _getContent(),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
 import 'package:osh_remote/pages/home/widget/drawer/drawer_presenter.dart';
+import 'package:osh_remote/utils/error_message_factory.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -21,8 +22,21 @@ class Home extends StatelessWidget {
     print("Selected device: $device");
   }
 
+  void _onBlocException(BuildContext context, Exception exception) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(ErrorMessageFactory.get(exception, context))),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
+    context
+        .read<MqttClientBloc>()
+        .exceptionStream
+        .listen((event) => _onBlocException(context, event));
+
     final userId = context.read<SignInBloc>().state.user.userId;
     context.read<MqttClientBloc>().add(MqttStartRequestedEvent(userId: userId));
 

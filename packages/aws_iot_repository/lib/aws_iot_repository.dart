@@ -31,10 +31,12 @@ class AwsIotRepository {
     return response.thingGroupName;
   }
 
-  Future<void> addThingToGroup(String? group, String? thing) async {
-    await _service.addThingToThingGroup(
-        thingName: thing, thingGroupName: group);
+  Future<void> addThingToGroup(
+      {required String thingName, required String groupName}) async {
+    await _service.addThingToThingGroup(thingName: thingName,
+        thingGroupName: groupName);
   }
+
 
   Future<List<String>> listThingsInGroup(String group) async {
     final res = await _service.listThingsInThingGroup(thingGroupName: group);
@@ -73,11 +75,19 @@ class AwsIotRepository {
   Future<bool> isCertificateActive(String? certificateId) async {
     bool result = false;
     if (certificateId != null) {
-      final response = await _service.describeCertificate(certificateId: certificateId);
+      final response = await _service.describeCertificate(
+          certificateId: certificateId);
       if (response.certificateDescription != null) {
-        result = response.certificateDescription!.status == CertificateStatus.active;
+        result =
+            response.certificateDescription!.status == CertificateStatus.active;
       }
     }
     return result;
+  }
+
+  Future<ListThingsResponse> listThingsByAttribute(
+      {required String attributeName, required String attributeValue}) async {
+    return await _service.listThings(
+        attributeName: attributeName, attributeValue: attributeValue);
   }
 }

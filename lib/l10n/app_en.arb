@@ -55,5 +55,7 @@
   "serialNumberError": "Serial number must contains 8 character",
   "secureCodeLabel": "SC:",
   "secureCodeHint": "Secure code",
-  "secureCodeError": "Secure code must contains 12 character"
+  "secureCodeError": "Secure code must contains 8 character",
+  "noIotDeviceFoundException": "No device found",
+  "secureCodeErrorException": "Secure code incorrect"
 }

@@ -55,5 +55,7 @@
   "serialNumberError": "SN повинен містити не менше 8 символів",
   "secureCodeLabel": "SC:",
   "secureCodeHint": "Захисній код",
-  "secureCodeError": "SC повинен містити не менше 12 символів"
+  "secureCodeError": "SC повинен містити не менше 8 символів",
+  "noIotDeviceFoundException": "Пристрій не знайдено",
+  "secureCodeErrorException": "Невірний захісній код"
 }

@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:osh_remote/block/mqtt_client/exeptions.dart';
 
 class ErrorMessageFactory {
   static String get(Exception? exception, BuildContext context) {
@@ -20,6 +21,10 @@ class ErrorMessageFactory {
       return S.of(context)!.signInFailed;
     } else if (exception.runtimeType == CodeMismatchException) {
       return S.of(context)!.codeMismatchException;
+    } else if (exception.runtimeType == NoIotDeviceFound) {
+      return S.of(context)!.noIotDeviceFoundException;
+    } else if (exception.runtimeType == SecureCodeIncorrect) {
+      return S.of(context)!.secureCodeErrorException;
     } else {
       return exception.toString();
     }
