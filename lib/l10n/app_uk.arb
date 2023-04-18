@@ -57,5 +57,7 @@
   "secureCodeHint": "Захисній код",
   "secureCodeError": "SC повинен містити не менше 8 символів",
   "noIotDeviceFoundException": "Пристрій не знайдено",
-  "secureCodeErrorException": "Невірний захісній код"
+  "secureCodeErrorException": "Невірний захісній код",
+  "renameDevice": "Перейменувати пристрій",
+  "deviceName": "Ім'я пристрою"
 }

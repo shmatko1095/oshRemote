@@ -3,7 +3,7 @@ import 'dart:async';
 // Should be changed to ValueListenableBuilder ValueNotifier
 abstract class StreamWidget {
   final StreamController<String> _counterController =
-      StreamController<String>();
+      StreamController<String>.broadcast();
 
   StreamSink<String> get counterSink => _counterController.sink;
 

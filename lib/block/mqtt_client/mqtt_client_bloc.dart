@@ -10,9 +10,9 @@ import 'package:osh_remote/block/mqtt_client/iot_response.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
 import 'package:osh_remote/models/mqtt_message_header.dart';
 import 'package:osh_remote/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'mqtt_client_event.dart';
-
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
@@ -40,8 +40,13 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttStartRequestedEvent>(_onMqttStartInGroupRequestedEvent);
     on<MqttStopRequestedEvent>(_onMqttStopInGroupRequestedEvent);
     on<MqttAddDeviceRequestedEvent>(_onMqttAddDeviceRequestedEvent);
+    on<MqttRemoveDeviceRequestedEvent>(_onMqttRemoveDeviceRequestedEvent);
+    on<MqttRenameDeviceRequestedEvent>(_onMqttRenameDeviceRequestedEvent);
+
+    SharedPreferences.getInstance().then((value) => _prefs = value);
   }
 
+  late final SharedPreferences _prefs;
   final MqttClientRepository _mqttRepository;
   final AwsIotRepository _iotRepository;
   static const _thingGroupPolicyName = "OshGroupPolicy";
@@ -138,9 +143,26 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
 
   Future<void> _onMqttGetUserThingsEvent(
       MqttGetUserThingsRequested event, Emitter<MqttClientState> emit) async {
-    final things = await _iotRepository.listThingsInGroup(event.userId);
-    final devices = things.where((s) => !s.startsWith(_clientPrefix)).toList();
-    emit(state.copyWith(userThingsList: devices));
+    final thingsInUserGroup =
+        await _iotRepository.listThingsInGroup(event.userId);
+    final devicesInUserGroup =
+        thingsInUserGroup.where((s) => !s.startsWith(_clientPrefix)).toList();
+    List<ThingDescriptor> userThingsList = [];
+    for (var element in devicesInUserGroup) {
+      final data = await _iotRepository.describeThing(thingName: element);
+      if (data.thingName != null &&
+          data.attributes != null &&
+          data.attributes!.containsKey(Constants.serialNumberKey) &&
+          data.attributes!.containsKey(Constants.secureCodeKey)) {
+        String awsName = data.thingName!;
+        String sn = data.attributes![Constants.serialNumberKey]!;
+        String sc = data.attributes![Constants.secureCodeKey]!;
+        String? name = _prefs.getString(sn);
+        userThingsList
+            .add(ThingDescriptor(awsName: awsName, sn: sn, sc: sc, name: name));
+      }
+    }
+    emit(state.copyWith(userThingsList: userThingsList));
   }
 
   Future<String?> _checkOrCreateGroup(String groupName) async {
@@ -222,9 +244,16 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
         } else {
           _iotRepository.addThingToGroup(
               thingName: thing.thingName!, groupName: state.groupName);
-          final userThings = state.userThingsList;
-          userThings.add(thing.thingName!);
-          emit(state.copyWith(userThingsList: userThings));
+          final newThing = ThingDescriptor(
+              awsName: thing.thingName!,
+              sn: event.sn,
+              sc: thingSc!,
+              name: _prefs.getString(event.sn));
+          List<ThingDescriptor> userThings = List.from(state.userThingsList);
+          if (!userThings.contains(newThing)) {
+            userThings.add(newThing);
+            emit(state.copyWith(userThingsList: userThings));
+          }
           result = true;
         }
       }
@@ -235,14 +264,69 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
         iotResp: IotResponse(successful: result, inProgress: false)));
   }
 
-/**
- * 1)createThingGroup
- * 2)check cert. If not available then:
- * 2.1)createCertificate
- * 2.2)attachPolicy(policyName, cert.certificateArn!);
- * 3)check thing. If not available then:
- * 3.1)createThing(event.thingId)
- * 3.2)attachThingPrincipal(event.thingId, cert.certificateArn!);
- * 4)connect
- **/
+  Future<void> _onMqttRemoveDeviceRequestedEvent(
+      MqttRemoveDeviceRequestedEvent event,
+      Emitter<MqttClientState> emit) async {
+    bool result = false;
+    emit(state.copyWith(
+        iotResp: IotResponse(inProgress: true, successful: result)));
+
+    try {
+      List<ThingDescriptor> userThings = List.from(state.userThingsList);
+      if (userThings.isNotEmpty) {
+        final targetThing =
+            userThings.firstWhere((element) => element.sn == event.sn);
+        await _iotRepository.removeThingFromGroup(
+            thingName: targetThing.awsName, groupName: state.groupName);
+        userThings.removeWhere((element) => element.sn == event.sn);
+        emit(state.copyWith(userThingsList: userThings));
+        result = true;
+      }
+    } on Exception catch (e) {
+      _exceptionStreamController.add(e);
+    }
+    emit(state.copyWith(
+        iotResp: IotResponse(successful: result, inProgress: false)));
+  }
+
+  Future<void> _onMqttRenameDeviceRequestedEvent(
+      MqttRenameDeviceRequestedEvent event,
+      Emitter<MqttClientState> emit) async {
+    try {
+      if (event.name != null) {
+        _prefs.setString(event.sn, event.name!);
+      } else {
+        _prefs.remove(event.sn);
+      }
+      List<ThingDescriptor> userThings = List.from(state.userThingsList);
+      final updatedUserThingsList =
+          _updateThingDescriptorList(userThings, event);
+      emit(state.copyWith(userThingsList: updatedUserThingsList));
+    } on Exception catch (e) {
+      _exceptionStreamController.add(e);
+    }
+  }
+
+  List<ThingDescriptor> _updateThingDescriptorList(
+      List<ThingDescriptor> userThingsList,
+      MqttRenameDeviceRequestedEvent event) {
+    final targetThing =
+        userThingsList.firstWhere((element) => element.sn == event.sn);
+    final updatedThing = ThingDescriptor(
+        awsName: targetThing.awsName,
+        sn: targetThing.sn,
+        sc: targetThing.sc,
+        name: event.name);
+    final updatedList =
+        _replaceThingDescriptor(userThingsList, targetThing, updatedThing);
+    return updatedList;
+  }
+
+  List<ThingDescriptor> _replaceThingDescriptor(List<ThingDescriptor> list,
+      ThingDescriptor targetThing, ThingDescriptor updatedThing) {
+    final index = list.indexOf(targetThing);
+    list.removeAt(index);
+    list.insert(index, updatedThing);
+    return list;
+  }
 }

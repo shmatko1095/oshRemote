@@ -33,10 +33,24 @@ class AwsIotRepository {
 
   Future<void> addThingToGroup(
       {required String thingName, required String groupName}) async {
-    await _service.addThingToThingGroup(thingName: thingName,
-        thingGroupName: groupName);
+    await _service.addThingToThingGroup(
+        thingName: thingName, thingGroupName: groupName);
   }
 
+  Future<void> removeThingFromGroup(
+      {required String thingName, required String groupName}) async {
+    return await _service.removeThingFromThingGroup(
+        thingName: thingName, thingGroupName: groupName);
+  }
+
+  Future<void> updateThing(
+      {required String thingName,
+      required Map<String, String> attributes}) async {
+    return await _service.updateThing(
+      thingName: thingName,
+      attributePayload: AttributePayload(attributes: attributes),
+    );
+  }
 
   Future<List<String>> listThingsInGroup(String group) async {
     final res = await _service.listThingsInThingGroup(thingGroupName: group);
@@ -75,8 +89,8 @@ class AwsIotRepository {
   Future<bool> isCertificateActive(String? certificateId) async {
     bool result = false;
     if (certificateId != null) {
-      final response = await _service.describeCertificate(
-          certificateId: certificateId);
+      final response =
+          await _service.describeCertificate(certificateId: certificateId);
       if (response.certificateDescription != null) {
         result =
             response.certificateDescription!.status == CertificateStatus.active;
@@ -89,5 +103,10 @@ class AwsIotRepository {
       {required String attributeName, required String attributeValue}) async {
     return await _service.listThings(
         attributeName: attributeName, attributeValue: attributeValue);
+  }
+
+  Future<DescribeThingResponse> describeThing(
+      {required String thingName}) async {
+    return await _service.describeThing(thingName: thingName);
   }
 }

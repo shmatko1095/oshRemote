@@ -32,7 +32,7 @@ class MqttClientRepository {
 
     _client.securityContext = context;
     _client.clientIdentifier = thingName;
-    _client.logging(on: true);
+    _client.logging(on: false);
     _client.keepAlivePeriod = 30;
     _client.port = 8883;
     _client.secure = true;

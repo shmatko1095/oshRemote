@@ -57,5 +57,7 @@
   "secureCodeHint": "Secure code",
   "secureCodeError": "Secure code must contains 8 character",
   "noIotDeviceFoundException": "No device found",
-  "secureCodeErrorException": "Secure code incorrect"
+  "secureCodeErrorException": "Secure code incorrect",
+  "renameDevice": "Rename device",
+  "deviceName": "Device name"
 }

@@ -64,3 +64,16 @@ class MqttAddDeviceRequestedEvent extends MqttEvent {
 
   const MqttAddDeviceRequestedEvent({required this.sn, required this.sc});
 }
+
+class MqttRemoveDeviceRequestedEvent extends MqttEvent {
+  final String sn;
+
+  const MqttRemoveDeviceRequestedEvent({required this.sn});
+}
+
+class MqttRenameDeviceRequestedEvent extends MqttEvent {
+  final String sn;
+  final String? name;
+
+  const MqttRenameDeviceRequestedEvent({required this.sn, required this.name});
+}
