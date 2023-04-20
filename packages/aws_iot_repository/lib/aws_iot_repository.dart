@@ -86,15 +86,11 @@ class AwsIotRepository {
     return result;
   }
 
-  Future<bool> isCertificateActive(String? certificateId) async {
+  Future<bool> isCertificateActive(String id) async {
     bool result = false;
-    if (certificateId != null) {
-      final response =
-          await _service.describeCertificate(certificateId: certificateId);
-      if (response.certificateDescription != null) {
-        result =
-            response.certificateDescription!.status == CertificateStatus.active;
-      }
+    final resp = await _service.describeCertificate(certificateId: id);
+    if (resp.certificateDescription != null) {
+      result = resp.certificateDescription!.status == CertificateStatus.active;
     }
     return result;
   }

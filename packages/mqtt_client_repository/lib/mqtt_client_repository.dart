@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mqtt_client_repository/cert_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:mqtt_client_repository/cert_manager.dart';
 
 class MqttClientRepository {
   late final MqttServerClient _client;
@@ -20,9 +20,9 @@ class MqttClientRepository {
       ConnectCallback onConnected,
       DisconnectCallback onDisconnected,
       SubscribeCallback onSubscribed,
+      UnsubscribeCallback onUnsubscribed,
       SubscribeFailCallback onSubscribeFail,
       PongCallback onPong) async {
-
     ByteData rootCA = await CertificateManager.getRootCertificate();
 
     final SecurityContext context = SecurityContext.defaultContext;
@@ -40,6 +40,7 @@ class MqttClientRepository {
     _client.onConnected = onConnected;
     _client.onDisconnected = onDisconnected;
     _client.onSubscribed = onSubscribed;
+    _client.onUnsubscribed = onUnsubscribed;
     _client.onSubscribeFail = onSubscribeFail;
     _client.pongCallback = onPong;
     _client.setProtocolV311();
@@ -48,7 +49,7 @@ class MqttClientRepository {
   }
 
   void disconnect() {
-     _client.disconnect();
+    _client.disconnect();
   }
 
   void publish(String topic, MqttQos qos, MqttClientPayloadBuilder builder) {

@@ -26,6 +26,12 @@ extension MqttClientPart on MqttClientBloc {
     }
   }
 
+  Future<void> _onMqttUnsubscribedEvent(
+      _MqttUnsubscribedEvent event, Emitter<MqttClientState> emit) async {
+    state.subscribedTopics.remove(event.topic);
+    emit(state);
+  }
+
   Future<void> _onMqttSubscribeFailEvent(
       _MqttSubscribeFailEvent event, Emitter<MqttClientState> emit) async {}
 
@@ -68,13 +74,19 @@ extension MqttClientPart on MqttClientBloc {
   }
 
   Future<void> _connectClient(String thingName) async {
+    final cert = CertificateProvider.getCert();
     await _mqttRepository.connect(
-      clientCert!.certificatePem!,
-      clientCert!.keyPair!.privateKey!,
+      cert!.pem,
+      cert.pair.privateKey,
       thingName,
       () => add(_MqttConnectedEvent(thingId: thingName)),
       () => add(const _MqttDisconnectedEvent()),
       (topic) => add(_MqttSubscribedEvent(topic: topic)),
+      (topic) {
+        if (topic != null) {
+          add(_MqttUnsubscribedEvent(topic: topic));
+        }
+      },
       (topic) => add(_MqttSubscribeFailEvent(topic: topic)),
       () => add(const _MqttPongEvent()),
     );

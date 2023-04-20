@@ -1,8 +1,8 @@
 part of 'mqtt_client_bloc.dart';
 
 extension AwsIotPart on MqttClientBloc {
-  Future<void> _onMqttAddDeviceRequestedEvent(MqttAddDeviceRequestedEvent event,
-      Emitter<MqttClientState> emit) async {
+  Future<void> _onMqttAddDeviceRequestedEvent(
+      MqttAddDeviceRequestedEvent event, Emitter<MqttClientState> emit) async {
     bool result = false;
     emit(state.copyWith(
         iotResp: IotResponse(inProgress: true, successful: result)));
@@ -51,7 +51,7 @@ extension AwsIotPart on MqttClientBloc {
       List<ThingDescriptor> userThings = List.from(state.userThingsList);
       if (userThings.isNotEmpty) {
         final targetThing =
-        userThings.firstWhere((element) => element.sn == event.sn);
+            userThings.firstWhere((element) => element.sn == event.sn);
         await _iotRepository.removeThingFromGroup(
             thingName: targetThing.awsName, groupName: state.groupName);
         userThings.removeWhere((element) => element.sn == event.sn);
@@ -76,7 +76,7 @@ extension AwsIotPart on MqttClientBloc {
       }
       List<ThingDescriptor> userThings = List.from(state.userThingsList);
       final updatedUserThingsList =
-      _updateThingDescriptorList(userThings, event);
+          _updateThingDescriptorList(userThings, event);
       emit(state.copyWith(userThingsList: updatedUserThingsList));
     } on Exception catch (e) {
       _exceptionStreamController.add(e);
@@ -87,14 +87,14 @@ extension AwsIotPart on MqttClientBloc {
       List<ThingDescriptor> userThingsList,
       MqttRenameDeviceRequestedEvent event) {
     final targetThing =
-    userThingsList.firstWhere((element) => element.sn == event.sn);
+        userThingsList.firstWhere((element) => element.sn == event.sn);
     final updatedThing = ThingDescriptor(
         awsName: targetThing.awsName,
         sn: targetThing.sn,
         sc: targetThing.sc,
         name: event.name);
     final updatedList =
-    _replaceThingDescriptor(userThingsList, targetThing, updatedThing);
+        _replaceThingDescriptor(userThingsList, targetThing, updatedThing);
     return updatedList;
   }
 
@@ -106,12 +106,12 @@ extension AwsIotPart on MqttClientBloc {
     return list;
   }
 
-  Future<void> _onMqttGetUserThingsEvent(MqttGetUserThingsRequested event,
-      Emitter<MqttClientState> emit) async {
+  Future<void> _onMqttGetUserThingsEvent(
+      MqttGetUserThingsRequested event, Emitter<MqttClientState> emit) async {
     final thingsInUserGroup =
-    await _iotRepository.listThingsInGroup(event.userId);
+        await _iotRepository.listThingsInGroup(event.userId);
     final devicesInUserGroup =
-    thingsInUserGroup.where((s) => !s.startsWith(clientPrefix)).toList();
+        thingsInUserGroup.where((s) => !s.startsWith(clientPrefix)).toList();
     List<ThingDescriptor> userThingsList = [];
     for (var element in devicesInUserGroup) {
       final data = await _iotRepository.describeThing(thingName: element);
@@ -133,21 +133,15 @@ extension AwsIotPart on MqttClientBloc {
   Future<String?> _checkOrCreateGroup(String groupName) async {
     bool exist = await _iotRepository.isGroupExist(groupName);
     String? name =
-    exist ? groupName : await _iotRepository.createGroup(groupName);
+        exist ? groupName : await _iotRepository.createGroup(groupName);
     return name;
   }
 
   Future<String?> _checkOrCreateThing(String thingName) async {
     bool exist = await _iotRepository.isThingExist(thingName);
-    String? name;
-    if (exist) {
-      name = thingName;
-    } else {
-      final resp = await _iotRepository.createThing(thingName);
-
-      name = resp.thingName;
-    }
-    return name;
+    return exist
+        ? thingName
+        : (await _iotRepository.createThing(thingName)).thingName;
   }
 
   Future<void> _checkOrAddThingToGroup(String group, String thing) async {
@@ -159,14 +153,38 @@ extension AwsIotPart on MqttClientBloc {
 
   Future<void> _checkOrCreateCertificateWithPolicyAndAttachToThing(
       String thingName) async {
-    String? id = clientCert?.certificateId;
-    bool isActive = await _iotRepository.isCertificateActive(id);
+    bool isActive = await _isCertificateActive();
     if (!isActive) {
-      clientCert = await _iotRepository.createCertificate();
-      await _iotRepository.attachPolicy(
-          thingPolicyName, clientCert!.certificateArn!);
-      await _iotRepository.attachThingPrincipal(
-          thingName, clientCert!.certificateArn!);
+      _createCertificateAndAttachThing(thingName);
     }
+  }
+
+  Future<bool> _isCertificateActive() async {
+    bool result = false;
+    Certificate? cert = CertificateProvider.getCert();
+    if (cert != null) {
+      try {
+        result = await _iotRepository.isCertificateActive(cert.id);
+      } on Exception catch (event) {
+        _exceptionStreamController.add(event);
+        result = false;
+      }
+    }
+    return result;
+  }
+
+  Future<void> _createCertificateAndAttachThing(String thingName) async {
+    AWS.CreateKeysAndCertificateResponse cert =
+        await _iotRepository.createCertificate();
+    await _iotRepository.attachPolicy(thingPolicyName, cert.certificateArn!);
+    await _iotRepository.attachThingPrincipal(thingName, cert.certificateArn!);
+
+    CertificateProvider.updateCert(Certificate(
+        arn: cert.certificateArn!,
+        id: cert.certificateId!,
+        pem: cert.certificatePem!,
+        pair: KeyPair(
+            privateKey: cert.keyPair!.privateKey!,
+            publicKey: cert.keyPair!.publicKey!)));
   }
 }

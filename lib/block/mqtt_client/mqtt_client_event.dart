@@ -32,6 +32,12 @@ class _MqttSubscribedEvent extends MqttEvent {
   const _MqttSubscribedEvent({required this.topic});
 }
 
+class _MqttUnsubscribedEvent extends MqttEvent {
+  final String topic;
+
+  const _MqttUnsubscribedEvent({required this.topic});
+}
+
 class _MqttSubscribeFailEvent extends MqttEvent {
   final String topic;
 

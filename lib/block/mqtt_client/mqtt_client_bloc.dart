@@ -5,6 +5,7 @@ import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository.dart';
+import 'package:osh_remote/block/mqtt_client/cert_provider.dart';
 import 'package:osh_remote/block/mqtt_client/exceptions.dart';
 import 'package:osh_remote/block/mqtt_client/iot_response.dart';
 import 'package:osh_remote/models/mqtt_message_descriptor.dart';
@@ -13,8 +14,11 @@ import 'package:osh_remote/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'aws_iot_part.dart';
+
 part 'mqtt_client_event.dart';
+
 part 'mqtt_client_part.dart';
+
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
@@ -35,6 +39,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<_MqttConnectedEvent>(_onMqttConnectedEvent);
     on<_MqttDisconnectedEvent>(_onMqttDisconnectedEvent);
     on<_MqttSubscribedEvent>(_onMqttSubscribedEvent);
+    on<_MqttUnsubscribedEvent>(_onMqttUnsubscribedEvent);
     on<_MqttSubscribeFailEvent>(_onMqttSubscribeFailEvent);
     on<MqttSubscribeRequestedEvent>(_onMqttSubscribeRequestedEvent);
     on<MqttReceivedMessageEvent>(_onMqttReceivedMessageEvent);
@@ -46,6 +51,7 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttRenameDeviceRequestedEvent>(_onMqttRenameDeviceRequestedEvent);
 
     SharedPreferences.getInstance().then((value) => _prefs = value);
+    CertificateProvider.init();
   }
 
   late final SharedPreferences _prefs;
@@ -53,8 +59,6 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   final AwsIotRepository _iotRepository;
   final thingPolicyName = "OSHdev";
   final clientPrefix = "client-";
-
-  AWS.CreateKeysAndCertificateResponse? clientCert;
 
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>
       _receivedMqttMessage;
