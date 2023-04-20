@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:osh_remote/block/mqtt_client/exeptions.dart';
+import 'package:osh_remote/block/mqtt_client/exceptions.dart';
 
 class ErrorMessageFactory {
   static String get(Exception? exception, BuildContext context) {
