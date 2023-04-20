@@ -25,6 +25,8 @@ class ErrorMessageFactory {
       return S.of(context)!.noIotDeviceFoundException;
     } else if (exception.runtimeType == SecureCodeIncorrect) {
       return S.of(context)!.secureCodeErrorException;
+    } else if (exception is ResourceNotFoundException) {
+      return S.of(context)!.resourceNotFoundException;
     } else {
       return exception.toString();
     }

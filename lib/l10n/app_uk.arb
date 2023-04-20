@@ -59,5 +59,6 @@
   "noIotDeviceFoundException": "Пристрій не знайдено",
   "secureCodeErrorException": "Невірний захісній код",
   "renameDevice": "Перейменувати пристрій",
-  "deviceName": "Ім'я пристрою"
+  "deviceName": "Ім'я пристрою",
+  "resourceNotFoundException": "Пристрій не знайдено"
 }

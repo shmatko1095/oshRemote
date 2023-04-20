@@ -8,32 +8,9 @@ enum MqttClientConnectionStatus {
   disconnected
 }
 
-class ThingDescriptor {
-  final String awsName;
-  final String sn;
-  final String sc;
-  final String? name;
-
-  ThingDescriptor({required this.awsName, required this.sn,
-    required this.sc, required this.name});
-
-  @override
-  bool operator ==(other) {
-    if (other is ThingDescriptor) {
-      return awsName == other.awsName
-          && sn == other.sn
-          && sc == other.sc
-        && name == other.name;
-    }
-    return false;
-  }
-
-}
-
 class MqttClientState {
   MqttClientState(
       {required this.connectionState,
-      required this.subscribedTopics,
       required this.userThingsList,
       required this.groupName,
       required this.clientName,
@@ -41,8 +18,7 @@ class MqttClientState {
       required this.iotResp});
 
   MqttClientConnectionStatus connectionState;
-  List<ThingDescriptor> userThingsList;
-  List<String> subscribedTopics;
+  List<String> userThingsList;
   IotResponse iotResp;
   String groupName;
   String clientName;
@@ -50,8 +26,7 @@ class MqttClientState {
 
   MqttClientState copyWith({
     MqttClientConnectionStatus? connectionState,
-    List<ThingDescriptor>? userThingsList,
-    List<String>? subscribedTopics,
+    List<String>? userThingsList,
     String? groupName,
     String? clientName,
     IotResponse? iotResp,
@@ -59,7 +34,6 @@ class MqttClientState {
   }) {
     return MqttClientState(
       connectionState: connectionState ?? this.connectionState,
-      subscribedTopics: subscribedTopics ?? this.subscribedTopics,
       userThingsList: userThingsList ?? this.userThingsList,
       groupName: groupName ?? this.groupName,
       clientName: clientName ?? this.clientName,

@@ -57,7 +57,7 @@ class _AddDeviceFormState extends State<AddDeviceForm> {
   void _confirmHandler() {
     context
         .read<MqttClientBloc>()
-        .add(MqttAddDeviceRequestedEvent(sn: _snValue!, sc: _scValue!));
+        .add(MqttAddDeviceEvent(sn: _snValue!, sc: _scValue!));
   }
 
   Widget _getQrCodeScanner(BuildContext context) {

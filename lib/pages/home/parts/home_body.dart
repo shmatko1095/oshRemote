@@ -1,9 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/models/mqtt_message_header.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
@@ -18,7 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final StreamSubscription _mqttMessageSubscription;
   late final ScrollController _scrollController;
   static const kExpandedHeight = 350.0;
   final _adapter = StreamWidgetAdapter();
@@ -34,11 +29,6 @@ class _HomePageState extends State<HomePage> {
           _title = _isSliverAppBarExpanded ? const Text("Title") : null;
         });
       });
-
-    _mqttMessageSubscription =
-        context.read<MqttClientBloc>().mqttMessageStream.listen((event) {
-      _adapter.notifyWidget(event.header, event.message);
-    });
   }
 
   @override
@@ -53,12 +43,6 @@ class _HomePageState extends State<HomePage> {
     // });
   }
 
-  @override
-  void dispose() {
-    _mqttMessageSubscription.cancel();
-    super.dispose();
-  }
-
   bool get _isSliverAppBarExpanded {
     return _scrollController.hasClients &&
         _scrollController.offset > kExpandedHeight - kToolbarHeight;
@@ -66,17 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MqttClientBloc, MqttClientState>(
-      buildWhen: (previous, current) =>
-          previous.connectionState != current.connectionState,
-      builder: (context, state) {
-        // if (state.connectionState == MqttClientConnectionStatus.connected) {
-        return _getBody();
-        // } else {
-        //   return const SplashPage();
-        // }
-      },
-    );
+    return _getBody();
   }
 
   void addWidgetsToAdapter() {

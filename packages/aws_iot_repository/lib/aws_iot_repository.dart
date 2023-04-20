@@ -4,8 +4,26 @@ import 'package:aws_iot_api/iot-2015-05-28.dart';
 
 class AwsIotRepository {
   late final IoT _service;
+  static AwsIotRepository? _instance;
 
-  AwsIotRepository(String region, AwsClientCredentials credentials) {
+  static AwsIotRepository createInstance(
+      String region, AwsClientCredentials credentials) {
+    if (_instance == null) {
+      _instance = AwsIotRepository._(region, credentials);
+    } else {
+      throw StateError("AwsIotRepository instance already exists");
+    }
+    return _instance!;
+  }
+
+  static AwsIotRepository getInstance() {
+    if (_instance == null) {
+      throw StateError("AwsIotRepository instance does not exists");
+    }
+    return _instance!;
+  }
+
+  AwsIotRepository._(String region, AwsClientCredentials credentials) {
     _service = IoT(region: region, credentials: credentials);
   }
 
