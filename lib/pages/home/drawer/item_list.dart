@@ -11,13 +11,13 @@ class ItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThingControllerCubit, ThingControllerState>(
         buildWhen: (previous, current) =>
-            previous.getThingDataList().length !=
-            current.getThingDataList().length,
+            previous.thingDataMap.length !=
+            current.thingDataMap.length,
         builder: (context, state) {
           return ListView.builder(
-            itemCount: state.getThingDataList().length,
-            itemBuilder: (context, index) =>
-                ThingItem(sn: state.getThingDataList()[index].sn),
+            itemCount: state.thingDataMap.length,
+            itemBuilder: (context, index) => ThingItem(
+                sn: state.thingDataMap.values.toList()[index].sn),
           );
         });
   }

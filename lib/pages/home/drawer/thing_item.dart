@@ -6,6 +6,8 @@ import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/drawer/rename_thing_dialog.dart';
 
 class ThingItem extends StatelessWidget {
+  static const _closeDelay = Duration(milliseconds: 1000);
+
   final String sn;
 
   const ThingItem({required this.sn, super.key});
@@ -41,6 +43,12 @@ class ThingItem extends StatelessWidget {
     context.read<MqttClientBloc>().add(MqttRemoveDeviceEvent(sn: sn));
   }
 
+  void _onConnectionChanged(BuildContext context, ThingControllerState state) {
+    if (state.getThingData(sn)!.status == ThingConnectionStatus.connected) {
+      Future.delayed(_closeDelay, () => Scaffold.of(context).openEndDrawer());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dismissible(
@@ -56,12 +64,14 @@ class ThingItem extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.getThingData(sn) != current.getThingData(sn),
         builder: (context, state) => ListTile(
-          leading: const Icon(Icons.home),
-          title: Text(state.getThingData(sn)!.name),
-          onTap: () => _onDeviceTap(context, sn),
-          onLongPress: () => _onDeviceRename(context, sn),
-          trailing: _getTrailing(state.getThingData(sn)!.status),
-        ),
+            leading: const Icon(Icons.home),
+            title: Text(state.getThingData(sn)!.name),
+            onTap: () => _onDeviceTap(context, sn),
+            onLongPress: () => _onDeviceRename(context, sn),
+            trailing: BlocListener<ThingControllerCubit, ThingControllerState>(
+              listener: _onConnectionChanged,
+              child: _getTrailing(state.getThingData(sn)!.status),
+            )),
       ),
     );
   }

@@ -108,7 +108,7 @@ extension AwsIotPart on MqttClientBloc {
   }
 
   Future<void> _createCertificateAndAttachThing(String thingName) async {
-    AWS.CreateKeysAndCertificateResponse cert =
+    aws.CreateKeysAndCertificateResponse cert =
         await _iotRepository.createCertificate();
     await _iotRepository.attachPolicy(thingPolicyName, cert.certificateArn!);
     await _iotRepository.attachThingPrincipal(thingName, cert.certificateArn!);

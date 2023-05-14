@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
+import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/drawer/drawer.dart';
 import 'package:osh_remote/pages/home/parts/home_body.dart';
 import 'package:osh_remote/pages/splash_page.dart';
@@ -42,6 +43,23 @@ class Home extends StatelessWidget {
     context.read<MqttClientBloc>().add(MqttGetUserThings(userId: userId));
   }
 
+  void _onThingListUpdate(BuildContext context, ThingControllerState state) {
+    bool isAnyConnectedThing = context
+        .read<ThingControllerCubit>()
+        .state
+        .thingDataMap
+        .values
+        .toList()
+        .any((element) =>
+            element.status == ThingConnectionStatus.connecting ||
+            element.status == ThingConnectionStatus.connected);
+    if (isAnyConnectedThing) {
+      final sn = context.read<ThingControllerCubit>().lastConnectedThing ??
+          state.thingDataMap.values.first.sn;
+      context.read<ThingControllerCubit>().connect(sn: sn);
+    }
+  }
+
   Widget _buildHomePage(BuildContext context, MqttClientState state) {
     return BlocListener<MqttClientBloc, MqttClientState>(
       listenWhen: (previous, current) =>
@@ -49,9 +67,15 @@ class Home extends StatelessWidget {
       listener: (context, state) => context
           .read<ThingControllerCubit>()
           .updateThingList(snList: state.userThingsList),
-      child: const Scaffold(
-        drawer: DrawerPresenter(),
-        body: HomePage(),
+      child: BlocListener<ThingControllerCubit, ThingControllerState>(
+        listenWhen: (previous, current) =>
+            previous.thingDataMap.length !=
+            current.thingDataMap.length,
+        listener: _onThingListUpdate,
+        child: const Scaffold(
+          drawer: DrawerPresenter(),
+          body: HomePage(),
+        ),
       ),
     );
   }

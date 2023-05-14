@@ -1,27 +1,31 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
-import 'package:osh_remote/models/mqtt_message_header.dart';
 import 'package:osh_remote/pages/home/widget/stream_widget.dart';
 
 class StreamWidgetAdapter {
-  final Map<MqttMessageHeader, StreamWidget> _map = {};
+  final Map<String, StreamWidget> _map = {};
 
-  void notifyWidget(MqttMessageHeader desc, String data) {
-    _map.forEach((key, value) {
-      if (key.topic == desc.topic) {
-        value.counterSink.add(data);
+  void updateWidgets(String jsonString) {
+    Map<String, dynamic> data = jsonDecode(jsonString);
+
+    data.forEach((key, value) {
+      if (_map.containsKey(key)) {
+        String stringValue = value.toString();
+        _map[key]?.sink.add(stringValue);
       }
     });
   }
 
-  void add(MqttMessageHeader desc, StreamWidget widget) {
-    _map.addEntries([MapEntry(desc, widget)]);
+  void add(String key, StreamWidget widget) {
+    _map.addEntries([MapEntry(key, widget)]);
   }
 
   List<Widget> getWidgetList() {
     return _map.entries.map((entry) => entry.value as Widget).toList();
   }
 
-  List<MqttMessageHeader> getTopicList() {
+  List<String> getTopicList() {
     return _map.entries.map((entry) => entry.key).toList();
   }
 }

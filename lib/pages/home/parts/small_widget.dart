@@ -41,7 +41,7 @@ class _SmallHomeWidgetState extends State<SmallHomeWidget> {
           ),
         ],
       ),
-      child: _getValue(widget.counterStream),
+      child: _getValue(widget.stream),
     );
   }
 

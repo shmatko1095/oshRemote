@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:aws_iot_api/iot-2015-05-28.dart' as AWS;
+import 'package:aws_iot_api/iot-2015-05-28.dart' as aws;
 import 'package:aws_iot_repository/aws_iot_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository.dart';

@@ -15,11 +15,11 @@ class HomeTempIndicator extends StatelessWidget {
       required this.nextPointTemp,
       required this.nextPointTime});
 
-  Color? _getColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.light
-        ? Colors.white
-        : null;
-  }
+  // Color? _getColor(BuildContext context) {
+  //   return Theme.of(context).brightness == Brightness.light
+  //       ? Colors.white
+  //       : null;
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:osh_remote/models/mqtt_message_header.dart';
+import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
+import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
 import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
+import 'package:osh_remote/utils/constants.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,9 +17,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // late final Map<String, SmallHomeWidget> _indicatorList;
   late final ScrollController _scrollController;
   static const kExpandedHeight = 350.0;
   final _adapter = StreamWidgetAdapter();
+  ThingData? _thingData;
   Widget? _title;
 
   @override
@@ -26,21 +31,31 @@ class _HomePageState extends State<HomePage> {
     _scrollController = ScrollController()
       ..addListener(() {
         setState(() {
-          _title = _isSliverAppBarExpanded ? const Text("Title") : null;
+          // _title = _isSliverAppBarExpanded ? const Text("Title") : null;
+          _title = _thingData!= null ? Text(_thingData!.name) : null;
         });
       });
+
+    context
+        .read<ThingControllerCubit>()
+        .widgetsStream
+        .listen((jsonString) => _adapter.updateWidgets(jsonString));
+
+  }
+
+  bool _isThingChanged(
+      ThingControllerState previous, ThingControllerState current) {
+    final previousIndex = previous.thingDataMap.values.toList().indexWhere(
+        (element) => element.status == ThingConnectionStatus.connected);
+    final currentIndex = current.thingDataMap.values.toList().indexWhere(
+        (element) => element.status == ThingConnectionStatus.connected);
+    return previousIndex != currentIndex;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    addWidgetsToAdapter();
-
-    // _adapter.getTopicList().forEach((desc) {
-    //   BlocProvider.of<MqttClientBloc>(context).add(
-    //       MqttSubscribeRequestedEvent(desc: desc));
-    // });
+    _addWidgetsToAdapter();
   }
 
   bool get _isSliverAppBarExpanded {
@@ -50,93 +65,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return _getBody();
-  }
-
-  void addWidgetsToAdapter() {
-    _adapter.add(
-        const MqttMessageHeader("0"),
-        SmallHomeWidget(
-          label: S.of(context)!.heater_status,
-          initial: "1/3",
-          iconData: Icons.local_fire_department,
-        ));
-
-    _adapter.add(
-        const MqttMessageHeader("1"),
-        SmallHomeWidget(
-          label: S.of(context)!.pump_status,
-          initial: "48",
-          postfix: "%",
-          iconData: Icons.loop,
-        ));
-
-    _adapter.add(
-      const MqttMessageHeader("2"),
-      SmallHomeWidget(
-          label: S.of(context)!.temp_in,
-          initial: "22.5",
-          postfix: "°C",
-          iconData: Icons.arrow_upward),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("3"),
-      SmallHomeWidget(
-          label: S.of(context)!.temp_out,
-          initial: "23.2",
-          postfix: "°C",
-          iconData: Icons.arrow_downward),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("4"),
-      SmallHomeWidget(
-          label: S.of(context)!.pressure,
-          initial: "1.98",
-          postfix: "bar",
-          iconData: Icons.compare_arrows),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("5"),
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("6"),
-      SmallHomeWidget(
-          label: S.of(context)!.pressure,
-          postfix: "bar",
-          iconData: Icons.compare_arrows),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("7"),
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("8"),
-      SmallHomeWidget(
-          label: S.of(context)!.pressure,
-          postfix: "bar",
-          iconData: Icons.compare_arrows),
-    );
-
-    _adapter.add(
-      const MqttMessageHeader("9"),
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          postfix: "%",
-          iconData: Icons.timelapse),
+    return BlocListener<ThingControllerCubit, ThingControllerState>(
+      listenWhen: _isThingChanged,
+      listener: (context, state) => setState(() {
+        _thingData = state.connectedThing;
+        _title = _thingData!= null ? Text(_thingData!.name) : null;
+      }),
+      child: _getBody(),
     );
   }
 
@@ -176,6 +111,97 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
       // )
+    );
+  }
+
+  void _addWidgetsToAdapter() {
+    _adapter.add(
+        Constants.keyHeaterStatus,
+        SmallHomeWidget(
+          label: S.of(context)!.heater_status,
+          initial: "1/3",
+          iconData: Icons.local_fire_department,
+        ));
+
+    _adapter.add(
+        Constants.keyPumpStatus,
+        SmallHomeWidget(
+          label: S.of(context)!.pump_status,
+          initial: "48",
+          postfix: "%",
+          iconData: Icons.loop,
+        ));
+
+    _adapter.add(
+      Constants.keyWaterTempIn,
+      SmallHomeWidget(
+          label: S.of(context)!.temp_in,
+          initial: "22.5",
+          postfix: "°C",
+          iconData: Icons.arrow_upward),
+    );
+
+    _adapter.add(
+      Constants.keyWaterTempOut,
+      SmallHomeWidget(
+          label: S.of(context)!.temp_out,
+          initial: "23.2",
+          postfix: "°C",
+          iconData: Icons.arrow_downward),
+    );
+
+    _adapter.add(
+      Constants.keyWaterPressure,
+      SmallHomeWidget(
+          label: S.of(context)!.pressure,
+          initial: "1.98",
+          postfix: "bar",
+          iconData: Icons.compare_arrows),
+    );
+
+    _adapter.add(
+      Constants.keyPowerUsage,
+      SmallHomeWidget(
+          label: S.of(context)!.power_usage,
+          initial: "61",
+          postfix: "%",
+          iconData: Icons.timelapse),
+    );
+
+    _adapter.add(
+      Constants.keySwVerMajor,
+      SmallHomeWidget(
+          label: S.of(context)!.power_usage,
+          initial: "61",
+          postfix: "%",
+          iconData: Icons.timelapse),
+    );
+
+    _adapter.add(
+      Constants.keySwVerMinor,
+      SmallHomeWidget(
+          label: S.of(context)!.power_usage,
+          initial: "61",
+          postfix: "%",
+          iconData: Icons.timelapse),
+    );
+
+    _adapter.add(
+      Constants.keyHwVerMajor,
+      SmallHomeWidget(
+          label: S.of(context)!.power_usage,
+          initial: "61",
+          postfix: "%",
+          iconData: Icons.timelapse),
+    );
+
+    _adapter.add(
+      Constants.keyHwVerMinor,
+      SmallHomeWidget(
+          label: S.of(context)!.power_usage,
+          initial: "61",
+          postfix: "%",
+          iconData: Icons.timelapse),
     );
   }
 }
