@@ -60,5 +60,7 @@
   "secureCodeErrorException": "Невірний захісній код",
   "renameDevice": "Перейменувати пристрій",
   "deviceName": "Ім'я пристрою",
-  "resourceNotFoundException": "Пристрій не знайдено"
+  "resourceNotFoundException": "Пристрій не знайдено",
+  "maxWaterTemp" : "Максимальна температура води",
+  "noConnectedDevice" : "Немає підключеного пристрою"
 }

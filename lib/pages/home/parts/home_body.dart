@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
+import 'package:osh_remote/pages/home/drawer/drawer.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
 import 'package:osh_remote/pages/home/parts/small_widget.dart';
 import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
+import 'package:osh_remote/pages/settings/settings.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,7 +35,7 @@ class _HomePageState extends State<HomePage> {
       ..addListener(() {
         setState(() {
           // _title = _isSliverAppBarExpanded ? const Text("Title") : null;
-          _title = _thingData!= null ? Text(_thingData!.name) : null;
+          _title = _thingData != null ? Text(_thingData!.name) : null;
         });
       });
 
@@ -40,16 +43,16 @@ class _HomePageState extends State<HomePage> {
         .read<ThingControllerCubit>()
         .widgetsStream
         .listen((jsonString) => _adapter.updateWidgets(jsonString));
-
   }
 
   bool _isThingChanged(
       ThingControllerState previous, ThingControllerState current) {
-    final previousIndex = previous.thingDataMap.values.toList().indexWhere(
-        (element) => element.status == ThingConnectionStatus.connected);
-    final currentIndex = current.thingDataMap.values.toList().indexWhere(
-        (element) => element.status == ThingConnectionStatus.connected);
-    return previousIndex != currentIndex;
+    // final previousIndex = previous.thingDataMap.values.toList().indexWhere(
+    //     (element) => element.status == ThingConnectionStatus.connected);
+    // final currentIndex = current.thingDataMap.values.toList().indexWhere(
+    //     (element) => element.status == ThingConnectionStatus.connected);
+    // return previousIndex != currentIndex;
+    return previous.connectedThing != current.connectedThing;
   }
 
   @override
@@ -69,48 +72,70 @@ class _HomePageState extends State<HomePage> {
       listenWhen: _isThingChanged,
       listener: (context, state) => setState(() {
         _thingData = state.connectedThing;
-        _title = _thingData!= null ? Text(_thingData!.name) : null;
+        _title = _thingData != null ? Text(_thingData!.name) : null;
       }),
-      child: _getBody(),
+      child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
+          buildWhen: _isThingChanged,
+          builder: (context, state) => SafeArea(
+              child: state.connectedThing != null
+                  ? _getBody()
+                  : _getNoThingPage())),
+    );
+  }
+
+  Widget _getNoThingPage() {
+    return Scaffold(
+      drawer: const DrawerPresenter(),
+      appBar: AppBar(
+        title: const Text("OSH"),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Text(S.of(context)!.noConnectedDevice),
+      ),
     );
   }
 
   Widget _getBody() {
-    return CustomScrollView(
-      controller: _scrollController,
-      slivers: <Widget>[
-        SliverAppBar(
-          title: _title,
-          centerTitle: true,
-          actions: [
-            IconButton(onPressed: () => {}, icon: const Icon(Icons.settings))
-          ],
-          pinned: true,
-          expandedHeight: kExpandedHeight,
-          flexibleSpace: FlexibleSpaceBar(
-            background: HomeTempIndicator(
-                height: kExpandedHeight,
-                actualTemp: 25.2,
-                targetTemp: 25,
-                nextPointTemp: 30,
-                nextPointTime: DateTime(2022, 12, 10, 17, 20)),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              const SelectorModeWidget(),
+    return Scaffold(
+      drawer: const DrawerPresenter(),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: <Widget>[
+          SliverAppBar(
+            title: _title,
+            centerTitle: true,
+            actions: [
+              IconButton(
+                  onPressed: () => Navigator.of(context).push(Settings.route()),
+                  icon: const Icon(Icons.settings))
             ],
+            pinned: true,
+            expandedHeight: kExpandedHeight,
+            flexibleSpace: FlexibleSpaceBar(
+              background: HomeTempIndicator(
+                  height: kExpandedHeight,
+                  actualTemp: 25.2,
+                  targetTemp: 25,
+                  nextPointTemp: 30,
+                  nextPointTime: DateTime(2022, 12, 10, 17, 20)),
+            ),
           ),
-        ),
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisExtent: 120.0, //height
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                const SelectorModeWidget(),
+              ],
+            ),
           ),
-          delegate: SliverChildListDelegate(_adapter.getWidgetList()),
-        ),
-      ],
-      // )
+          SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, mainAxisExtent: 120.0, //height
+            ),
+            delegate: SliverChildListDelegate(_adapter.getWidgetList()),
+          ),
+        ],
+      ),
     );
   }
 

@@ -11,7 +11,7 @@ class AwsIotRepository {
     if (_instance == null) {
       _instance = AwsIotRepository._(region, credentials);
     } else {
-      throw StateError("AwsIotRepository instance already exists");
+      // throw StateError("AwsIotRepository instance already exists");
     }
     return _instance!;
   }

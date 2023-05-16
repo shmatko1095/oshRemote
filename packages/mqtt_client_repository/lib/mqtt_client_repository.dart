@@ -14,9 +14,9 @@ class MqttClientRepository {
     if (_instance == null) {
       _instance = MqttClientRepository._(server);
     } else {
-      if (server == _instance!._client.server) {
-        throw StateError("MqttClientRepository instance already exists");
-      }
+      // if (server == _instance!._client.server) {
+      // throw StateError("MqttClientRepository instance already exists");
+      // }
     }
     return _instance!;
   }

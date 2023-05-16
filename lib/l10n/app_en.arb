@@ -60,5 +60,7 @@
   "secureCodeErrorException": "Secure code incorrect",
   "renameDevice": "Rename device",
   "deviceName": "Device name",
-  "resourceNotFoundException": "Thing not found"
+  "resourceNotFoundException": "Thing not found",
+  "maxWaterTemp" : "Water temperature limit",
+  "noConnectedDevice" : "No connected device"
 }

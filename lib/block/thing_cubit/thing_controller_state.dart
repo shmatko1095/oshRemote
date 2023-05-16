@@ -1,42 +1,11 @@
-import 'package:osh_remote/block/thing_cubit/thing_config.dart';
-
-enum ThingConnectionStatus { connecting, connected, disconnected }
-
-class ThingData {
-  final String _sn;
-  final String? _name;
-  final ThingConfig? _thingConfig;
-  late final ThingConnectionStatus _status;
-
-  get sn => _sn;
-
-  get status => _status;
-
-  get name => _name ?? _sn;
-
-  ThingData(
-      {required String sn,
-      String? name,
-      ThingConfig? thingConfig,
-      ThingConnectionStatus? status})
-      : _sn = sn,
-        _name = name,
-        _thingConfig = thingConfig,
-        _status = status ?? ThingConnectionStatus.disconnected;
-
-  ThingData copyWith(
-      {String? name, ThingConfig? thingConfig, ThingConnectionStatus? status}) {
-    return ThingData(
-      sn: _sn,
-      name: name ?? _name,
-      status: status ?? _status,
-      thingConfig: thingConfig ?? _thingConfig,
-    );
-  }
-}
+import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 
 class ThingControllerState {
   final Map<String, ThingData> _thingsMap;
+
+  Map<String, ThingData> get thingDataMap => Map.from(_thingsMap);
 
   ThingControllerState(Map<String, ThingData> map) : _thingsMap = map;
 
@@ -53,9 +22,15 @@ class ThingControllerState {
   }
 
   ThingControllerState copyWith(String sn,
-      {String? name, ThingConfig? config, ThingConnectionStatus? status}) {
-    final updated = getThingData(sn)!
-        .copyWith(name: name, thingConfig: config, status: status);
+      {String? name,
+      ThingConfig? config,
+      ThingSettings? settings,
+      ThingConnectionStatus? status}) {
+    final updated = getThingData(sn)!.copyWith(
+        name: name,
+        thingConfig: config,
+        thingSettings: settings,
+        status: status);
     return addThing(updated);
   }
 
@@ -66,13 +41,11 @@ class ThingControllerState {
 
   ThingData? getThingData(String sn) => _thingsMap[sn];
 
-  Map<String, ThingData> get thingDataMap => Map.from(_thingsMap);
-
   ThingData? get connectedThing {
     bool test(ThingData data) => data.status == ThingConnectionStatus.connected;
     return thingDataMap.values.any(test)
-        ? thingDataMap.values.firstWhere((element) =>
-    element.status == ThingConnectionStatus.connected)
+        ? thingDataMap.values.firstWhere(
+            (element) => element.status == ThingConnectionStatus.connected)
         : null;
   }
 }

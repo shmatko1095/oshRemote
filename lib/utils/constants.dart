@@ -16,10 +16,18 @@ class Constants {
   static const topicData = "data/";
 
   /// Topic to set new value
-  static const topicSetData = "${topicData}set";
+  static const topicDataSet = "${topicData}set";
 
   /// Topic to update indicators
-  static const topicUpdateData = "${topicData}update";
+  static const topicDataUpdate = "${topicData}update";
+
+  static const topicSettings = "settings/";
+
+  /// Topic to update settings
+  static const topicSettingsUpdate = "${topicSettings}update";
+
+  /// Topic to set settings
+  static const topicSettingsSet = "${topicSettings}set";
 
   ///JSON keys
   static const keyClientId = "clientId";
@@ -39,4 +47,23 @@ class Constants {
   static const keySwVerMinor = "swVerMinor";
   static const keyHwVerMajor = "hwVerMajor";
   static const keyHwVerMinor = "hwVerMinor";
+
+  static const keySettingsGrid = "grid";
+  static const keySettingsGridIsEnabled = "isEnabled";
+  static const keySettingsGridMinValue = "gridMinValue";
+
+  static const keySettingsPump = "pump";
+  static const keySettingsPumpIsAuto = "isAuto";
+  static const keySettingsPumpValue = "value";
+
+  static const keySettingsHeater = "heater";
+  static const keySettingsHeaterIsAuto = "isAuto";
+  static const keySettingsHeaterIsGridRelated = "isGridRelated";
+  static const keySettingsHeaterValue = "value";
+
+  static const keySettingsWaterTemp = "waterTemp";
+  static const keySettingsWaterTempValue = "maxTemp";
+
+  static const minWaterTempValue = 20;
+  static const maxWaterTempValue = 90;
 }

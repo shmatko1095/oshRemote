@@ -5,7 +5,13 @@ import 'dart:core';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository.dart';
-import 'package:osh_remote/block/thing_cubit/thing_config.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/grid_settings.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/heater_setting.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/pump_settings.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/water_temp_settings.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +64,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     Map<String, ThingData> thingMap = {};
     for (var sn in snList) {
       String? name = _prefs.getString(sn);
-      thingMap[sn] = ThingData(sn: sn, name: name);
+      thingMap[sn] = ThingData(
+          sn: sn,
+          name: name,
+          config: const ThingConfig.pure(),
+          settings: ThingSettings.pure());
       _subscribeToThingTopics("$_clientId/$sn");
     }
     emit(state.updateMap(thingMap));
@@ -87,9 +97,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   }
 
   void disconnectConnectedThings() {
-    state
-        .thingDataMap
-        .values
+    state.thingDataMap.values
         .where((data) => data.status != ThingConnectionStatus.disconnected)
         .forEach((data) => disconnect(sn: data.sn));
   }
@@ -102,6 +110,19 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     };
     builder.addString(jsonEncode(data));
     final topic = "$sn/${Constants.topicConnect}";
+    _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
+  }
+
+  void pushSettings() {
+    final builder = MqttClientPayloadBuilder();
+    final data = {
+      Constants.keySettingsWaterTempValue:
+          state.connectedThing!.settings.waterTemp.maxTemp,
+    };
+    builder.addString(jsonEncode(data));
+
+    String sn = state.connectedThing!.sn;
+    final topic = "$sn/${Constants.topicSettingsSet}";
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
   }
 
@@ -123,13 +144,18 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final msg = message.payload as MqttPublishMessage;
     final String payload =
         MqttPublishPayload.bytesToStringAsString(msg.payload.message);
+    final sn = _getSnFromTopic(message.topic);
 
     if (message.topic.endsWith(Constants.topicConnect)) {
       _handleConnect(payload);
-    } else if (message.topic.endsWith(Constants.topicUpdateData)) {
+    } else if (message.topic.endsWith(Constants.topicDataUpdate)) {
       _widgetsStreamController.add(payload);
+    } else if (message.topic.endsWith(Constants.topicSettingsUpdate)) {
+      _handleSettingsUpdate(sn, payload);
     }
   }
+
+  String _getSnFromTopic(String topic) => topic.split('/')[1];
 
   void _handleConnect(String payload) {
     final data = jsonDecode(payload);
@@ -158,6 +184,42 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
     _saveLastConnectedThing(sn);
     _removeConnectionTimer(sn);
+  }
+
+  void _handleSettingsUpdate(String sn, String payload) {
+    final data = jsonDecode(payload);
+
+    final gridSettings = GridSetting(
+        isEnabled: data[Constants.keySettingsGrid]
+            [Constants.keySettingsGridIsEnabled],
+        gridMinValue: data[Constants.keySettingsGrid]
+            [Constants.keySettingsGridMinValue]);
+
+    final pumpSettings = PumpSettings(
+        isAuto: data[Constants.keySettingsPump]
+            [Constants.keySettingsPumpIsAuto],
+        value: data[Constants.keySettingsPump][Constants.keySettingsPumpValue]);
+
+    final heaterSetting = HeaterSetting(
+        isAuto: data[Constants.keySettingsHeater]
+            [Constants.keySettingsHeaterIsAuto],
+        isGridRelated: data[Constants.keySettingsHeater]
+            [Constants.keySettingsHeaterIsGridRelated],
+        value: data[Constants.keySettingsHeater]
+            [Constants.keySettingsHeaterValue]);
+
+    final waterTempSetting = WaterTempSettings(
+      maxTemp: data[Constants.keySettingsWaterTemp]
+          [Constants.keySettingsWaterTempValue],
+    );
+
+    final thingSettings = ThingSettings(
+        grid: gridSettings,
+        pump: pumpSettings,
+        heater: heaterSetting,
+        waterTemp: waterTempSetting);
+
+    emit(state.copyWith(sn, settings: thingSettings));
   }
 
   void _saveLastConnectedThing(String sn) {

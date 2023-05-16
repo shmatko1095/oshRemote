@@ -18,7 +18,7 @@ class QrCodeScanner extends StatelessWidget {
         appBar: AppBar(
           title: Text(S.of(context)!.addDevice),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_ios),
             onPressed: () => Navigator.of(context).pop(),
           ),
           actions: [
