@@ -6,25 +6,25 @@ enum ThingConnectionStatus { connecting, connected, disconnected }
 class ThingData {
   final String _sn;
   final String? _name;
-  late final ThingConfig _config;
-  late final ThingSettings _settings;
+  late final ThingConfig? _config;
+  late final ThingSettings? _settings;
   late final ThingConnectionStatus _status;
 
   String get sn => _sn;
 
   ThingConnectionStatus get status => _status;
 
-  ThingConfig get config => _config;
+  ThingConfig? get config => _config;
 
-  ThingSettings get settings => _settings;
+  ThingSettings? get settings => _settings;
 
   String get name => _name ?? _sn;
 
   ThingData(
       {required String sn,
       String? name,
-      required ThingConfig config,
-      required ThingSettings settings,
+      ThingConfig? config,
+      ThingSettings? settings,
       ThingConnectionStatus status = ThingConnectionStatus.disconnected})
       : _sn = sn,
         _name = name,

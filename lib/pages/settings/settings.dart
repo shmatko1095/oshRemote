@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
-import 'package:osh_remote/pages/settings/water_temp.dart';
+import 'package:osh_remote/pages/settings/grid/grid.dart';
+import 'package:osh_remote/pages/settings/heater/heater.dart';
+import 'package:osh_remote/pages/settings/pump/pump.dart';
+import 'package:osh_remote/pages/settings/water_temp/water_temp.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 class Settings extends StatefulWidget {
@@ -17,14 +20,24 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  final List<Widget> _settingsList = [];
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _buildSettingsList();
   }
 
   void _onBackPress() {
     context.read<ThingControllerCubit>().pushSettings();
     Navigator.of(context).pop();
+  }
+
+  void _buildSettingsList() {
+    _settingsList.add(Pump.getListTile(context));
+    _settingsList.add(Grid.getListTile(context));
+    _settingsList.add(Heater.getListTile(context));
+    _settingsList.add(WaterTemp.getListTile(context));
   }
 
   @override
@@ -39,37 +52,9 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           body: SingleChildScrollView(
-            padding: Constants.formPadding,
+            padding: Constants.listPadding,
             child: Column(
-              children: <Widget>[
-                const WaterTemp(),
-                Container(
-                  height: 600,
-                  color: Colors.green,
-                  child: Center(
-                    child: Text(
-                      'Content',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 200,
-                  color: Colors.red,
-                  child: Center(
-                    child: Text(
-                      'Footer',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              children: _settingsList,
             ),
           )),
     );

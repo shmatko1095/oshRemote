@@ -8,6 +8,11 @@ class Constants {
   static const formPadding =
       EdgeInsets.only(left: 32, right: 32, top: 48, bottom: 16);
 
+  static const listPadding =
+      EdgeInsets.only(left: 10, right: 10, top: 32, bottom: 16);
+
+  static const arrowSizeInListMenu = 17.0;
+
   static const topicCommand = "command/";
 
   /// Topic to connect or disconnect thing
@@ -48,6 +53,9 @@ class Constants {
   static const keyHwVerMajor = "hwVerMajor";
   static const keyHwVerMinor = "hwVerMinor";
 
+  static const keyConfig = "config";
+  static const keySettings = "settings";
+
   static const keySettingsGrid = "grid";
   static const keySettingsGridIsEnabled = "isEnabled";
   static const keySettingsGridMinValue = "gridMinValue";
@@ -55,15 +63,34 @@ class Constants {
   static const keySettingsPump = "pump";
   static const keySettingsPumpIsAuto = "isAuto";
   static const keySettingsPumpValue = "value";
+  static const keySettingsPumpDif = "tempDif";
+  static const keySettingsPumpEnableDelay = "enableDelay";
+  static const keySettingsPumpDisableDelay = "disableDelay";
 
   static const keySettingsHeater = "heater";
   static const keySettingsHeaterIsAuto = "isAuto";
-  static const keySettingsHeaterIsGridRelated = "isGridRelated";
   static const keySettingsHeaterValue = "value";
 
   static const keySettingsWaterTemp = "waterTemp";
   static const keySettingsWaterTempValue = "maxTemp";
 
+  static const minWaterTempDif = 1;
+  static const maxWaterTempDif = 20;
+
   static const minWaterTempValue = 20;
   static const maxWaterTempValue = 90;
+
+  static const minGridValue = 160;
+  static const maxGridValue = 230;
+
+  static const minPumpPwmValue = 10;
+  static const maxPumpPwmValue = 100;
+
+  static const minPumpSwitchedValue = 0;
+  static const maxPumpSwitchedValue = 3;
+
+  static const minPumpDelayValue = 5;
+  static const maxPumpDelayValue = 60;
+
+  static const minHeaterConfig = 1;
 }
