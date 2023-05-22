@@ -22,10 +22,32 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // late final Map<String, SmallHomeWidget> _indicatorList;
   late final ScrollController _scrollController;
-  static const kExpandedHeight = 350.0;
+
   final _adapter = StreamWidgetAdapter();
-  ThingData? _thingData;
-  Widget? _title;
+
+  ThingData? get _thing =>
+      context.read<ThingControllerCubit>().state.connectedThing;
+
+  bool _isSliverAppBarExpandedPrevious = false;
+
+  bool get _isSliverAppBarExpandedCurrent =>
+      _scrollController.hasClients &&
+      _scrollController.offset > HomeTempIndicator.kHeight - kToolbarHeight;
+
+  Widget _title = const Text("OSH");
+
+  void _updateTitle() {
+    setState(() {
+      if (_thing == null) {
+        _title = const Text("OSH");
+      } else {
+        //@TODO: current temp should be instead of maxTemp
+        _title = _isSliverAppBarExpandedCurrent
+            ? Text("${_thing!.name},  ${_thing!.settings!.waterTemp.maxTemp}°C")
+            : Text(_thing!.name);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -33,10 +55,10 @@ class _HomePageState extends State<HomePage> {
 
     _scrollController = ScrollController()
       ..addListener(() {
-        setState(() {
-          // _title = _isSliverAppBarExpanded ? const Text("Title") : null;
-          _title = _thingData != null ? Text(_thingData!.name) : null;
-        });
+        if (_isSliverAppBarExpandedCurrent != _isSliverAppBarExpandedPrevious) {
+          _isSliverAppBarExpandedPrevious = _isSliverAppBarExpandedCurrent;
+          _updateTitle();
+        }
       });
 
     context
@@ -47,11 +69,6 @@ class _HomePageState extends State<HomePage> {
 
   bool _isThingChanged(
       ThingControllerState previous, ThingControllerState current) {
-    // final previousIndex = previous.thingDataMap.values.toList().indexWhere(
-    //     (element) => element.status == ThingConnectionStatus.connected);
-    // final currentIndex = current.thingDataMap.values.toList().indexWhere(
-    //     (element) => element.status == ThingConnectionStatus.connected);
-    // return previousIndex != currentIndex;
     return previous.connectedThing != current.connectedThing;
   }
 
@@ -61,19 +78,11 @@ class _HomePageState extends State<HomePage> {
     _addWidgetsToAdapter();
   }
 
-  bool get _isSliverAppBarExpanded {
-    return _scrollController.hasClients &&
-        _scrollController.offset > kExpandedHeight - kToolbarHeight;
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<ThingControllerCubit, ThingControllerState>(
       listenWhen: _isThingChanged,
-      listener: (context, state) => setState(() {
-        _thingData = state.connectedThing;
-        _title = _thingData != null ? Text(_thingData!.name) : null;
-      }),
+      listener: (context, state) => _updateTitle(),
       child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
           buildWhen: _isThingChanged,
           builder: (context, state) => SafeArea(
@@ -87,7 +96,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: const DrawerPresenter(),
       appBar: AppBar(
-        title: const Text("OSH"),
+        title: _title,
         centerTitle: true,
       ),
       body: Center(
@@ -104,21 +113,16 @@ class _HomePageState extends State<HomePage> {
         slivers: <Widget>[
           SliverAppBar(
             title: _title,
-            centerTitle: true,
+            centerTitle: !_isSliverAppBarExpandedCurrent,
             actions: [
               IconButton(
                   onPressed: () => Navigator.of(context).push(Settings.route()),
                   icon: const Icon(Icons.settings))
             ],
             pinned: true,
-            expandedHeight: kExpandedHeight,
-            flexibleSpace: FlexibleSpaceBar(
-              background: HomeTempIndicator(
-                  height: kExpandedHeight,
-                  actualTemp: 25.2,
-                  targetTemp: 25,
-                  nextPointTemp: 30,
-                  nextPointTime: DateTime(2022, 12, 10, 17, 20)),
+            expandedHeight: HomeTempIndicator.kHeight,
+            flexibleSpace: const FlexibleSpaceBar(
+              background: HomeTempIndicator(),
             ),
           ),
           SliverList(
@@ -127,6 +131,12 @@ class _HomePageState extends State<HomePage> {
                 const SelectorModeWidget(),
               ],
             ),
+          ),
+          SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, mainAxisExtent: 120.0, //height
+            ),
+            delegate: SliverChildListDelegate(_adapter.getWidgetList()),
           ),
           SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

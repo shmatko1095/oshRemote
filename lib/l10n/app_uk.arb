@@ -29,7 +29,7 @@
   "notAuthorizedException": "Неправильне ім'я користувача або пароль",
   "signInFailed": "Не вдається ввійти",
   "backToSignIn": "Повернутись до входу",
-  "confirm": "Підтвердити",
+  "confirm": "Готово",
   "cancel": "Відміна",
   "settings": "Налаштування",
   "addDevice": "Додати пристрій",
