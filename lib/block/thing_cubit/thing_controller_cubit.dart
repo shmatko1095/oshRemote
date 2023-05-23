@@ -5,6 +5,7 @@ import 'dart:core';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
@@ -51,7 +52,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     _clientId = clientId;
     _stream = _mqttRepository.getMessagesStream()!.listen((event) {
       for (var element in event) {
-        Future.microtask(() => _handleReceivedMsg(element));
+        // Future.microtask(() => _handleReceivedMsg(element));
+        _handleReceivedMsg(element);
       }
     });
   }
@@ -143,6 +145,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       _widgetsStreamController.add(payload);
     } else if (message.topic.endsWith(Constants.topicSettingsUpdate)) {
       _handleSettingsUpdate(sn, payload);
+    } else if (message.topic.endsWith(Constants.topicCalendarUpdate)) {
+      _handleCalendarUpdate(sn, payload);
     }
   }
 
@@ -154,10 +158,12 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final status = data[Constants.keyStatus];
     final config = ThingConfig.fromJson(data[Constants.keyConfig]);
     final settings = ThingSettings.fromJson(data[Constants.keySettings]);
+    final calendar = ThingCalendar.fromJson(data[Constants.keyCalendar]);
 
     emit(state.copyWith(sn,
         config: config,
         settings: settings,
+        calendar: calendar,
         status: status == true
             ? ThingConnectionStatus.connected
             : ThingConnectionStatus.disconnected));
@@ -167,6 +173,12 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   }
 
   void _handleSettingsUpdate(String sn, String payload) {
+    final data = jsonDecode(payload);
+    final thingSettings = ThingSettings.fromJson(data);
+    emit(state.copyWith(sn, settings: thingSettings));
+  }
+
+  void _handleCalendarUpdate(String sn, String payload) {
     final data = jsonDecode(payload);
     final thingSettings = ThingSettings.fromJson(data);
     emit(state.copyWith(sn, settings: thingSettings));

@@ -34,6 +34,14 @@ class Constants {
   /// Topic to set settings
   static const topicSettingsSet = "${topicSettings}set";
 
+  static const topicCalendar = "calendar/";
+
+  /// Topic to set new value
+  static const topicCalendarSet = "${topicCalendar}set";
+
+  /// Topic to update indicators
+  static const topicCalendarUpdate = "${topicCalendar}update";
+
   ///JSON keys
   static const keyClientId = "clientId";
   static const keyStatus = "status";
@@ -73,6 +81,19 @@ class Constants {
 
   static const keySettingsWaterTemp = "waterTemp";
   static const keySettingsWaterTempValue = "maxTemp";
+
+  static const keyCalendar = "calendar";
+  static const keyCalendarMode = "mode";
+  static const keyCalendarModeOff = "off";
+  static const keyCalendarModeAntifreeze = "antifreeze";
+  static const keyCalendarModeManual = "manual";
+  static const keyCalendarModeDaily = "daily";
+  static const keyCalendarModeWeekly = "weekly";
+  static const keyCalendarDay = "d";
+  static const keyCalendarHour = "h";
+  static const keyCalendarMin = "m";
+  static const keyCalendarValue = "v";
+  static const keyCalendarPower = "p";
 
   static const minWaterTempDif = 1;
   static const maxWaterTempDif = 20;

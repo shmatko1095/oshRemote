@@ -1,3 +1,4 @@
+import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 
@@ -8,6 +9,7 @@ class ThingData {
   final String? _name;
   late final ThingConfig? _config;
   late final ThingSettings? _settings;
+  late final ThingCalendar? _calendar;
   late final ThingConnectionStatus _status;
 
   String get sn => _sn;
@@ -18,6 +20,8 @@ class ThingData {
 
   ThingSettings? get settings => _settings;
 
+  ThingCalendar? get calendar => _calendar;
+
   String get name => _name ?? _sn;
 
   ThingData(
@@ -25,17 +29,20 @@ class ThingData {
       String? name,
       ThingConfig? config,
       ThingSettings? settings,
+      ThingCalendar? calendar,
       ThingConnectionStatus status = ThingConnectionStatus.disconnected})
       : _sn = sn,
         _name = name,
         _config = config,
         _status = status,
-        _settings = settings;
+        _settings = settings,
+        _calendar = calendar;
 
   ThingData copyWith(
       {String? name,
       ThingConfig? thingConfig,
       ThingSettings? thingSettings,
+      ThingCalendar? thingCalendar,
       ThingConnectionStatus? status}) {
     return ThingData(
       sn: _sn,
@@ -43,6 +50,7 @@ class ThingData {
       status: status ?? _status,
       config: thingConfig ?? _config,
       settings: thingSettings ?? _settings,
+      calendar: thingCalendar ?? _calendar,
     );
   }
 }
