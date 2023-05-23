@@ -81,5 +81,10 @@
   "mainsMinIsActiveSubtitle": "When mains protection is enabled, the heater will automatically reduce power if the mains voltage is below the set level. This option can be useful if a voltage switch is installed in the electrical panel, which is switched off when the heaters are working",
   "mains": "Mains",
   "noConnectedDevice": "No connected device",
-  "auto": "Auto"
+  "auto": "Auto",
+  "off": "Off",
+  "antifreeze": "Nonfreezing",
+  "manual": "Manual",
+  "daily": "Daily",
+  "weekly": "Weekly"
 }
