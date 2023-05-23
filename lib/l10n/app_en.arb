@@ -86,5 +86,7 @@
   "antifreeze": "Nonfreezing",
   "manual": "Manual",
   "daily": "Daily",
-  "weekly": "Weekly"
+  "weekly": "Weekly",
+  "then": "then",
+  "at": "at"
 }

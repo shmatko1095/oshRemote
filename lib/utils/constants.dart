@@ -83,7 +83,9 @@ class Constants {
   static const keySettingsWaterTempValue = "maxTemp";
 
   static const keyCalendar = "calendar";
-  static const keyCalendarMode = "mode";
+  static const keyCalendarCurrentMode = "currentMode";
+  static const keyCalendarCurrentPoint = "currentPoint";
+  static const keyCalendarNextPoint = "nextPoint";
   static const keyCalendarModeOff = "off";
   static const keyCalendarModeAntifreeze = "antifreeze";
   static const keyCalendarModeManual = "manual";

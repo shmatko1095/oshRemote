@@ -4,21 +4,30 @@ import 'package:osh_remote/utils/constants.dart';
 enum CalendarMode { off, antifreeze, manual, daily, weekly }
 
 class ThingCalendar {
-  CalendarMode mode;
+  CalendarMode currentMode;
+  CalendarPoint currentPoint;
+  CalendarPoint? nextPoint;
   CalendarPoint antifreeze;
   CalendarPoint manual;
   List<CalendarPoint> daily = [];
   List<CalendarPoint> weekly = [];
 
   ThingCalendar(
-      {required this.mode,
+      {required this.currentMode,
+      required this.currentPoint,
+      required this.nextPoint,
       required this.antifreeze,
       required this.manual,
       required this.daily,
       required this.weekly});
 
   ThingCalendar.fromJson(Map<String, dynamic> json)
-      : mode = CalendarMode.values[json[Constants.keyCalendarMode]],
+      : currentMode =
+            CalendarMode.values[json[Constants.keyCalendarCurrentMode]],
+        currentPoint =
+            CalendarPoint.fromJson(json[Constants.keyCalendarCurrentPoint]),
+        nextPoint =
+            CalendarPoint.fromJson(json[Constants.keyCalendarNextPoint]),
         antifreeze =
             CalendarPoint.fromJson(json[Constants.keyCalendarModeAntifreeze]),
         manual = CalendarPoint.fromJson(json[Constants.keyCalendarModeManual]) {
@@ -31,7 +40,7 @@ class ThingCalendar {
   }
 
   Map<String, dynamic> toJson() => {
-        Constants.keyCalendarMode: mode,
+        Constants.keyCalendarCurrentMode: currentMode,
         Constants.keyCalendarModeAntifreeze: antifreeze.toJson(),
         Constants.keyCalendarModeManual: manual.toJson(),
         Constants.keyCalendarModeDaily: CalendarPoint.listToJson(daily),

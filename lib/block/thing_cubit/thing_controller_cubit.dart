@@ -123,8 +123,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final builder = MqttClientPayloadBuilder();
     final Map<String, dynamic> data = {};
     data[Constants.keyClientId] = _clientId;
-    data[Constants.keyCalendarMode] =
-        state.connectedThing!.calendar!.mode.index;
+    data[Constants.keyCalendarCurrentMode] =
+        state.connectedThing!.calendar!.currentMode.index;
     builder.addString(jsonEncode(data));
 
     String sn = state.connectedThing!.sn;

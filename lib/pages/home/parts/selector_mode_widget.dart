@@ -43,9 +43,9 @@ class _SelectorModeWidgetState extends State<SelectorModeWidget> {
             current.connectedThing?.calendar!,
         listener: (context, state) => setState(() {}),
         child: BottomNavigationBar(
-          currentIndex: _val.mode.index,
+          currentIndex: _val.currentMode.index,
           onTap: (i) => setState(() {
-            _val.mode = CalendarMode.values[i];
+            _val.currentMode = CalendarMode.values[i];
             context.read<ThingControllerCubit>().pushMode();
           }),
           items: _icons,
