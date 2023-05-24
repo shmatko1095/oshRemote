@@ -119,6 +119,19 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
   }
 
+  void pushManualCalendar() {
+    final builder = MqttClientPayloadBuilder();
+    final Map<String, dynamic> data = {};
+    data[Constants.keyClientId] = _clientId;
+    data[Constants.keyCalendarModeManual] =
+        state.connectedThing!.calendar!.manual.toJson();
+    builder.addString(jsonEncode(data));
+
+    String sn = state.connectedThing!.sn;
+    final topic = "$sn/${Constants.topicCalendarSet}";
+    _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
+  }
+
   void pushMode() {
     final builder = MqttClientPayloadBuilder();
     final Map<String, dynamic> data = {};

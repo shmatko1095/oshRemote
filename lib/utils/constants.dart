@@ -11,6 +11,13 @@ class Constants {
   static const listPadding =
       EdgeInsets.only(left: 10, right: 10, top: 32, bottom: 16);
 
+  static const TextStyle actualTempStyle =
+      TextStyle(fontSize: 100, fontWeight: FontWeight.w300);
+  static const TextStyle actualTempUnitStyle =
+      TextStyle(fontSize: 50, fontWeight: FontWeight.w300);
+  static const TextStyle targetTempStyle = TextStyle(fontSize: 32);
+  static const TextStyle targetUnitTempStyle = TextStyle(fontSize: 16);
+
   static const arrowSizeInListMenu = 17.0;
 
   static const topicCommand = "command/";
@@ -102,6 +109,10 @@ class Constants {
 
   static const minWaterTempValue = 20;
   static const maxWaterTempValue = 90;
+
+  static const minAirTempValue = 5.0;
+  static const maxAirTempValue = 40.0;
+  static const airTempStep = 0.5;
 
   static const minGridValue = 160;
   static const maxGridValue = 230;

@@ -5,6 +5,8 @@ import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/parts/circle_widget.dart';
+import 'package:osh_remote/pages/home/temperature_setting/manual/manual.dart';
+import 'package:osh_remote/utils/constants.dart';
 
 /// В зависимости от мода, что берется из кубита, нуоюходимо перестраивать виджет.
 /// Например в Офф моде отобрадать только текущую,а В антизамерзании текущуюи и
@@ -67,8 +69,10 @@ class HomeTempIndicator extends StatelessWidget {
   List<Widget> _buildContent(BuildContext context, ThingCalendar val) {
     final List<Widget> content = [];
     content.add(const Spacer(flex: 2));
-    content.add(_temp(val.currentPoint.value, _actualStyle, _actualUnitStyle));
-    content.add(_temp(val.currentPoint.value, _targetStyle, _targetUnitStyle));
+    content.add(_temp(val.currentPoint.value, Constants.actualTempStyle,
+        Constants.actualTempUnitStyle));
+    content.add(_temp(val.currentPoint.value, Constants.targetTempStyle,
+        Constants.targetUnitTempStyle));
     if (val.nextPoint != null) {
       content.add(Text("${S.of(context)!.then} ${val.nextPoint!.value}°C "
           "${S.of(context)!.at} ${formatTime(val.nextPoint!.hour!, val.nextPoint!.min!)}"));
@@ -90,26 +94,23 @@ class HomeTempIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      color: _getColor(context),
-      height: kHeight,
-      child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
-          buildWhen: (previous, current) =>
-              previous.connectedThing?.calendar !=
-              current.connectedThing?.calendar,
-          builder: (context, state) {
-            final val = state.connectedThing!.calendar!;
-            return Column(children: _buildContent(context, val));
-          }),
-    );
+    return InkWell(
+        onTap: () => Navigator.of(context).push(Manual.route()),
+        onLongPress: () {},
+
+        ///@TODO Open screen to set transparent point
+        child: Container(
+          alignment: Alignment.center,
+          color: _getColor(context),
+          height: kHeight,
+          child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
+              buildWhen: (previous, current) =>
+                  previous.connectedThing?.calendar !=
+                  current.connectedThing?.calendar,
+              builder: (context, state) {
+                final val = state.connectedThing!.calendar!;
+                return Column(children: _buildContent(context, val));
+              }),
+        ));
   }
 }
-
-const TextStyle _actualStyle =
-    TextStyle(fontSize: 100, fontWeight: FontWeight.w300);
-const TextStyle _actualUnitStyle =
-    TextStyle(fontSize: 50, fontWeight: FontWeight.w300);
-const TextStyle _targetStyle = TextStyle(fontSize: 32);
-const TextStyle _targetUnitStyle = TextStyle(fontSize: 16);
-// const TextStyle _nextPointStyle = TextStyle(fontSize: 16);

@@ -26,8 +26,9 @@ class ThingCalendar {
             CalendarMode.values[json[Constants.keyCalendarCurrentMode]],
         currentPoint =
             CalendarPoint.fromJson(json[Constants.keyCalendarCurrentPoint]),
-        nextPoint =
-            CalendarPoint.fromJson(json[Constants.keyCalendarNextPoint]),
+        nextPoint = json[Constants.keyCalendarNextPoint] != null
+            ? CalendarPoint.fromJson(json[Constants.keyCalendarNextPoint])
+            : null,
         antifreeze =
             CalendarPoint.fromJson(json[Constants.keyCalendarModeAntifreeze]),
         manual = CalendarPoint.fromJson(json[Constants.keyCalendarModeManual]) {
