@@ -94,5 +94,7 @@
   "untilNextPoint": "Until next point",
   "toManual": "To manual mode",
   "forHalfHour": "For half an hour",
-  "setupTime": "For a while"
+  "setupTime": "For a while",
+  "temp": "Temperature",
+  "seconds": "seconds"
 }

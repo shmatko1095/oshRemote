@@ -27,19 +27,11 @@ class Heater extends StatefulWidget {
 }
 
 class _HeaterState extends State<Heater> {
-  HeaterSetting get _val => context
-      .read<ThingControllerCubit>()
-      .state
-      .connectedThing!
-      .settings!
-      .heater;
+  HeaterSetting get _val =>
+      context.read<ThingControllerCubit>().state.settings!.heater;
 
-  int get _config => context
-      .read<ThingControllerCubit>()
-      .state
-      .connectedThing!
-      .config!
-      .heaterConfig;
+  int get _config =>
+      context.read<ThingControllerCubit>().state.config!.heaterConfig;
 
   void _onIsAutoChanged(bool value) => setState(() => _val.isAuto = value);
 

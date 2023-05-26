@@ -16,7 +16,7 @@ class _SelectorModeWidgetState extends State<SelectorModeWidget> {
   final List<BottomNavigationBarItem> _icons = [];
 
   ThingCalendar get _val =>
-      context.read<ThingControllerCubit>().state.connectedThing!.calendar!;
+      context.read<ThingControllerCubit>().state.calendar!;
 
   @override
   void didChangeDependencies() {
@@ -39,8 +39,7 @@ class _SelectorModeWidgetState extends State<SelectorModeWidget> {
   Widget build(BuildContext context) {
     return BlocListener<ThingControllerCubit, ThingControllerState>(
         listenWhen: (previous, current) =>
-            previous.connectedThing?.calendar! !=
-            current.connectedThing?.calendar!,
+            previous.calendar! != current.calendar!,
         listener: (context, state) => setState(() {}),
         child: BottomNavigationBar(
           currentIndex: _val.currentMode.index,

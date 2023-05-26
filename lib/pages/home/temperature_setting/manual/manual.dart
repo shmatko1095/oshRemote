@@ -19,12 +19,8 @@ class Manual extends StatefulWidget {
 class _ManualState extends State<Manual> {
   late FixedExtentScrollController _scrollController;
 
-  CalendarPoint get _point => context
-      .read<ThingControllerCubit>()
-      .state
-      .connectedThing!
-      .calendar!
-      .manual;
+  CalendarPoint get _point =>
+      context.read<ThingControllerCubit>().state.calendar!.manual;
 
   @override
   void didChangeDependencies() {
@@ -86,7 +82,7 @@ class _ManualState extends State<Manual> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        title: Text(S.of(context)!.manualMode),
+        title: Text(S.of(context)!.temp),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: _onBackPress,

@@ -27,12 +27,8 @@ class WaterTemp extends StatefulWidget {
 }
 
 class _WaterTempState extends State<WaterTemp> {
-  WaterTempSettings get _val => context
-      .read<ThingControllerCubit>()
-      .state
-      .connectedThing!
-      .settings!
-      .waterTemp;
+  WaterTempSettings get _val =>
+      context.read<ThingControllerCubit>().state.settings!.waterTemp;
 
   @override
   Widget build(BuildContext context) {

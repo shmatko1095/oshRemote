@@ -37,7 +37,10 @@ class _AdditionalPointScreenState extends State<AdditionalPointScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _calendar.additional = _calendar.current;
+    _calendar.additional == null
+      ?_calendar.additional = CalendarPoint(value: _calendar.current.value)
+      :_calendar.additional!.value = _calendar.current.value;
+
     _updateControllers();
   }
 

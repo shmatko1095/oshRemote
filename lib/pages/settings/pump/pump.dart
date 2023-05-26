@@ -7,9 +7,7 @@ import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 part 'delays.dart';
-
 part 'performance.dart';
-
 part 'water_temp.dart';
 
 class Pump extends StatefulWidget {
@@ -37,14 +35,10 @@ class _PumpState extends State<Pump> {
   final List<Widget> _settingsList = [];
 
   PumpSettings get _val =>
-      context.read<ThingControllerCubit>().state.connectedThing!.settings!.pump;
+      context.read<ThingControllerCubit>().state.settings!.pump;
 
-  PumpConfig get _config => context
-      .read<ThingControllerCubit>()
-      .state
-      .connectedThing!
-      .config!
-      .pumpConfig;
+  PumpConfig get _config =>
+      context.read<ThingControllerCubit>().state.config!.pumpConfig;
 
   void _buildSettingsList() {
     _settingsList.clear();

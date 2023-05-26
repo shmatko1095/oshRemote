@@ -4,7 +4,7 @@ extension _Delay on _PumpState {
   void addDisableDelayItems(BuildContext context) {
     _settingsList.add(ListTile(
         title: Text(S.of(context)!.pump_disable_delay),
-        trailing: Text("${_val.disableDelay}")));
+        trailing: Text("${_val.disableDelay} ${S.of(context)!.seconds}")));
 
     _settingsList.add(Slider(
       value: _val.disableDelay.toDouble(),
@@ -17,7 +17,7 @@ extension _Delay on _PumpState {
   void addEnableDelayItems(BuildContext context) {
     _settingsList.add(ListTile(
         title: Text(S.of(context)!.pump_enable_delay),
-        trailing: Text("${_val.enableDelay}")));
+        trailing: Text("${_val.enableDelay} ${S.of(context)!.seconds}")));
 
     _settingsList.add(Slider(
       value: _val.enableDelay.toDouble(),

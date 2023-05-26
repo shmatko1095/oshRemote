@@ -28,7 +28,7 @@ class Grid extends StatefulWidget {
 
 class _GridState extends State<Grid> {
   GridSetting get _val =>
-      context.read<ThingControllerCubit>().state.connectedThing!.settings!.grid;
+      context.read<ThingControllerCubit>().state.settings!.grid;
 
   @override
   Widget build(BuildContext context) {

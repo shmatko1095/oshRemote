@@ -94,5 +94,7 @@
   "untilNextPoint": "До наступної точки",
   "toManual": "До ручного режиму",
   "forHalfHour": "На півгодини",
-  "setupTime": "На час"
+  "setupTime": "На час",
+  "temp": "Температура",
+  "seconds": "секунд"
 }

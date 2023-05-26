@@ -26,7 +26,7 @@ class HomeTempIndicator extends StatelessWidget {
   const HomeTempIndicator({super.key});
 
   ThingCalendar _getCalendar(BuildContext context) =>
-      context.read<ThingControllerCubit>().state.connectedThing!.calendar!;
+      context.read<ThingControllerCubit>().state.calendar!;
 
   void _onPress(BuildContext context) {
     switch (_getCalendar(context).currentMode) {
@@ -108,12 +108,8 @@ class HomeTempIndicator extends StatelessWidget {
           "${formatTime(val.next!.hour!, val.next!.min!)}"));
     }
     if (val.current.power != null) {
-      final heaterConfig = context
-          .read<ThingControllerCubit>()
-          .state
-          .connectedThing!
-          .config!
-          .heaterConfig;
+      final heaterConfig =
+          context.read<ThingControllerCubit>().state.config!.heaterConfig;
       content.add(_powerLimit(val.current.power!, heaterConfig));
     }
     content.add(const Spacer());
@@ -133,11 +129,9 @@ class HomeTempIndicator extends StatelessWidget {
           height: kHeight,
           child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
               buildWhen: (previous, current) =>
-                  previous.connectedThing?.calendar !=
-                  current.connectedThing?.calendar,
-              builder: (context, state) {
-                final val = state.connectedThing!.calendar!;
-                return Column(children: _buildContent(context, val));
+                  previous.calendar != current.calendar,
+              builder: (context, st) {
+                return Column(children: _buildContent(context, st.calendar!));
               }),
         ));
   }
