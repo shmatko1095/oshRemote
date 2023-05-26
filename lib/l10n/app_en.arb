@@ -86,8 +86,13 @@
   "antifreeze": "Nonfreezing",
   "manual": "Manual",
   "manualMode": "Manual mode",
+  "additionalPoint": "Additional point",
   "daily": "Daily",
   "weekly": "Weekly",
   "then": "then",
-  "at": "at"
+  "at": "at",
+  "untilNextPoint": "Until next point",
+  "toManual": "To manual mode",
+  "forHalfHour": "For half an hour",
+  "setupTime": "For a while"
 }

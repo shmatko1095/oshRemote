@@ -9,19 +9,20 @@ class CalendarPoint {
   double value;
   int? power;
 
-  CalendarPoint(this.day, this.min, this.hour, this.value, this.power);
+  CalendarPoint(
+      {this.day, this.min, this.hour, required this.value, this.power});
 
   CalendarPoint.fromJson(Map<String, dynamic> json)
       : day = json[Constants.keyCalendarDay],
-        min = json[Constants.keyCalendarHour],
-        hour = json[Constants.keyCalendarMin],
+        hour = json[Constants.keyCalendarHour],
+        min = json[Constants.keyCalendarMin],
         value = json[Constants.keyCalendarValue],
         power = json[Constants.keyCalendarPower];
 
   Map<String, dynamic> toJson() => {
         Constants.keyCalendarDay: day,
-        Constants.keyCalendarHour: min,
-        Constants.keyCalendarMin: hour,
+        Constants.keyCalendarHour: hour,
+        Constants.keyCalendarMin: min,
         Constants.keyCalendarValue: value,
         Constants.keyCalendarPower: power,
       };

@@ -86,8 +86,13 @@
   "antifreeze": "Антизамерзання",
   "manual": "Ручний",
   "manualMode": "Ручний режим",
+  "additionalPoint": "Додаткова точка",
   "daily": "Денний",
   "weekly": "Тижневий",
   "then": "потім",
-  "at": "о"
+  "at": "о",
+  "untilNextPoint": "До наступної точки",
+  "toManual": "До ручного режиму",
+  "forHalfHour": "На півгодини",
+  "setupTime": "На час"
 }

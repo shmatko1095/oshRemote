@@ -52,8 +52,8 @@ class _ManualState extends State<Manual> {
 
   Widget _tempScrollSetting() {
     return SizedBox(
-      height: 300,
-      width: 200,
+      height: 400,
+      width: 205,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -74,7 +74,7 @@ class _ManualState extends State<Manual> {
           const Flexible(
             child: Text('°C',
                 style: TextStyle(
-                    fontSize: 50, fontWeight: FontWeight.w300, height: 0.8)),
+                    fontSize: 50, fontWeight: FontWeight.w300, height: 0.7)),
           )
         ],
       ),

@@ -9,6 +9,7 @@ import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
+import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,12 +111,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   void pushSettings() {
     final builder = MqttClientPayloadBuilder();
-    final data = state.connectedThing!.settings!.toJson();
+    final data = state.settings!.toJson();
     data[Constants.keyClientId] = _clientId;
     builder.addString(jsonEncode(data));
 
-    String sn = state.connectedThing!.sn;
-    final topic = "$sn/${Constants.topicSettingsSet}";
+    final topic = "${state.sn!}/${Constants.topicSettingsSet}";
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
   }
 
@@ -123,25 +123,59 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final builder = MqttClientPayloadBuilder();
     final Map<String, dynamic> data = {};
     data[Constants.keyClientId] = _clientId;
-    data[Constants.keyCalendarModeManual] =
-        state.connectedThing!.calendar!.manual.toJson();
+    data[Constants.keyCalendarModeManual] = state.calendar!.manual.toJson();
     builder.addString(jsonEncode(data));
 
-    String sn = state.connectedThing!.sn;
-    final topic = "$sn/${Constants.topicCalendarSet}";
+    final topic = "${state.sn!}/${Constants.topicCalendarSet}";
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
+  }
+
+  void pushAdditionalPoint() {
+    final builder = MqttClientPayloadBuilder();
+    final Map<String, dynamic> data = {};
+    data[Constants.keyClientId] = _clientId;
+    data[Constants.keyCalendarAdditionalPoint] =
+        state.calendar!.additional!.toJson();
+    builder.addString(jsonEncode(data));
+
+    final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+    _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
+  }
+
+  void setAdditionalPoint() {
+    switch (state.calendar?.additionalTimeOption) {
+      case TimeOption.goToManual:
+        state.calendar!.manual.value = state.calendar!.additional!.value;
+        state.calendar!.currentMode = CalendarMode.manual;
+        pushManualCalendar();
+        pushMode();
+        break;
+      case TimeOption.untilNextPoint:
+        state.calendar!.additional!.min = null;
+        state.calendar!.additional!.hour = null;
+        pushAdditionalPoint();
+        break;
+      case TimeOption.forHalfHour:
+        state.calendar!.additional!.min = 30;
+        state.calendar!.additional!.hour = 0;
+        pushAdditionalPoint();
+        break;
+      case TimeOption.setupTime:
+        pushAdditionalPoint();
+        break;
+      case null:
+        break;
+    }
   }
 
   void pushMode() {
     final builder = MqttClientPayloadBuilder();
     final Map<String, dynamic> data = {};
     data[Constants.keyClientId] = _clientId;
-    data[Constants.keyCalendarCurrentMode] =
-        state.connectedThing!.calendar!.currentMode.index;
+    data[Constants.keyCalendarCurrentMode] = state.calendar!.currentMode.index;
     builder.addString(jsonEncode(data));
 
-    String sn = state.connectedThing!.sn;
-    final topic = "$sn/${Constants.topicCalendarSet}";
+    final topic = "${state.sn!}/${Constants.topicCalendarSet}";
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
   }
 

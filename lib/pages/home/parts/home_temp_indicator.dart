@@ -5,6 +5,7 @@ import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/parts/circle_widget.dart';
+import 'package:osh_remote/pages/home/temperature_setting/additional_point/additional_point.dart';
 import 'package:osh_remote/pages/home/temperature_setting/manual/manual.dart';
 import 'package:osh_remote/utils/constants.dart';
 
@@ -23,6 +24,34 @@ class HomeTempIndicator extends StatelessWidget {
   static const kHeight = 550.0;
 
   const HomeTempIndicator({super.key});
+
+  ThingCalendar _getCalendar(BuildContext context) =>
+      context.read<ThingControllerCubit>().state.connectedThing!.calendar!;
+
+  void _onPress(BuildContext context) {
+    switch (_getCalendar(context).currentMode) {
+      case CalendarMode.manual:
+        Navigator.of(context).push(Manual.route());
+        break;
+      case CalendarMode.antifreeze:
+        // TODO: Handle this case.
+        break;
+      case CalendarMode.daily:
+        // TODO: Handle this case.
+        break;
+      case CalendarMode.weekly:
+        // TODO: Handle this case.
+        break;
+      case CalendarMode.off:
+      default:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  void _onLongPress(BuildContext context) {
+    Navigator.of(context).push(AdditionalPointScreen.route());
+  }
 
   Color? _getColor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
@@ -69,22 +98,23 @@ class HomeTempIndicator extends StatelessWidget {
   List<Widget> _buildContent(BuildContext context, ThingCalendar val) {
     final List<Widget> content = [];
     content.add(const Spacer(flex: 2));
-    content.add(_temp(val.currentPoint.value, Constants.actualTempStyle,
+    content.add(_temp(val.current.value, Constants.actualTempStyle,
         Constants.actualTempUnitStyle));
-    content.add(_temp(val.currentPoint.value, Constants.targetTempStyle,
+    content.add(_temp(val.current.value, Constants.targetTempStyle,
         Constants.targetUnitTempStyle));
-    if (val.nextPoint != null) {
-      content.add(Text("${S.of(context)!.then} ${val.nextPoint!.value}°C "
-          "${S.of(context)!.at} ${formatTime(val.nextPoint!.hour!, val.nextPoint!.min!)}"));
+    if (val.next != null) {
+      content.add(Text("${val.next!.value}°C ${S.of(context)!.at} "
+          ""
+          "${formatTime(val.next!.hour!, val.next!.min!)}"));
     }
-    if (val.currentPoint.power != null) {
+    if (val.current.power != null) {
       final heaterConfig = context
           .read<ThingControllerCubit>()
           .state
           .connectedThing!
           .config!
           .heaterConfig;
-      content.add(_powerLimit(val.currentPoint.power!, heaterConfig));
+      content.add(_powerLimit(val.current.power!, heaterConfig));
     }
     content.add(const Spacer());
     return content
@@ -95,10 +125,8 @@ class HomeTempIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: () => Navigator.of(context).push(Manual.route()),
-        onLongPress: () {},
-
-        ///@TODO Open screen to set transparent point
+        onTap: () => _onPress(context),
+        onLongPress: () => _onLongPress(context),
         child: Container(
           alignment: Alignment.center,
           color: _getColor(context),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:osh_remote/widgets/sized_box_elevated_button.dart';
 
 class ConfirmButton<Bloc extends StateStreamable<State>, State>
     extends StatelessWidget {
@@ -20,13 +21,7 @@ class ConfirmButton<Bloc extends StateStreamable<State>, State>
       builder: (context, state) {
         return isInProgress()
             ? const CircularProgressIndicator()
-            : SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onPressed(),
-                  child: text,
-                ),
-              );
+            : SizedBoxElevatedButton(text: text, onPressed: onPressed);
       },
     );
   }

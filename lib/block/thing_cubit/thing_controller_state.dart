@@ -51,4 +51,12 @@ class ThingControllerState {
             (element) => element.status == ThingConnectionStatus.connected)
         : null;
   }
+
+  ThingConfig? get config => connectedThing?.config;
+
+  ThingSettings? get settings => connectedThing?.settings;
+
+  ThingCalendar? get calendar => connectedThing?.calendar;
+
+  String? get sn => connectedThing?.sn;
 }

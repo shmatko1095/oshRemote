@@ -1,21 +1,24 @@
 import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
+import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 enum CalendarMode { off, antifreeze, manual, daily, weekly }
 
 class ThingCalendar {
   CalendarMode currentMode;
-  CalendarPoint currentPoint;
-  CalendarPoint? nextPoint;
+  CalendarPoint current;
+  CalendarPoint? next;
   CalendarPoint antifreeze;
   CalendarPoint manual;
+  CalendarPoint? additional;
+  TimeOption additionalTimeOption = TimeOption.untilNextPoint;
   List<CalendarPoint> daily = [];
   List<CalendarPoint> weekly = [];
 
   ThingCalendar(
       {required this.currentMode,
-      required this.currentPoint,
-      required this.nextPoint,
+      required this.current,
+      required this.next,
       required this.antifreeze,
       required this.manual,
       required this.daily,
@@ -24,9 +27,9 @@ class ThingCalendar {
   ThingCalendar.fromJson(Map<String, dynamic> json)
       : currentMode =
             CalendarMode.values[json[Constants.keyCalendarCurrentMode]],
-        currentPoint =
+        current =
             CalendarPoint.fromJson(json[Constants.keyCalendarCurrentPoint]),
-        nextPoint = json[Constants.keyCalendarNextPoint] != null
+        next = json[Constants.keyCalendarNextPoint] != null
             ? CalendarPoint.fromJson(json[Constants.keyCalendarNextPoint])
             : null,
         antifreeze =
@@ -44,6 +47,7 @@ class ThingCalendar {
         Constants.keyCalendarCurrentMode: currentMode,
         Constants.keyCalendarModeAntifreeze: antifreeze.toJson(),
         Constants.keyCalendarModeManual: manual.toJson(),
+        Constants.keyCalendarAdditionalPoint: additional?.toJson(),
         Constants.keyCalendarModeDaily: CalendarPoint.listToJson(daily),
         Constants.keyCalendarModeWeekly: CalendarPoint.listToJson(weekly)
       };

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Constants {
   static const serialNumberKey = "SN";
@@ -12,10 +13,10 @@ class Constants {
       EdgeInsets.only(left: 10, right: 10, top: 32, bottom: 16);
 
   static const TextStyle actualTempStyle =
-      TextStyle(fontSize: 100, fontWeight: FontWeight.w300);
+      TextStyle(fontSize: 110, fontWeight: FontWeight.w300);
   static const TextStyle actualTempUnitStyle =
       TextStyle(fontSize: 50, fontWeight: FontWeight.w300);
-  static const TextStyle targetTempStyle = TextStyle(fontSize: 32);
+  static const TextStyle targetTempStyle = TextStyle(fontSize: 40);
   static const TextStyle targetUnitTempStyle = TextStyle(fontSize: 16);
 
   static const arrowSizeInListMenu = 17.0;
@@ -92,6 +93,7 @@ class Constants {
   static const keyCalendar = "calendar";
   static const keyCalendarCurrentMode = "currentMode";
   static const keyCalendarCurrentPoint = "currentPoint";
+  static const keyCalendarAdditionalPoint = "additionalPoint";
   static const keyCalendarNextPoint = "nextPoint";
   static const keyCalendarModeOff = "off";
   static const keyCalendarModeAntifreeze = "antifreeze";
