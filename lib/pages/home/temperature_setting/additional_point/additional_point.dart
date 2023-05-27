@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/widgets/sized_box_elevated_button.dart';
 
+part 'power_limit.dart';
+part 'temp.dart';
+part 'time.dart';
 part 'time_option_button.dart';
 
 class AdditionalPointScreen extends StatefulWidget {
@@ -19,27 +23,29 @@ class AdditionalPointScreen extends StatefulWidget {
   }
 
   @override
-  State createState() => _AdditionalPointScreenState();
+  State createState() => AdditionalPointScreenState();
 }
 
-class _AdditionalPointScreenState extends State<AdditionalPointScreen> {
+class AdditionalPointScreenState extends State<AdditionalPointScreen> {
   late FixedExtentScrollController _valController;
   late FixedExtentScrollController _minController;
   late FixedExtentScrollController _hourController;
 
-  static const _scrollHeight = 200.0;
-  static const _scrollWidth = 130.0;
+  final _scrollHeight = 200.0;
+  final _scrollWidth = 130.0;
   List<Widget> _contentList = [];
 
   ThingCalendar get _calendar =>
       context.read<ThingControllerCubit>().state.calendar!;
 
+  ThingConfig get _config => context.read<ThingControllerCubit>().state.config!;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _calendar.additional == null
-      ?_calendar.additional = CalendarPoint(value: _calendar.current.value)
-      :_calendar.additional!.value = _calendar.current.value;
+        ? _calendar.additional = CalendarPoint(value: _calendar.current.value)
+        : _calendar.additional!.value = _calendar.current.value;
 
     _updateControllers();
   }
@@ -58,15 +64,27 @@ class _AdditionalPointScreenState extends State<AdditionalPointScreen> {
 
     _contentList.clear();
     _contentList.add(_tempScrollSetting());
-    _contentList.add(_timeOptionButtons());
-    if (_calendar.additionalTimeOption == TimeOption.setupTime) {
-      _contentList.add(_timeScrollSetting());
-    }
+    _contentList.add(_timeOptionSettings());
+    _contentList.add(powerLimitSettings());
     _contentList.add(_confirmButton());
 
-    _contentList = _contentList
-        .expand((element) => [element, const SizedBox(height: 36)])
-        .toList();
+    _contentList = _contentList.expand((element) {
+      if (_contentList.indexOf(element) != _contentList.length - 1) {
+        return [element, const Divider(thickness: 1, height: 50)];
+      } else {
+        return [element];
+      }
+    }).toList();
+  }
+
+  void _onPowerLimitActiveChanged(bool value) => setState(() =>
+      _calendar.additional!.power = value ? _calendar.current.power : null);
+
+  void _onPowerLimitValueChanged(double value) {
+    int val = value.round();
+    if (val >= Constants.minHeaterConfig.toDouble()) {
+      setState(() => _calendar.additional!.power = value.round());
+    }
   }
 
   _onTimeOptionPressed(TimeOption val) {
@@ -89,112 +107,6 @@ class _AdditionalPointScreenState extends State<AdditionalPointScreen> {
         text: Text(S.of(context)!.confirm), onPressed: () => _onConfirm);
   }
 
-  Widget _timeOptionButtons() {
-    List<Widget> buttons = [];
-    for (var element in TimeOption.values) {
-      buttons.add(Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-          child: ClipOval(
-            child: Material(
-                color: Colors.blue.withOpacity(
-                    _calendar.additionalTimeOption == element ? 1 : 0.2),
-                child: InkWell(
-                  onTap: () => _onTimeOptionPressed(element),
-                  child: SizedBox(
-                      width: 56, height: 56, child: element.toIcon(context)),
-                )),
-          )));
-    }
-    buttons = buttons
-        .expand((element) => (buttons.indexOf(element) != buttons.length - 1)
-            ? [element, const Spacer()]
-            : [element])
-        .toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(_calendar.additionalTimeOption?.toSString(context) ?? ""),
-        const Divider(thickness: 1, height: 30),
-        Row(children: buttons),
-      ],
-    );
-  }
-
-  double _indexToValue(int index) =>
-      Constants.minAirTempValue + (index * Constants.airTempStep);
-
-  int _valueToIndex(double value) =>
-      ((value - Constants.minAirTempValue) / Constants.airTempStep).round();
-
-  void _onValueSelected(int index) {
-    double value = _indexToValue(index);
-    _calendar.additional != null
-        ? _calendar.additional!.value = value
-        : _calendar.additional = CalendarPoint(value: value);
-  }
-
-  Widget _tempScrollSetting() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: _scrollWidth,
-          height: _scrollHeight,
-          child: ListWheelScrollView(
-            itemExtent: 70,
-            overAndUnderCenterOpacity: 0.5,
-            controller: _valController,
-            physics: const FixedExtentScrollPhysics(),
-            onSelectedItemChanged: _onValueSelected,
-            children: List.generate(
-                _valueToIndex(Constants.maxAirTempValue).round() + 1,
-                (index) => Text(_indexToValue(index).toString().padLeft(2, '0'),
-                    style: Constants.actualTempUnitStyle)),
-          ),
-        ),
-        Text('°C', style: Constants.actualTempUnitStyle.copyWith(height: 0.6)),
-      ],
-    );
-  }
-
-  Widget _timeScrollSetting() {
-    return SizedBox(
-        height: _scrollHeight,
-        child: Row(
-          children: [
-            Flexible(
-              child: ListWheelScrollView(
-                itemExtent: 70,
-                controller: _hourController,
-                overAndUnderCenterOpacity: 0.5,
-                physics: const FixedExtentScrollPhysics(),
-                onSelectedItemChanged: (h) => _calendar.additional!.hour = h,
-                children: List.generate(
-                    24,
-                    (index) => Text(index.toString().padLeft(2, '0'),
-                        style: Constants.actualTempUnitStyle)),
-              ),
-            ),
-            Text(':',
-                style: Constants.actualTempUnitStyle.copyWith(height: 0.6)),
-            Flexible(
-              child: ListWheelScrollView(
-                itemExtent: 70,
-                controller: _minController,
-                overAndUnderCenterOpacity: 0.5,
-                physics: const FixedExtentScrollPhysics(),
-                onSelectedItemChanged: (m) => _calendar.additional!.min = m,
-                children: List.generate(
-                    60,
-                    (index) => Text(index.toString().padLeft(2, '0'),
-                        style: Constants.actualTempUnitStyle)),
-              ),
-            ),
-          ],
-        ));
-  }
-
   @override
   Widget build(BuildContext context) {
     _buildContent();
@@ -210,6 +122,7 @@ class _AdditionalPointScreenState extends State<AdditionalPointScreen> {
       ),
       body: SingleChildScrollView(
         padding: Constants.formPadding,
+        // padding: const EdgeInsets.only(left: 10, right: 10, top: 48, bottom: 16),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _contentList),

@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
           label: S.of(context)!.pressure,
           initial: "1.98",
           postfix: "bar",
-          iconData: Icons.compare_arrows),
+          iconData: Icons.opacity),
     );
 
     _adapter.add(

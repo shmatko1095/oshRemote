@@ -96,5 +96,6 @@
   "forHalfHour": "На півгодини",
   "setupTime": "На час",
   "temp": "Температура",
-  "seconds": "секунд"
+  "seconds": "секунд",
+  "powerLimit": "Обмеження потужності"
 }

@@ -35,8 +35,12 @@ class _HeaterState extends State<Heater> {
 
   void _onIsAutoChanged(bool value) => setState(() => _val.isAuto = value);
 
-  void _onValueChanged(double value) =>
+  void _onValueChanged(double value) {
+    int val = value.round();
+    if (val >= Constants.minHeaterConfig.toDouble()) {
       setState(() => _val.value = value.round());
+    }
+  }
 
   Widget _getTrailing() {
     return _val.isAuto
@@ -71,10 +75,10 @@ class _HeaterState extends State<Heater> {
                       trailing: _getTrailing()),
                   Slider(
                     value: _val.value.toDouble(),
-                    min: Constants.minHeaterConfig.toDouble(),
+                    min: 0,
                     max: _config.toDouble(),
                     onChanged: _val.isAuto ? null : _onValueChanged,
-                    divisions: _config - Constants.minHeaterConfig,
+                    divisions: _config,
                   )
                 ]))));
   }

@@ -96,5 +96,6 @@
   "forHalfHour": "For half an hour",
   "setupTime": "For a while",
   "temp": "Temperature",
-  "seconds": "seconds"
+  "seconds": "seconds",
+  "powerLimit": "Power limit"
 }

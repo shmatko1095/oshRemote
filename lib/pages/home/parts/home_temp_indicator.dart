@@ -4,7 +4,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
-import 'package:osh_remote/pages/home/parts/circle_widget.dart';
 import 'package:osh_remote/pages/home/temperature_setting/additional_point/additional_point.dart';
 import 'package:osh_remote/pages/home/temperature_setting/manual/manual.dart';
 import 'package:osh_remote/utils/constants.dart';
@@ -62,8 +61,7 @@ class HomeTempIndicator extends StatelessWidget {
   Widget _powerLimit(int val, int amount) {
     List<Widget> list = List.generate(
         amount,
-        (index) => CircleWidget(
-            radius: 5,
+        (index) => Icon(Icons.local_fire_department,
             color: index < val ? Colors.deepOrangeAccent : Colors.grey));
 
     return Row(

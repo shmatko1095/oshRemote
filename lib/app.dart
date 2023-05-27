@@ -73,7 +73,7 @@ class _AppViewState extends State<AppView> {
             });
 
     return MaterialApp(
-      title: "OSH Remote",
+      title: "OSH",
       theme: ThemeData(brightness: Brightness.light),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
