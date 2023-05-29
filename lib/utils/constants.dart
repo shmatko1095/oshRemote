@@ -19,6 +19,8 @@ class Constants {
   static const TextStyle targetTempStyle = TextStyle(fontSize: 40);
   static const TextStyle targetUnitTempStyle = TextStyle(fontSize: 16);
 
+  static const TextStyle calendarListStyle = TextStyle(fontSize: 30);
+
   static const arrowSizeInListMenu = 17.0;
 
   static const topicCommand = "command/";

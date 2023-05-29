@@ -5,19 +5,12 @@ import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/temperature_setting/additional_point/additional_point.dart';
+import 'package:osh_remote/pages/home/temperature_setting/antifreeze/antifreeze.dart';
 import 'package:osh_remote/pages/home/temperature_setting/manual/manual.dart';
 import 'package:osh_remote/utils/constants.dart';
+import 'package:osh_remote/utils/widget_helpers.dart';
 
-/// В зависимости от мода, что берется из кубита, нуоюходимо перестраивать виджет.
-/// Например в Офф моде отобрадать только текущую,а В антизамерзании текущуюи и
-/// диапазон температур, в суточном/недельном - текущую, установленную и след.точку.
-///
-/// При надании на значение открывать окно с:
-/// 1) отлодить старт на время
-/// 2) выключить на время
-/// 3) изменить температуру (с выбором до след точки или в ручной режим)
-///
-///
+import '../temperature_setting/weekly/calendar_list.dart';
 
 class HomeTempIndicator extends StatelessWidget {
   static const kHeight = 550.0;
@@ -33,17 +26,18 @@ class HomeTempIndicator extends StatelessWidget {
         Navigator.of(context).push(Manual.route());
         break;
       case CalendarMode.antifreeze:
-        // TODO: Handle this case.
+        Navigator.of(context).push(Antifreeze.route());
         break;
       case CalendarMode.daily:
-        // TODO: Handle this case.
+        Navigator.of(context).push(CalendarList.route(
+            context.read<ThingControllerCubit>().state.calendar!.daily));
         break;
       case CalendarMode.weekly:
-        // TODO: Handle this case.
+        Navigator.of(context).push(CalendarList.route(
+            context.read<ThingControllerCubit>().state.calendar!.weekly));
         break;
       case CalendarMode.off:
       default:
-        // TODO: Handle this case.
         break;
     }
   }
@@ -61,8 +55,8 @@ class HomeTempIndicator extends StatelessWidget {
   Widget _powerLimit(int val, int amount) {
     List<Widget> list = List.generate(
         amount,
-        (index) => Icon(Icons.local_fire_department,
-            color: index < val ? Colors.deepOrangeAccent : Colors.grey));
+        (index) => Icon(Icons.lens,
+            size: 10, color: index < val ? Colors.red : Colors.grey));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -73,13 +67,6 @@ class HomeTempIndicator extends StatelessWidget {
         );
       }).toList(),
     );
-  }
-
-  String formatTime(int hours, int minutes) {
-    DateTime time = DateTime(0, 1, 1, hours, minutes);
-    String formattedTime =
-        "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
-    return formattedTime;
   }
 
   Widget _temp(double value, TextStyle tempStyle, TextStyle unitStyle) {

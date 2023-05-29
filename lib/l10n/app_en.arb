@@ -97,5 +97,13 @@
   "setupTime": "For a while",
   "temp": "Temperature",
   "seconds": "seconds",
-  "powerLimit": "Power limit"
+  "powerLimit": "Power limit",
+  "mo": "Mo",
+  "tu": "Tu",
+  "we": "We",
+  "th": "Th",
+  "fr": "Fr",
+  "sa": "Sa",
+  "su": "Su",
+  "addPoint": "Add point"
 }

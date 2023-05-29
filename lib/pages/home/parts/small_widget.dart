@@ -24,25 +24,13 @@ class SmallHomeWidget extends StatefulWidget with StreamWidget {
 class _SmallHomeWidgetState extends State<SmallHomeWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.black26
-            : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            blurStyle: BlurStyle.solid,
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            offset: const Offset(3, 3), // changes position of shadow
-          ),
-        ],
-      ),
-      child: _getValue(widget.stream),
-    );
+    return Card(
+        margin: const EdgeInsets.all(10),
+        elevation: 10.0,
+        child: Container(
+          padding: const EdgeInsets.all(5),
+          child: _getValue(widget.stream),
+        ));
   }
 
   Widget _getValue(Stream<String> stream) {

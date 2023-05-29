@@ -55,7 +55,7 @@ class ThingItem extends StatelessWidget {
     return Dismissible(
       key: Key("thing_item_$sn"),
       onDismissed: (dir) => _onDeviceRemove(context, sn),
-      direction: DismissDirection.startToEnd,
+      direction: DismissDirection.endToStart,
       background: Container(
         color: Colors.red,
         alignment: Alignment.centerLeft,
