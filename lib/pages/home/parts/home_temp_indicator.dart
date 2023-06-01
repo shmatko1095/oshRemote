@@ -6,11 +6,10 @@ import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/temperature_setting/additional_point/additional_point.dart';
 import 'package:osh_remote/pages/home/temperature_setting/antifreeze/antifreeze.dart';
+import 'package:osh_remote/pages/home/temperature_setting/calendar_list/calendar_list.dart';
 import 'package:osh_remote/pages/home/temperature_setting/manual/manual.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/utils/widget_helpers.dart';
-
-import '../temperature_setting/weekly/calendar_list.dart';
 
 class HomeTempIndicator extends StatelessWidget {
   static const kHeight = 550.0;
@@ -29,12 +28,8 @@ class HomeTempIndicator extends StatelessWidget {
         Navigator.of(context).push(Antifreeze.route());
         break;
       case CalendarMode.daily:
-        Navigator.of(context).push(CalendarList.route(
-            context.read<ThingControllerCubit>().state.calendar!.daily));
-        break;
       case CalendarMode.weekly:
-        Navigator.of(context).push(CalendarList.route(
-            context.read<ThingControllerCubit>().state.calendar!.weekly));
+        Navigator.of(context).push(CalendarList.route());
         break;
       case CalendarMode.off:
       default:
@@ -83,6 +78,7 @@ class HomeTempIndicator extends StatelessWidget {
   List<Widget> _buildContent(BuildContext context, ThingCalendar val) {
     final List<Widget> content = [];
     content.add(const Spacer(flex: 2));
+    //@TODO: current temp should be instead of calendar
     content.add(_temp(val.current.value, Constants.actualTempStyle,
         Constants.actualTempUnitStyle));
     content.add(_temp(val.current.value, Constants.targetTempStyle,

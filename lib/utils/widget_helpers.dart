@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:osh_remote/utils/constants.dart';
 
 Color getColor(BuildContext context) {
   return Theme.of(context).brightness == Brightness.dark
@@ -36,3 +37,14 @@ String getDayName(BuildContext context, int dayNum) {
 }
 
 bool isDaySelected(int val, int index) => (val & (1 << index)) != 0;
+
+double indexToValue(int index) =>
+    Constants.minAirTempValue + (index * Constants.airTempStep);
+
+int valueToIndex(double value) =>
+    ((value - Constants.minAirTempValue) / Constants.airTempStep).round();
+
+int toggleBit(int number, int index) {
+  int mask = 1 << index;
+  return number ^ mask;
+}

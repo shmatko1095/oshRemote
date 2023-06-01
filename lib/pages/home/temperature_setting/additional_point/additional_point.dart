@@ -9,6 +9,8 @@ import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:osh_remote/widgets/sized_box_elevated_button.dart';
 
+import '../../../../utils/widget_helpers.dart';
+
 part 'power_limit.dart';
 part 'temp.dart';
 part 'time.dart';
@@ -44,7 +46,8 @@ class AdditionalPointScreenState extends State<AdditionalPointScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _calendar.additional == null
-        ? _calendar.additional = CalendarPoint(value: _calendar.current.value)
+        ? _calendar.additional = CalendarPoint(
+            value: _calendar.current.value, power: _config.heaterConfig)
         : _calendar.additional!.value = _calendar.current.value;
 
     _updateControllers();
@@ -52,7 +55,7 @@ class AdditionalPointScreenState extends State<AdditionalPointScreen> {
 
   void _updateControllers() {
     _valController = FixedExtentScrollController(
-        initialItem: _valueToIndex(_calendar.additional!.value));
+        initialItem: valueToIndex(_calendar.additional!.value));
     _minController = FixedExtentScrollController(
         initialItem: _calendar.additional!.min ?? 0);
     _hourController = FixedExtentScrollController(
@@ -77,27 +80,24 @@ class AdditionalPointScreenState extends State<AdditionalPointScreen> {
     }).toList();
   }
 
-  void _onPowerLimitActiveChanged(bool value) => setState(() =>
-      _calendar.additional!.power = value ? _calendar.current.power : null);
-
   void _onPowerLimitValueChanged(double value) {
     int val = value.round();
     if (val >= Constants.minHeaterConfig.toDouble()) {
-      setState(() => _calendar.additional!.power = value.round());
+      setState(() => _calendar.additional!.power = val);
     }
   }
 
-  _onTimeOptionPressed(TimeOption val) {
+  void _onTimeOptionPressed(TimeOption val) {
     setState(() {
       _calendar.additionalTimeOption = val;
     });
   }
 
-  _onBackPress() {
+  void _onBackPress() {
     Navigator.of(context).pop();
   }
 
-  _onConfirm() {
+  void _onConfirm() {
     context.read<ThingControllerCubit>().setAdditionalPoint();
     Navigator.of(context).pop();
   }

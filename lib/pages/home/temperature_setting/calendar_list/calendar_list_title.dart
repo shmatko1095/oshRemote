@@ -31,7 +31,7 @@ class CalendarListTitle extends StatelessWidget {
               Icon(Icons.delete)
             ])),
         child: ListTile(
-          onLongPress: () => onEdit(point),
+          onTap: () => onEdit(point),
           contentPadding:
               const EdgeInsets.only(left: 10, right: 10, bottom: 10),
           title: Text(formatTime(point.hour!, point.min!),

@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/utils/constants.dart';
+import 'package:osh_remote/utils/widget_helpers.dart';
 
 class Manual extends StatefulWidget {
   const Manual({super.key});
@@ -19,14 +20,14 @@ class Manual extends StatefulWidget {
 class _ManualState extends State<Manual> {
   late FixedExtentScrollController _scrollController;
 
-  CalendarPoint get _point =>
-      context.read<ThingControllerCubit>().state.calendar!.manual;
+  CalendarPoint? get _point =>
+      context.read<ThingControllerCubit>().state.calendar?.manual;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _scrollController =
-        FixedExtentScrollController(initialItem: _valueToIndex(_point.value));
+        FixedExtentScrollController(initialItem: valueToIndex(_point!.value));
   }
 
   void _onBackPress() {
@@ -38,13 +39,7 @@ class _ManualState extends State<Manual> {
     Navigator.of(context).pop();
   }
 
-  double _indexToValue(int index) =>
-      Constants.minAirTempValue + (index * Constants.airTempStep);
-
-  int _valueToIndex(double value) =>
-      ((value - Constants.minAirTempValue) / Constants.airTempStep).round();
-
-  void _onValueSelected(int index) => _point.value = _indexToValue(index);
+  void _onValueSelected(int index) => _point?.value = indexToValue(index);
 
   Widget _tempScrollSetting() {
     return SizedBox(
@@ -61,9 +56,9 @@ class _ManualState extends State<Manual> {
               physics: const FixedExtentScrollPhysics(),
               onSelectedItemChanged: _onValueSelected,
               children: List.generate(
-                  _valueToIndex(Constants.maxAirTempValue).round() + 1,
+                  valueToIndex(Constants.maxAirTempValue).round() + 1,
                   (index) => Text(
-                      _indexToValue(index).toString().padLeft(2, '0'),
+                      indexToValue(index).toString().padLeft(2, '0'),
                       style: Constants.actualTempUnitStyle)),
             ),
           ),

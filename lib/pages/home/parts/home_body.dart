@@ -36,6 +36,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _title = const Text("OSH");
 
+  Color _getTitleColor() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? Colors.white : Colors.black;
+  }
+
   void _updateTitle() {
     setState(() {
       if (_thing == null) {
@@ -44,7 +49,7 @@ class _HomePageState extends State<HomePage> {
         //@TODO: current temp should be instead of maxTemp
         _title = _isSliverAppBarExpandedCurrent
             ? Text("${_thing!.name},  ${_thing!.settings!.waterTemp.maxTemp}°C")
-            : Text(_thing!.name);
+            : Text(_thing!.name, style: TextStyle(color: _getTitleColor()));
       }
     });
   }
@@ -114,10 +119,11 @@ class _HomePageState extends State<HomePage> {
           SliverAppBar(
             title: _title,
             centerTitle: !_isSliverAppBarExpandedCurrent,
+            iconTheme: IconThemeData(color: _getTitleColor()),
             actions: [
               IconButton(
                   onPressed: () => Navigator.of(context).push(Settings.route()),
-                  icon: const Icon(Icons.settings))
+                  icon: Icon(Icons.settings, color: _getTitleColor()))
             ],
             pinned: true,
             expandedHeight: HomeTempIndicator.kHeight,
@@ -162,7 +168,7 @@ class _HomePageState extends State<HomePage> {
         Constants.keyPumpStatus,
         SmallHomeWidget(
           label: S.of(context)!.pump_status,
-          initial: "48",
+          initial: "58",
           postfix: "%",
           iconData: Icons.loop,
         ));

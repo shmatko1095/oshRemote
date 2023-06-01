@@ -1,33 +1,41 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
-import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
-import 'package:osh_remote/utils/constants.dart';
-import 'package:osh_remote/utils/widget_helpers.dart';
+part of 'edit_point.dart';
 
-class Antifreeze extends StatefulWidget {
-  const Antifreeze({super.key});
+extension TempPart on EditPointScreenState {
+  Widget _tempScrollSetting() {
+    return ListTile(
+        title: Text(S.of(context)!.temp),
+        trailing: Text("${widget.point.value}°C"),
+        onTap: () => Navigator.of(context)
+            .push(Temp.route(_onValueSelected, widget.point.value)));
+  }
+}
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const Antifreeze());
+class Temp extends StatefulWidget {
+  final double initValue;
+
+  final Function(double point) onConfirm;
+
+  const Temp({super.key, required this.onConfirm, required this.initValue});
+
+  static Route<void> route(Function(double point) cb, double initValue) {
+    return MaterialPageRoute<void>(
+        builder: (_) => Temp(onConfirm: cb, initValue: initValue));
   }
 
   @override
-  State createState() => _AntifreezeState();
+  State createState() => _TempState();
 }
 
-class _AntifreezeState extends State<Antifreeze> {
+class _TempState extends State<Temp> {
+  late double _value;
   late FixedExtentScrollController _scrollController;
-
-  CalendarPoint get _point =>
-      context.read<ThingControllerCubit>().state.calendar!.antifreeze;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _value = widget.initValue;
     _scrollController =
-        FixedExtentScrollController(initialItem: valueToIndex(_point.value));
+        FixedExtentScrollController(initialItem: valueToIndex(_value));
   }
 
   void _onBackPress() {
@@ -35,11 +43,11 @@ class _AntifreezeState extends State<Antifreeze> {
   }
 
   void _onConfirm() {
-    context.read<ThingControllerCubit>().pushAntifreezeCalendar();
+    widget.onConfirm(_value);
     Navigator.of(context).pop();
   }
 
-  void _onValueSelected(int index) => _point.value = indexToValue(index);
+  void _onValueSelected(int index) => _value = indexToValue(index);
 
   Widget _tempScrollSetting() {
     return SizedBox(

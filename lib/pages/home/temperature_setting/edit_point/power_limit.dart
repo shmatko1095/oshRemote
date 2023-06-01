@@ -1,18 +1,17 @@
-part of 'additional_point.dart';
+part of 'edit_point.dart';
 
-extension PowerLimit on AdditionalPointScreenState {
+extension PowerLimit on EditPointScreenState {
   Widget _powerLimitTile() {
     return ListTile(
         title: Text(S.of(context)!.power),
-        trailing:
-            Text("${_calendar.additional!.power}/${_config.heaterConfig}"));
+        trailing: Text("${widget.point.power}/${_config.heaterConfig}"));
   }
 
   Widget _powerLimitSlider() {
     return Slider(
-      value: _calendar.additional!.power!.toDouble(),
+      value: widget.point.power!.toDouble(),
       max: _config.heaterConfig.toDouble(),
-      label: "${_calendar.additional!.power}/${_config.heaterConfig}",
+      label: "${widget.point.power}/${_config.heaterConfig}",
       onChanged: _onPowerLimitValueChanged,
       divisions: _config.heaterConfig,
     );

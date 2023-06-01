@@ -98,6 +98,7 @@
   "temp": "Temperature",
   "seconds": "seconds",
   "powerLimit": "Power limit",
+  "power": "Power",
   "mo": "Mo",
   "tu": "Tu",
   "we": "We",
@@ -105,5 +106,10 @@
   "fr": "Fr",
   "sa": "Sa",
   "su": "Su",
-  "addPoint": "Add point"
+  "everyDay" : "Every day",
+  "addPoint": "Add point",
+  "time": "Time",
+  "repeat": "Repeat",
+  "never": "Never",
+  "temperaturePoint": "Temperature point"
 }

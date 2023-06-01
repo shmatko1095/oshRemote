@@ -15,6 +15,21 @@ class ThingCalendar {
   List<CalendarPoint> daily = [];
   List<CalendarPoint> weekly = [];
 
+  dynamic get points {
+    switch (currentMode) {
+      case CalendarMode.off:
+        return null;
+      case CalendarMode.antifreeze:
+        return antifreeze;
+      case CalendarMode.manual:
+        return manual;
+      case CalendarMode.daily:
+        return daily;
+      case CalendarMode.weekly:
+        return weekly;
+    }
+  }
+
   ThingCalendar(
       {required this.currentMode,
       required this.current,
