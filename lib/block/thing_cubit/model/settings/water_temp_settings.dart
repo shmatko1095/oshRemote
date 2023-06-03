@@ -1,4 +1,6 @@
-import 'package:osh_remote/utils/constants.dart';
+class WaterTempKey {
+  static const maxTemp = "maxTemp";
+}
 
 class WaterTempSettings {
   int maxTemp;
@@ -6,9 +8,9 @@ class WaterTempSettings {
   WaterTempSettings({required this.maxTemp});
 
   WaterTempSettings.fromJson(Map<String, dynamic> json)
-      : maxTemp = json[Constants.keySettingsWaterTempValue];
+      : maxTemp = json[WaterTempKey.maxTemp];
 
   Map<String, dynamic> toJson() => {
-        Constants.keySettingsWaterTempValue: maxTemp,
+        WaterTempKey.maxTemp: maxTemp,
       };
 }

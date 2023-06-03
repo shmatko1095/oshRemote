@@ -2,7 +2,20 @@ import 'package:osh_remote/block/thing_cubit/model/settings/grid_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/settings/heater_setting.dart';
 import 'package:osh_remote/block/thing_cubit/model/settings/pump_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/settings/water_temp_settings.dart';
-import 'package:osh_remote/utils/constants.dart';
+
+class SettingsTopic {
+  static const _settings = "settings";
+  static const set = "$_settings/set";
+  static const update = "$_settings/update";
+}
+
+class SettingsKey {
+  static const settings = "settings";
+  static const grid = "grid";
+  static const pump = "pump";
+  static const heater = "heater";
+  static const waterTemp = "waterTemp";
+}
 
 class ThingSettings {
   GridSetting grid;
@@ -16,17 +29,20 @@ class ThingSettings {
       required this.heater,
       required this.waterTemp});
 
+  static ThingSettings? fromNullableJson(Map<String, dynamic>? json) {
+    return json != null ? ThingSettings.fromJson(json) : null;
+  }
+
   ThingSettings.fromJson(Map<String, dynamic> json)
-      : grid = GridSetting.fromJson(json[Constants.keySettingsGrid]),
-        pump = PumpSettings.fromJson(json[Constants.keySettingsPump]),
-        heater = HeaterSetting.fromJson(json[Constants.keySettingsHeater]),
-        waterTemp =
-            WaterTempSettings.fromJson(json[Constants.keySettingsWaterTemp]);
+      : grid = GridSetting.fromJson(json[SettingsKey.grid]),
+        pump = PumpSettings.fromJson(json[SettingsKey.pump]),
+        heater = HeaterSetting.fromJson(json[SettingsKey.heater]),
+        waterTemp = WaterTempSettings.fromJson(json[SettingsKey.waterTemp]);
 
   Map<String, dynamic> toJson() => {
-        Constants.keySettingsGrid: grid.toJson(),
-        Constants.keySettingsPump: pump.toJson(),
-        Constants.keySettingsHeater: heater.toJson(),
-        Constants.keySettingsWaterTemp: waterTemp.toJson(),
+        SettingsKey.grid: grid.toJson(),
+        SettingsKey.pump: pump.toJson(),
+        SettingsKey.heater: heater.toJson(),
+        SettingsKey.waterTemp: waterTemp.toJson(),
       };
 }

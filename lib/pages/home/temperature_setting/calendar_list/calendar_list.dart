@@ -101,12 +101,14 @@ class _CalendarListState extends State<CalendarList> {
   void _onRemove(CalendarPoint point) {
     setState(() {
       _calendarPoints?.removeWhere((element) => element.timeId == point.timeId);
+      _updateLocalPoints();
     });
   }
 
   void _onDayPressed(int index) {
     setState(() {
       _dayFilter = toggleBit(_dayFilter, index);
+      _updateLocalPoints();
     });
   }
 
@@ -127,8 +129,6 @@ class _CalendarListState extends State<CalendarList> {
 
   @override
   Widget build(BuildContext context) {
-    // _updateLocalPoints();
-
     return SafeArea(
       child: BlocListener<ThingControllerCubit, ThingControllerState>(
           listenWhen: (p, c) => p.calendar != c.calendar,

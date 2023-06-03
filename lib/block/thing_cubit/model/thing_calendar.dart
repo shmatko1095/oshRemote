@@ -1,6 +1,29 @@
 import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
 import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
-import 'package:osh_remote/utils/constants.dart';
+
+class CalendarTopic {
+  static const _calendar = "calendar";
+  static const set = "$_calendar/set";
+  static const update = "$_calendar/update";
+}
+
+class CalendarKey {
+  static const calendar = "calendar";
+  static const currentMode = "currentMode";
+  static const currentPoint = "currentPoint";
+  static const additionalPoint = "additionalPoint";
+  static const nextPoint = "nextPoint";
+  static const modeOff = "off";
+  static const modeAntifreeze = "antifreeze";
+  static const modeManual = "manual";
+  static const modeDaily = "daily";
+  static const modeWeekly = "weekly";
+  static const day = "d";
+  static const hour = "h";
+  static const min = "m";
+  static const value = "v";
+  static const power = "p";
+}
 
 enum CalendarMode { off, antifreeze, manual, daily, weekly }
 
@@ -39,31 +62,32 @@ class ThingCalendar {
       required this.daily,
       required this.weekly});
 
+  static ThingCalendar? fromNullableJson(Map<String, dynamic>? json) {
+    return json != null ? ThingCalendar.fromJson(json) : null;
+  }
+
   ThingCalendar.fromJson(Map<String, dynamic> json)
-      : currentMode =
-            CalendarMode.values[json[Constants.keyCalendarCurrentMode]],
-        current =
-            CalendarPoint.fromJson(json[Constants.keyCalendarCurrentPoint]),
-        next = json[Constants.keyCalendarNextPoint] != null
-            ? CalendarPoint.fromJson(json[Constants.keyCalendarNextPoint])
+      : currentMode = CalendarMode.values[json[CalendarKey.currentMode]],
+        current = CalendarPoint.fromJson(json[CalendarKey.currentPoint]),
+        next = json[CalendarKey.nextPoint] != null
+            ? CalendarPoint.fromJson(json[CalendarKey.nextPoint])
             : null,
-        antifreeze =
-            CalendarPoint.fromJson(json[Constants.keyCalendarModeAntifreeze]),
-        manual = CalendarPoint.fromJson(json[Constants.keyCalendarModeManual]) {
-    for (var element in json[Constants.keyCalendarModeDaily]) {
+        antifreeze = CalendarPoint.fromJson(json[CalendarKey.modeAntifreeze]),
+        manual = CalendarPoint.fromJson(json[CalendarKey.modeManual]) {
+    for (var element in json[CalendarKey.modeDaily]) {
       daily.add(CalendarPoint.fromJson(element));
     }
-    for (var element in json[Constants.keyCalendarModeWeekly]) {
+    for (var element in json[CalendarKey.modeWeekly]) {
       weekly.add(CalendarPoint.fromJson(element));
     }
   }
 
   Map<String, dynamic> toJson() => {
-        Constants.keyCalendarCurrentMode: currentMode,
-        Constants.keyCalendarModeAntifreeze: antifreeze.toJson(),
-        Constants.keyCalendarModeManual: manual.toJson(),
-        Constants.keyCalendarAdditionalPoint: additional?.toJson(),
-        Constants.keyCalendarModeDaily: CalendarPoint.listToJson(daily),
-        Constants.keyCalendarModeWeekly: CalendarPoint.listToJson(weekly)
+        CalendarKey.currentMode: currentMode,
+        CalendarKey.modeAntifreeze: antifreeze.toJson(),
+        CalendarKey.modeManual: manual.toJson(),
+        CalendarKey.additionalPoint: additional?.toJson(),
+        CalendarKey.modeDaily: CalendarPoint.listToJson(daily),
+        CalendarKey.modeWeekly: CalendarPoint.listToJson(weekly)
       };
 }

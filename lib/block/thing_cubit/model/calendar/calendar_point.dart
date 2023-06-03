@@ -1,4 +1,4 @@
-import 'package:osh_remote/utils/constants.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 
 enum Day { off, antifreeze, manual, daily, weekly }
 
@@ -21,18 +21,18 @@ class CalendarPoint implements Comparable<CalendarPoint> {
       {this.day, this.min, this.hour, required this.value, this.power});
 
   CalendarPoint.fromJson(Map<String, dynamic> json)
-      : day = json[Constants.keyCalendarDay],
-        hour = json[Constants.keyCalendarHour],
-        min = json[Constants.keyCalendarMin],
-        value = json[Constants.keyCalendarValue],
-        power = json[Constants.keyCalendarPower];
+      : day = json[CalendarKey.day],
+        hour = json[CalendarKey.hour],
+        min = json[CalendarKey.min],
+        value = json[CalendarKey.value],
+        power = json[CalendarKey.power];
 
   Map<String, dynamic> toJson() => {
-        Constants.keyCalendarDay: day,
-        Constants.keyCalendarHour: hour,
-        Constants.keyCalendarMin: min,
-        Constants.keyCalendarValue: value,
-        Constants.keyCalendarPower: power,
+        CalendarKey.day: day,
+        CalendarKey.hour: hour,
+        CalendarKey.min: min,
+        CalendarKey.value: value,
+        CalendarKey.power: power,
       };
 
   static List<dynamic> listToJson(List<CalendarPoint> list) {

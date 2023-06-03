@@ -1,4 +1,7 @@
-import 'package:osh_remote/utils/constants.dart';
+class GridKey {
+  static const isEnabled = "isEnabled";
+  static const minValue = "gridMinValue";
+}
 
 class GridSetting {
   bool isEnabled;
@@ -7,11 +10,11 @@ class GridSetting {
   GridSetting({required this.isEnabled, required this.gridMinValue});
 
   GridSetting.fromJson(Map<String, dynamic> json)
-      : isEnabled = json[Constants.keySettingsGridIsEnabled],
-        gridMinValue = json[Constants.keySettingsGridMinValue];
+      : isEnabled = json[GridKey.isEnabled],
+        gridMinValue = json[GridKey.minValue];
 
   Map<String, dynamic> toJson() => {
-        Constants.keySettingsGridIsEnabled: isEnabled,
-        Constants.keySettingsGridMinValue: gridMinValue,
+        GridKey.isEnabled: isEnabled,
+        GridKey.minValue: gridMinValue,
       };
 }

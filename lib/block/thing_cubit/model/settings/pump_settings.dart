@@ -1,4 +1,10 @@
-import 'package:osh_remote/utils/constants.dart';
+class PumpKey {
+  static const isAuto = "isAuto";
+  static const value = "value";
+  static const inOutDif = "tempDif";
+  static const enableDelay = "enableDelay";
+  static const disableDelay = "disableDelay";
+}
 
 class PumpSettings {
   bool isAuto;
@@ -17,17 +23,17 @@ class PumpSettings {
       required this.disableDelay});
 
   PumpSettings.fromJson(Map<String, dynamic> json)
-      : isAuto = json[Constants.keySettingsPumpIsAuto],
-        value = json[Constants.keySettingsPumpValue],
-        inOutDif = json[Constants.keySettingsPumpDif],
-        enableDelay = json[Constants.keySettingsPumpEnableDelay],
-        disableDelay = json[Constants.keySettingsPumpDisableDelay];
+      : isAuto = json[PumpKey.isAuto],
+        value = json[PumpKey.value],
+        inOutDif = json[PumpKey.inOutDif],
+        enableDelay = json[PumpKey.enableDelay],
+        disableDelay = json[PumpKey.disableDelay];
 
   Map<String, dynamic> toJson() => {
-        Constants.keySettingsPumpIsAuto: isAuto,
-        Constants.keySettingsPumpValue: value,
-        Constants.keySettingsPumpDif: inOutDif,
-        Constants.keySettingsPumpEnableDelay: enableDelay,
-        Constants.keySettingsPumpDisableDelay: disableDelay,
+        PumpKey.isAuto: isAuto,
+        PumpKey.value: value,
+        PumpKey.inOutDif: inOutDif,
+        PumpKey.enableDelay: enableDelay,
+        PumpKey.disableDelay: disableDelay,
       };
 }

@@ -1,6 +1,7 @@
 import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_info.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 
 class ThingControllerState {
@@ -24,12 +25,14 @@ class ThingControllerState {
 
   ThingControllerState copyWith(String sn,
       {String? name,
+      ThingInfo? info,
       ThingConfig? config,
       ThingSettings? settings,
       ThingCalendar? calendar,
       ThingConnectionStatus? status}) {
     final updated = getThingData(sn)!.copyWith(
         name: name,
+        info: info,
         thingConfig: config,
         thingSettings: settings,
         thingCalendar: calendar,
@@ -51,6 +54,8 @@ class ThingControllerState {
             (element) => element.status == ThingConnectionStatus.connected)
         : null;
   }
+
+  ThingInfo? get info => connectedThing?.info;
 
   ThingConfig? get config => connectedThing?.config;
 

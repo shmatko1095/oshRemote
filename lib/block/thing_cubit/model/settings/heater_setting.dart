@@ -1,4 +1,7 @@
-import 'package:osh_remote/utils/constants.dart';
+class HeaterKey {
+  static const isAuto = "isAuto";
+  static const value = "value";
+}
 
 class HeaterSetting {
   /// Value "true" means enabled modulation.
@@ -10,11 +13,11 @@ class HeaterSetting {
   HeaterSetting({required this.isAuto, required this.value});
 
   HeaterSetting.fromJson(Map<String, dynamic> json)
-      : isAuto = json[Constants.keySettingsHeaterIsAuto],
-        value = json[Constants.keySettingsHeaterValue];
+      : isAuto = json[HeaterKey.isAuto],
+        value = json[HeaterKey.value];
 
   Map<String, dynamic> toJson() => {
-        Constants.keySettingsHeaterIsAuto: isAuto,
-        Constants.keySettingsHeaterValue: value,
+        HeaterKey.isAuto: isAuto,
+        HeaterKey.value: value,
       };
 }

@@ -8,6 +8,7 @@ import 'package:mqtt_client_repository/mqtt_client_repository.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_info.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
@@ -37,15 +38,10 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   Stream<Exception> get exceptionStream => _exceptionStreamController.stream;
 
-  final _widgetsStreamController = StreamController<String>.broadcast();
-
-  Stream<String> get widgetsStream => _widgetsStreamController.stream;
-
   @override
   Future<void> close() {
     _stream.cancel();
     _exceptionStreamController.close();
-    _widgetsStreamController.close();
     return super.close();
   }
 
@@ -53,7 +49,6 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     _clientId = clientId;
     _stream = _mqttRepository.getMessagesStream()!.listen((event) {
       for (var element in event) {
-        // Future.microtask(() => _handleReceivedMsg(element));
         _handleReceivedMsg(element);
       }
     });
@@ -101,8 +96,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   void _publishConnectStatus(String sn, bool status) {
     final builder = MqttClientPayloadBuilder();
     final data = {
-      Constants.keyClientId: _clientId,
-      Constants.keyStatus: status,
+      ConfigKey.clientId: _clientId,
+      ConfigKey.status: status,
     };
     builder.addString(jsonEncode(data));
     final topic = "$sn/${Constants.topicConnect}";
@@ -112,10 +107,10 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   void pushSettings() {
     final builder = MqttClientPayloadBuilder();
     final data = state.settings!.toJson();
-    data[Constants.keyClientId] = _clientId;
+    data[ConfigKey.clientId] = _clientId;
     builder.addString(jsonEncode(data));
 
-    final topic = "${state.sn!}/${Constants.topicSettingsSet}";
+    final topic = "${state.sn!}/${SettingsTopic.set}";
     _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
   }
 
@@ -142,11 +137,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarModeManual] = state.calendar!.manual.toJson();
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.modeManual] = state.calendar!.manual.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -155,12 +150,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarModeAntifreeze] =
-          state.calendar!.antifreeze.toJson();
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.modeAntifreeze] = state.calendar!.antifreeze.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -169,13 +163,13 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarModeWeekly] = List.generate(
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.modeWeekly] = List.generate(
           state.calendar!.weekly.length,
           (index) => state.calendar!.weekly[index].toJson());
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -184,13 +178,12 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarModeDaily] = List.generate(
-          state.calendar!.daily.length,
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.modeDaily] = List.generate(state.calendar!.daily.length,
           (index) => state.calendar!.daily[index].toJson());
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -199,12 +192,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarAdditionalPoint] =
-          state.calendar!.additional!.toJson();
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.additionalPoint] = state.calendar!.additional!.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -239,12 +231,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     if (state.calendar != null) {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
-      data[Constants.keyClientId] = _clientId;
-      data[Constants.keyCalendarCurrentMode] =
-          state.calendar!.currentMode.index;
+      data[ConfigKey.clientId] = _clientId;
+      data[CalendarKey.currentMode] = state.calendar!.currentMode.index;
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${Constants.topicCalendarSet}";
+      final topic = "${state.sn!}/${CalendarTopic.set}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -271,12 +262,12 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
     if (message.topic.endsWith(Constants.topicConnect)) {
       _handleConnect(payload);
-    } else if (message.topic.endsWith(Constants.topicDataUpdate)) {
-      _widgetsStreamController.add(payload);
-    } else if (message.topic.endsWith(Constants.topicSettingsUpdate)) {
+    } else if (message.topic.endsWith(SettingsTopic.update)) {
       _handleSettingsUpdate(sn, payload);
-    } else if (message.topic.endsWith(Constants.topicCalendarUpdate)) {
+    } else if (message.topic.endsWith(CalendarTopic.update)) {
       _handleCalendarUpdate(sn, payload);
+    } else if (message.topic.endsWith(InfoTopic.update)) {
+      _handleInfoUpdate(sn, payload);
     }
   }
 
@@ -284,15 +275,17 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   void _handleConnect(String payload) {
     final data = jsonDecode(payload);
-    final sn = data[Constants.keyClientId];
-    final status = data[Constants.keyStatus];
-    final config = ThingConfig.fromJson(data[Constants.keyConfig]);
-    final settings = ThingSettings.fromJson(data[Constants.keySettings]);
-    final calendar = ThingCalendar.fromJson(data[Constants.keyCalendar]);
+    final sn = data[ConfigKey.clientId];
+    final status = data[ConfigKey.status];
+    final info = ThingInfo.fromNullableJson(data[InfoKey.info]);
+    final config = ThingConfig.fromNullableJson(data[ConfigKey.config]);
+    final setting = ThingSettings.fromNullableJson(data[SettingsKey.settings]);
+    final calendar = ThingCalendar.fromNullableJson(data[CalendarKey.calendar]);
 
     emit(state.copyWith(sn,
+        info: info,
         config: config,
-        settings: settings,
+        settings: setting,
         calendar: calendar,
         status: status == true
             ? ThingConnectionStatus.connected
@@ -312,6 +305,12 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final data = jsonDecode(payload);
     final thingSettings = ThingSettings.fromJson(data);
     emit(state.copyWith(sn, settings: thingSettings));
+  }
+
+  void _handleInfoUpdate(String sn, String payload) {
+    final data = jsonDecode(payload);
+    final thingInfo = ThingInfo.fromJson(data);
+    emit(state.copyWith(sn, info: thingInfo));
   }
 
   void _saveLastConnectedThing(String sn) {

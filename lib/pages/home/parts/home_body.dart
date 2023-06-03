@@ -5,12 +5,10 @@ import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/drawer/drawer.dart';
+import 'package:osh_remote/pages/home/parts/card_widget.dart';
 import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
 import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
-import 'package:osh_remote/pages/home/parts/small_widget.dart';
-import 'package:osh_remote/pages/home/stream_widget_adapter.dart';
 import 'package:osh_remote/pages/settings/settings.dart';
-import 'package:osh_remote/utils/constants.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,10 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // late final Map<String, SmallHomeWidget> _indicatorList;
   late final ScrollController _scrollController;
-
-  final _adapter = StreamWidgetAdapter();
 
   ThingData? get _thing =>
       context.read<ThingControllerCubit>().state.connectedThing;
@@ -42,16 +37,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _updateTitle() {
-    setState(() {
-      if (_thing == null) {
-        _title = const Text("OSH");
-      } else {
-        //@TODO: current temp should be instead of maxTemp
-        _title = _isSliverAppBarExpandedCurrent
-            ? Text("${_thing!.name},  ${_thing!.settings!.waterTemp.maxTemp}°C")
-            : Text(_thing!.name, style: TextStyle(color: _getTitleColor()));
-      }
-    });
+    if (_thing == null) {
+      _title = const Text("OSH");
+    } else {
+      //@TODO: current temp should be instead of maxTemp
+      _title = _isSliverAppBarExpandedCurrent
+          ? Text("${_thing!.name},  ${_thing!.settings!.waterTemp.maxTemp}°C")
+          : Text(_thing!.name, style: TextStyle(color: _getTitleColor()));
+    }
   }
 
   @override
@@ -62,14 +55,9 @@ class _HomePageState extends State<HomePage> {
       ..addListener(() {
         if (_isSliverAppBarExpandedCurrent != _isSliverAppBarExpandedPrevious) {
           _isSliverAppBarExpandedPrevious = _isSliverAppBarExpandedCurrent;
-          _updateTitle();
+          setState(() => _updateTitle());
         }
       });
-
-    context
-        .read<ThingControllerCubit>()
-        .widgetsStream
-        .listen((jsonString) => _adapter.updateWidgets(jsonString));
   }
 
   bool _isThingChanged(
@@ -80,14 +68,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _addWidgetsToAdapter();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<ThingControllerCubit, ThingControllerState>(
       listenWhen: _isThingChanged,
-      listener: (context, state) => _updateTitle(),
+      listener: (context, state) => setState(() => _updateTitle()),
       child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
           buildWhen: _isThingChanged,
           builder: (context, state) => SafeArea(
@@ -138,111 +125,65 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, mainAxisExtent: 120.0, //height
-            ),
-            delegate: SliverChildListDelegate(_adapter.getWidgetList()),
-          ),
-          SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, mainAxisExtent: 120.0, //height
-            ),
-            delegate: SliverChildListDelegate(_adapter.getWidgetList()),
-          ),
+          _cardWidgetList(),
         ],
       ),
     );
   }
 
-  void _addWidgetsToAdapter() {
-    _adapter.add(
-        Constants.keyHeaterStatus,
-        SmallHomeWidget(
-          label: S.of(context)!.heater_status,
-          initial: "1/3",
-          iconData: Icons.local_fire_department,
-        ));
-
-    _adapter.add(
-        Constants.keyPumpStatus,
-        SmallHomeWidget(
-          label: S.of(context)!.pump_status,
-          initial: "58",
-          postfix: "%",
-          iconData: Icons.loop,
-        ));
-
-    _adapter.add(
-      Constants.keyWaterTempIn,
-      SmallHomeWidget(
-          label: S.of(context)!.temp_in,
-          initial: "22.5",
-          postfix: "°C",
-          iconData: Icons.arrow_upward),
+  Widget _getWaitingPage() {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        [
+          const Center(heightFactor: 2, child: CircularProgressIndicator()),
+        ],
+      ),
     );
+  }
 
-    _adapter.add(
-      Constants.keyWaterTempOut,
-      SmallHomeWidget(
-          label: S.of(context)!.temp_out,
-          initial: "23.2",
-          postfix: "°C",
-          iconData: Icons.arrow_downward),
+  Widget _getCardGrid(ThingControllerState state) {
+    return SliverGrid(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, mainAxisExtent: 120.0, //height
+      ),
+      delegate: SliverChildListDelegate(<Widget>[
+        CardWidget(
+            label: S.of(context)!.heater_status,
+            value: "${state.info!.heaterStatus}/${state.config!.heaterConfig}",
+            iconData: Icons.local_fire_department),
+        CardWidget(
+            label: S.of(context)!.pump_status,
+            value: "${state.info!.pumpStatus}%",
+            iconData: Icons.loop),
+        CardWidget(
+            label: S.of(context)!.temp_in,
+            value: "${state.info!.tempIn}°C",
+            iconData: Icons.arrow_upward),
+        CardWidget(
+            label: S.of(context)!.temp_out,
+            value: "${state.info!.tempOut}°C",
+            iconData: Icons.arrow_downward),
+        CardWidget(
+            label: S.of(context)!.pressure,
+            value: "${state.info!.pressure}bar",
+            iconData: Icons.opacity),
+        CardWidget(
+            label: S.of(context)!.power_usage,
+            value: "${state.info!.powerUsage}%",
+            iconData: Icons.timelapse),
+      ]),
     );
+  }
 
-    _adapter.add(
-      Constants.keyWaterPressure,
-      SmallHomeWidget(
-          label: S.of(context)!.pressure,
-          initial: "1.98",
-          postfix: "bar",
-          iconData: Icons.opacity),
-    );
-
-    _adapter.add(
-      Constants.keyPowerUsage,
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      Constants.keySwVerMajor,
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      Constants.keySwVerMinor,
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      Constants.keyHwVerMajor,
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
-
-    _adapter.add(
-      Constants.keyHwVerMinor,
-      SmallHomeWidget(
-          label: S.of(context)!.power_usage,
-          initial: "61",
-          postfix: "%",
-          iconData: Icons.timelapse),
-    );
+  Widget _cardWidgetList() {
+    return BlocBuilder<ThingControllerCubit, ThingControllerState>(
+        buildWhen: (p, c) => p.info != c.info,
+        builder: (context, state) {
+          if (state.info == null || state.config == null) {
+            return _getWaitingPage();
+          } else {
+            return _getCardGrid(state);
+          }
+        });
   }
 }
