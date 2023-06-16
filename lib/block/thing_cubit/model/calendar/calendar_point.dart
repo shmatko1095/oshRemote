@@ -1,4 +1,4 @@
-import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
 
 enum Day { off, antifreeze, manual, daily, weekly }
 

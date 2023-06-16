@@ -6,13 +6,13 @@ class InfoTopic {
 
 class InfoKey {
   static const info = "info";
-  static const heaterStatus = "heaterStatus";
-  static const pumpStatus = "pumpStatus";
-  static const tempIn = "tempIn";
-  static const tempOut = "tempOut";
-  static const pressure = "pressure";
-  static const powerUsage = "powerUsage";
-  static const airTempAct = "airTempAct";
+  static const heaterStatus = "hS";
+  static const pumpStatus = "pS";
+  static const tempIn = "tI";
+  static const tempOut = "tO";
+  static const pressure = "pr";
+  static const powerUsage = "pU";
+  static const airTempAct = "aTA";
 }
 
 class ThingInfo {

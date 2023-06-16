@@ -41,6 +41,9 @@ class Constants {
   static const minGridValue = 160;
   static const maxGridValue = 230;
 
+  static const minChartGridValue = minGridValue;
+  static const maxChartGridValue = 260;
+
   static const minPumpPwmValue = 10;
   static const maxPumpPwmValue = 100;
 

@@ -80,6 +80,7 @@
   "mainsMinIsActiveTitle": "Grid protection",
   "mainsMinIsActiveSubtitle": "When mains protection is enabled, the heater will automatically reduce power if the mains voltage is below the set level. This option can be useful if a voltage switch is installed in the electrical panel, which is switched off when the heaters are working",
   "mains": "Mains",
+  "mainsVoltage": "Mains voltage",
   "noConnectedDevice": "No connected device",
   "auto": "Auto",
   "off": "Off",
@@ -106,10 +107,14 @@
   "fr": "Fr",
   "sa": "Sa",
   "su": "Su",
-  "everyDay" : "Every day",
+  "everyDay": "Every day",
   "addPoint": "Add point",
   "time": "Time",
   "repeat": "Repeat",
   "never": "Never",
-  "temperaturePoint": "Temperature point"
+  "temperaturePoint": "Temperature point",
+  "charts": "Charts",
+  "minimum": "Minimum",
+  "maximum": "Maximum",
+  "hour": "hours"
 }

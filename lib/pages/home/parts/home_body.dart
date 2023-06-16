@@ -4,10 +4,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
+import 'package:osh_remote/pages/charts/charts.dart';
 import 'package:osh_remote/pages/home/drawer/drawer.dart';
-import 'package:osh_remote/pages/home/parts/card_widget.dart';
-import 'package:osh_remote/pages/home/parts/home_temp_indicator.dart';
-import 'package:osh_remote/pages/home/parts/selector_mode_widget.dart';
+import 'package:osh_remote/pages/home/widget/card_widget.dart';
+import 'package:osh_remote/pages/home/widget/home_temp_indicator.dart';
+import 'package:osh_remote/pages/home/widget/selector_mode_widget.dart';
 import 'package:osh_remote/pages/settings/settings.dart';
 
 class HomePage extends StatefulWidget {
@@ -108,6 +109,10 @@ class _HomePageState extends State<HomePage> {
             centerTitle: !_isSliverAppBarExpandedCurrent,
             iconTheme: IconThemeData(color: _getTitleColor()),
             actions: [
+              IconButton(
+                  onPressed: () => Navigator.of(context).push(Charts.route()),
+                  icon:
+                      Icon(Icons.ssid_chart_rounded, color: _getTitleColor())),
               IconButton(
                   onPressed: () => Navigator.of(context).push(Settings.route()),
                   icon: Icon(Icons.settings, color: _getTitleColor()))

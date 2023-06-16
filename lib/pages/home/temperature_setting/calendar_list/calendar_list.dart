@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/model/calendar/calendar_point.dart';
-import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/home/temperature_setting/calendar_list/calendar_list_title.dart';
@@ -154,9 +154,11 @@ class _CalendarListState extends State<CalendarList> {
                         itemBuilder: (context, index) => CalendarListTitle(
                               point: _points[index],
                               maxPower: context
-                                  .read<ThingControllerCubit>()
-                                  .state
-                                  .config?.heaterConfig ?? 0,
+                                      .read<ThingControllerCubit>()
+                                      .state
+                                      .config
+                                      ?.heaterConfig ??
+                                  0,
                               onEdit: _onEdit,
                               onRemove: _onRemove,
                             )),

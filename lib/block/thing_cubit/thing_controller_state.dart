@@ -1,8 +1,9 @@
-import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/charts/thing_charts.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/thing_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_info.dart';
-import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 
 class ThingControllerState {
   final Map<String, ThingData> _thingsMap;
@@ -26,6 +27,7 @@ class ThingControllerState {
   ThingControllerState copyWith(String sn,
       {String? name,
       ThingInfo? info,
+      ThingCharts? charts,
       ThingConfig? config,
       ThingSettings? settings,
       ThingCalendar? calendar,
@@ -33,6 +35,7 @@ class ThingControllerState {
     final updated = getThingData(sn)!.copyWith(
         name: name,
         info: info,
+        thingCharts: charts,
         thingConfig: config,
         thingSettings: settings,
         thingCalendar: calendar,
@@ -56,6 +59,8 @@ class ThingControllerState {
   }
 
   ThingInfo? get info => connectedThing?.info;
+
+  ThingCharts? get charts => connectedThing?.charts;
 
   ThingConfig? get config => connectedThing?.config;
 

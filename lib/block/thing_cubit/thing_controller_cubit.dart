@@ -5,15 +5,18 @@ import 'dart:core';
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository.dart';
-import 'package:osh_remote/block/thing_cubit/model/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
+import 'package:osh_remote/block/thing_cubit/model/charts/thing_charts.dart';
+import 'package:osh_remote/block/thing_cubit/model/settings/thing_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_data.dart';
 import 'package:osh_remote/block/thing_cubit/model/thing_info.dart';
-import 'package:osh_remote/block/thing_cubit/model/thing_settings.dart';
 import 'package:osh_remote/block/thing_cubit/model/time_option.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+part 'thing_controller_cubit_charts.dart';
 
 class ThingControllerCubit extends Cubit<ThingControllerState> {
   ThingControllerCubit(MqttClientRepository mqttRepository)
@@ -268,6 +271,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       _handleCalendarUpdate(sn, payload);
     } else if (message.topic.endsWith(InfoTopic.update)) {
       _handleInfoUpdate(sn, payload);
+    } else if (message.topic.endsWith(ChartTopic.update)) {
+      handleChartsUpdate(sn, payload);
     }
   }
 
@@ -303,8 +308,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   void _handleCalendarUpdate(String sn, String payload) {
     final data = jsonDecode(payload);
-    final thingSettings = ThingSettings.fromJson(data);
-    emit(state.copyWith(sn, settings: thingSettings));
+    final thingSettings = ThingCalendar.fromJson(data);
+    emit(state.copyWith(sn, calendar: thingSettings));
   }
 
   void _handleInfoUpdate(String sn, String payload) {
