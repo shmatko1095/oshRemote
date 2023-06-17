@@ -8,9 +8,9 @@ class ChartData {
 
   int get minV => data.values.reduce((a, b) => a < b ? a : b);
 
-  int get maxK => data.keys.reduce((a, b) => a > b ? a : b);
+  int get maxT => data.keys.reduce((a, b) => a > b ? a : b);
 
-  int get minK => data.keys.reduce((a, b) => a < b ? a : b);
+  int get minT => data.keys.reduce((a, b) => a < b ? a : b);
 
   int _getTime(String data) => int.parse(data.split(splitter).first);
 
@@ -20,11 +20,10 @@ class ChartData {
     _data.addAll(data);
   }
 
-  static ChartData? getTimeFilteredData(ChartData? data, int timeOption) {
-    if (data == null) return null;
-    int threshold = data.maxK - (Duration.secondsPerHour * timeOption);
+  ChartData timeFilteredData(int timeOption) {
+    int threshold = maxT - (Duration.secondsPerHour * timeOption);
     Map<int, int> filteredMap = {};
-    data.data.forEach((key, value) {
+    data.forEach((key, value) {
       if (key >= threshold) {
         filteredMap[key] = value;
       }

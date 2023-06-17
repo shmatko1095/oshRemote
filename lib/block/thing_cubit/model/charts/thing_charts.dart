@@ -12,43 +12,48 @@ class ThingChartsKey {
 }
 
 class ThingCharts {
-  final List<int> _timeOptions = [1, 3, 6, 12, 24];
+  final List<int> timeOptions = [1, 3, 6, 12, 24];
 
-  int get _nextTimeOptionIndex => (_timeOptionIndex + 1) % _timeOptions.length;
   int _timeOptionIndex = 0;
 
-  int get timeOption => _timeOptions[_timeOptionIndex];
+  int get _nextTimeOptionIndex => (_timeOptionIndex + 1) % timeOptions.length;
 
-  void incTimeOption() {
-    _timeOptionIndex = _nextTimeOptionIndex;
-    _updateTimeFilteredData();
-  }
+  int get timeOption => timeOptions[_timeOptionIndex];
 
-  final ChartData? _heaterData;
-  ChartData? _timeFilteredHeaterData;
+  void incTimeOption() => _timeOptionIndex = _nextTimeOptionIndex;
 
-  ChartData? get heaterData => _timeFilteredHeaterData;
+  final ChartData? _heater;
+  final ChartData? _mains;
+  final ChartData? _temp;
+  final ChartData? _pressure;
+  final ChartData? _airTemp;
+  final ChartData? _inTemp;
+  final ChartData? _outTemp;
 
-  final ChartData? _gridData;
-  ChartData? _timeFilteredGridData;
+  ChartData? get heater => _heater?.timeFilteredData(timeOption);
 
-  ChartData? get gridData => _timeFilteredGridData;
+  ChartData? get mains => _mains?.timeFilteredData(timeOption);
+
+  ChartData? get temp => _temp?.timeFilteredData(timeOption);
+
+  ChartData? get pressure => _pressure?.timeFilteredData(timeOption);
+
+  ChartData? get airTemp => _airTemp?.timeFilteredData(timeOption);
+
+  ChartData? get inTemp => _inTemp?.timeFilteredData(timeOption);
+
+  ChartData? get outTemp => _outTemp?.timeFilteredData(timeOption);
 
   static ThingCharts? fromNullableJson(Map<String, dynamic>? json) {
     return json != null ? ThingCharts.fromJson(json) : null;
   }
 
   ThingCharts.fromJson(Map<String, dynamic> json)
-      : _heaterData =
-            ChartData.fromNullableJsonArray(json[ThingChartsKey.heater]),
-        _gridData = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]) {
-    _updateTimeFilteredData();
-  }
-
-  void _updateTimeFilteredData() {
-    _timeFilteredGridData =
-        ChartData.getTimeFilteredData(_gridData, timeOption);
-    _timeFilteredHeaterData =
-        ChartData.getTimeFilteredData(_heaterData, timeOption);
-  }
+      : _heater = ChartData.fromNullableJsonArray(json[ThingChartsKey.heater]),
+        _mains = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
+        _temp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
+        _pressure = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
+        _airTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
+        _inTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
+        _outTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]);
 }

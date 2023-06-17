@@ -7,12 +7,10 @@ import 'package:osh_remote/block/thing_cubit/model/charts/chart_data.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/utils/constants.dart';
 
-class MainsChart extends StatelessWidget {
-  MainsChart({super.key});
+class HeaterChart extends StatelessWidget {
+  HeaterChart({super.key});
 
   static const Color mainGridLineColor = Colors.white10;
-  static const Color contentColorBlue = Color(0xFF2196F3);
-  static const Color contentColorCyan = Color(0xFF50E4FF);
 
   static const _chartTestStyle = TextStyle(
     fontWeight: FontWeight.w200,
@@ -20,36 +18,20 @@ class MainsChart extends StatelessWidget {
   );
 
   final List<Color> gradientColors = [
-    Color(0xFFFFA500),
-    Color(0xFFFFC500),
-    Color(0xFFFFDB00),
-    Color(0xFFFFED00),
+    const Color(0xffff416c),
+    const Color(0xFFFF4B2B)
   ];
 
   ChartData _data(BuildContext context) =>
-      context.read<ThingControllerCubit>().state.charts!.mains!;
+      context.read<ThingControllerCubit>().state.charts!.heater!;
 
   @override
   Widget build(BuildContext context) {
     return Card(
         child: Column(children: [
-      Text(S.of(context)!.mainsVoltage),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        Column(
-          children: [
-            Text(S.of(context)!.minimum),
-            Text("${_data(context).minV}"),
-          ],
-        ),
-        Column(
-          children: [
-            Text(S.of(context)!.maximum),
-            Text("${_data(context).maxV}"),
-          ],
-        )
-      ]),
+      Text(S.of(context)!.heater_status),
       AspectRatio(
-        aspectRatio: 1.70,
+        aspectRatio: 1.5,
         child: Padding(
           padding: const EdgeInsets.only(
             right: 18,
@@ -70,8 +52,8 @@ class MainsChart extends StatelessWidget {
     return AxisTitles(
         sideTitles: SideTitles(
       showTitles: true,
-      interval: 20,
-      getTitlesWidget: (value, meta) => Text("${value.toInt()}V",
+      interval: 1,
+      getTitlesWidget: (value, meta) => Text("${value.toInt()}",
           style: _chartTestStyle, textAlign: TextAlign.left),
       reservedSize: 42,
     ));
@@ -113,10 +95,11 @@ class MainsChart extends StatelessWidget {
 
       String time = DateFormat('HH:mm').format(
           DateTime.fromMillisecondsSinceEpoch(
-              _data(context).data.keys.toList()[touchedSpot.x.toInt()] * 1000));
+              _data(context).data.keys.toList()[touchedSpot.x.toInt()] *
+                  1000));
 
       return LineTooltipItem(
-          "${touchedSpot.y.toInt().toString()}V, $time", textStyle);
+          "${touchedSpot.y.toInt().toString()}, $time", textStyle);
     }).toList();
   }
 
@@ -148,8 +131,8 @@ class MainsChart extends StatelessWidget {
         leftTitles: _leftTitle(),
       ),
       borderData: FlBorderData(show: false),
-      minY: Constants.minChartGridValue.toDouble(),
-      maxY: Constants.maxChartGridValue.toDouble(),
+      minY: 0,
+      maxY: context.read<ThingControllerCubit>().state.config!.heaterConfig.toDouble(),
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
@@ -158,12 +141,12 @@ class MainsChart extends StatelessWidget {
       lineBarsData: [
         LineChartBarData(
           spots: _getFlSpotData(context),
-          isCurved: true,
+          isCurved: false,
           gradient: LinearGradient(
             colors: gradientColors,
           ),
           barWidth: 1,
-          isStrokeCapRound: true,
+          isStrokeCapRound: false,
           dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,

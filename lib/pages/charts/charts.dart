@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/pages/charts/grid_chart.dart';
+import 'package:osh_remote/pages/charts/heater_chart.dart';
 import 'package:osh_remote/utils/constants.dart';
 
 class Charts extends StatefulWidget {
@@ -20,22 +21,20 @@ class Charts extends StatefulWidget {
 class _ChartsState extends State<Charts> {
   ThingControllerCubit get _cubit => context.read<ThingControllerCubit>();
 
-  void _onBackPress() {
-    Navigator.of(context).pop();
-  }
+  void _onBackPress() => Navigator.of(context).pop();
 
   Widget _buildChartsColumn(BuildContext context, ThingControllerState state) {
     List<Widget> content = [];
     if (state.charts != null) {
-      if (state.charts!.gridData != null) content.add(GridChart());
-      if (state.charts!.heaterData != null) content.add(GridChart());
-      if (state.charts!.heaterData != null) content.add(GridChart());
-      if (state.charts!.heaterData != null) content.add(GridChart());
+      if (state.charts!.mains != null) content.add(MainsChart());
+      if (state.charts!.heater != null) content.add(HeaterChart());
+      // if (state.charts!.heater != null) content.add(MainsChart());
+      // if (state.charts!.heater != null) content.add(MainsChart());
     }
     return Column(children: content);
   }
 
-  Widget _timeSelectorButton(int time) {
+  Widget _timeSelectorButton() {
     return ElevatedButton(
       onPressed: () => setState(() => _cubit.state.charts?.incTimeOption()),
       style: ButtonStyle(
@@ -45,7 +44,7 @@ class _ChartsState extends State<Charts> {
           )),
           backgroundColor:
               MaterialStateColor.resolveWith((states) => Colors.blue)),
-      child: Text("$time ${S.of(context)!.hour}"),
+      child: Text("${_cubit.state.charts?.timeOption} ${S.of(context)!.hour}"),
     );
   }
 
@@ -65,9 +64,8 @@ class _ChartsState extends State<Charts> {
                   body: SingleChildScrollView(
                       padding: Constants.listPadding,
                       child: _buildChartsColumn(context, state)),
-                  floatingActionButton: state.charts != null
-                      ? _timeSelectorButton(state.charts!.timeOption)
-                      : null,
+                  floatingActionButton:
+                      state.charts != null ? _timeSelectorButton() : null,
                   floatingActionButtonLocation:
                       FloatingActionButtonLocation.miniEndDocked,
                 )));
