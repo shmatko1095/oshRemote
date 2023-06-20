@@ -8,6 +8,7 @@ import 'package:osh_remote/models/models.dart';
 import 'package:osh_remote/models/user.dart';
 
 part 'sign_in_event.dart';
+
 part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
@@ -26,6 +27,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInPasswordChanged>(_onPasswordChanged);
     on<SignInLogoutRequested>(_onLogoutRequested);
     on<SignInLoginRequested>(_onLoginRequested);
+    on<SignInDemo>(_onLoginDemo);
     on<SignInFetchUserDataRequested>(_onSignInFetchUserRequested);
     on<SignedInEvent>(_onSignedInEvent);
     on<SignedOutEvent>(_onSignedOutEvent);
@@ -59,6 +61,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       SignInPasswordChanged event, Emitter<SignInState> emit) {
     emit(state.copyWith(password: Password(value: event.password)));
   }
+
+  Future<void> _onLoginDemo(
+          SignInDemo event, Emitter<SignInState> emit) async =>
+      emit(state.copyWith(status: SignInStatus.demo));
 
   Future<void> _onLoginRequested(
       SignInLoginRequested event, Emitter<SignInState> emit) async {

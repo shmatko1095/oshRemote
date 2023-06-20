@@ -1,6 +1,6 @@
 part of 'sign_in_bloc.dart';
 
-enum SignInStatus { unknown, authorized, unauthorized }
+enum SignInStatus { unknown, demo, authorized, unauthorized }
 
 class SignInState {
   SignInState(

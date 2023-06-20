@@ -6,8 +6,7 @@ class _TryDemoButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.of(context)
-          .pushAndRemoveUntil(Home.route(), (route) => false),
+      onPressed: () => context.read<SignInBloc>().add(const SignInDemo()),
       child: Text(S.of(context)!.tryDemo),
     );
   }

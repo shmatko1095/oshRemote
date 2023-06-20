@@ -27,12 +27,15 @@ class CertificateProvider {
   static const _certificatePublicKey = "certificatePublicKey";
   static const _certificatePrivateKey = "certificatePrivateKey";
   static late final SharedPreferences _pref;
+  static bool _init = false;
 
   static Future<void> init() async {
-    _pref = await SharedPreferences.getInstance();
+    _pref =
+        await SharedPreferences.getInstance().whenComplete(() => _init = true);
   }
 
-  static Certificate? getCert() {
+  static Future<Certificate?> getCert() async {
+    if (!_init) await init();
     final String? arn = _pref.getString(_certificateArnKey);
     final String? id = _pref.getString(_certificateIdKey);
     final String? pem = _pref.getString(_certificatePemKey);
@@ -52,7 +55,8 @@ class CertificateProvider {
         : null;
   }
 
-  static void updateCert(Certificate cert) {
+  static Future<void> updateCert(Certificate cert) async {
+    if (!_init) await init();
     _pref.setString(_certificateArnKey, cert.arn);
     _pref.setString(_certificateIdKey, cert.id);
     _pref.setString(_certificatePemKey, cert.pem);

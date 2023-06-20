@@ -32,15 +32,20 @@ class ThingControllerState {
       ThingSettings? settings,
       ThingCalendar? calendar,
       ThingConnectionStatus? status}) {
-    final updated = getThingData(sn)!.copyWith(
-        name: name,
-        info: info,
-        thingCharts: charts,
-        thingConfig: config,
-        thingSettings: settings,
-        thingCalendar: calendar,
-        status: status);
-    return addThing(updated);
+    ThingData? data = getThingData(sn);
+    if (data != null) {
+      final updated = data.copyWith(
+          name: name,
+          info: info,
+          thingCharts: charts,
+          thingConfig: config,
+          thingSettings: settings,
+          thingCalendar: calendar,
+          status: status);
+      return addThing(updated);
+    } else {
+      return this;
+    }
   }
 
   ThingControllerState removeThing(String sn) {

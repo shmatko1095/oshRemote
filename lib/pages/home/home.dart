@@ -43,10 +43,10 @@ class Home extends StatelessWidget {
   }
 
   void _onThingListUpdate(BuildContext context, ThingControllerState state) {
-    if (state.connectedThing == null) {
-      final sn = context.read<ThingControllerCubit>().lastConnectedThing ??
-          state.thingDataMap.values.first.sn;
-      context.read<ThingControllerCubit>().connect(sn: sn);
+    if (state.connectedThing == null && state.thingDataMap.isNotEmpty) {
+      final firstSn = state.thingDataMap.values.first.sn;
+      final lastSn = context.read<ThingControllerCubit>().lastConnectedThing;
+      context.read<ThingControllerCubit>().connect(sn: lastSn ?? firstSn);
     }
   }
 
@@ -72,6 +72,9 @@ class Home extends StatelessWidget {
 
     final userId = context.read<SignInBloc>().state.user.userId;
     context.read<MqttClientBloc>().add(MqttStartEvent(userId: userId));
+
+    context.read<ThingControllerCubit>().updateThingList(
+        snList: context.read<MqttClientBloc>().state.userThingsList);
 
     return BlocListener<MqttClientBloc, MqttClientState>(
       listenWhen: (previous, current) =>

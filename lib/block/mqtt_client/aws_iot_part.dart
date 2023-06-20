@@ -95,7 +95,7 @@ extension AwsIotPart on MqttClientBloc {
 
   Future<bool> _isCertificateActive() async {
     bool result = false;
-    Certificate? cert = CertificateProvider.getCert();
+    Certificate? cert = await CertificateProvider.getCert();
     if (cert != null) {
       try {
         result = await _iotRepository.isCertificateActive(cert.id);
@@ -113,7 +113,7 @@ extension AwsIotPart on MqttClientBloc {
     await _iotRepository.attachPolicy(thingPolicyName, cert.certificateArn!);
     await _iotRepository.attachThingPrincipal(thingName, cert.certificateArn!);
 
-    CertificateProvider.updateCert(Certificate(
+    await CertificateProvider.updateCert(Certificate(
         arn: cert.certificateArn!,
         id: cert.certificateId!,
         pem: cert.certificatePem!,

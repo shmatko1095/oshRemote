@@ -33,10 +33,10 @@ extension MqttClientPart on MqttClientBloc {
   }
 
   Future<void> _connectClient(String thingName) async {
-    final cert = CertificateProvider.getCert();
+    final cert = await CertificateProvider.getCert();
     await _mqttRepository.connect(
-      cert!.pem,
-      cert.pair.privateKey,
+      cert?.pem,
+      cert?.pair.privateKey,
       thingName,
       () => add(_MqttConnectedEvent(thingId: thingName)),
       () => add(const _MqttDisconnectedEvent()),

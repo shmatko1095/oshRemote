@@ -9,6 +9,9 @@ class ThingChartsKey {
   static const charts = "charts";
   static const heater = "heater";
   static const grid = "grid";
+  static const temp = "temp";
+  static const inTemp = "inTemp";
+  static const outTemp = "outTemp";
 }
 
 class ThingCharts {
@@ -24,8 +27,6 @@ class ThingCharts {
 
   final ChartData? _heater;
   final ChartData? _mains;
-  final ChartData? _temp;
-  final ChartData? _pressure;
   final ChartData? _airTemp;
   final ChartData? _inTemp;
   final ChartData? _outTemp;
@@ -33,10 +34,6 @@ class ThingCharts {
   ChartData? get heater => _heater?.timeFilteredData(timeOption);
 
   ChartData? get mains => _mains?.timeFilteredData(timeOption);
-
-  ChartData? get temp => _temp?.timeFilteredData(timeOption);
-
-  ChartData? get pressure => _pressure?.timeFilteredData(timeOption);
 
   ChartData? get airTemp => _airTemp?.timeFilteredData(timeOption);
 
@@ -51,8 +48,6 @@ class ThingCharts {
   ThingCharts.fromJson(Map<String, dynamic> json)
       : _heater = ChartData.fromNullableJsonArray(json[ThingChartsKey.heater]),
         _mains = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
-        _temp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
-        _pressure = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
         _airTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
         _inTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]),
         _outTemp = ChartData.fromNullableJsonArray(json[ThingChartsKey.grid]);

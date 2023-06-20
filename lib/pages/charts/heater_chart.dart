@@ -5,7 +5,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:osh_remote/block/thing_cubit/model/charts/chart_data.dart';
 import 'package:osh_remote/block/thing_cubit/thing_controller_cubit.dart';
-import 'package:osh_remote/utils/constants.dart';
 
 class HeaterChart extends StatelessWidget {
   HeaterChart({super.key});
@@ -60,26 +59,31 @@ class HeaterChart extends StatelessWidget {
   }
 
   List<FlSpot> _getFlSpotData(BuildContext context) {
-    return List.generate(_data(context).data.length, (index) {
-      return FlSpot(index.toDouble(),
-          _data(context).data.values.toList()[index].toDouble());
-    });
+    List<FlSpot> list = [];
+    for (int cnt = 0; cnt < _data(context).data.values.length; cnt++) {
+      double val = _data(context).data.values.toList()[cnt].toDouble();
+      list.add(FlSpot(cnt.toDouble(), val));
+      list.add(FlSpot(cnt + 1.toDouble() - 0.01, val));
+    }
+    return list;
   }
 
   Widget getTitles(BuildContext context, double value, TitleMeta meta) {
-    return Text(
-        DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-            _data(context).data.keys.toList()[value.toInt()] * 1000)),
-        style: _chartTestStyle);
+    bool isLast = value == _data(context).data.keys.length * 2 - 1;
+    bool isPreLast =
+        value + getTitlesInterval(context) > _data(context).data.keys.length*2;
+    if (!isLast && isPreLast) {
+      return const Text("");
+    } else {
+      return Text(
+          DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
+              _data(context).data.keys.toList()[value.toInt()] * 1000)),
+          style: _chartTestStyle);
+    }
   }
 
   double getTitlesInterval(BuildContext context) {
-    int time = context.read<ThingControllerCubit>().state.charts!.timeOption;
-    return time == 1
-        ? 1
-        : time == 3
-            ? 3
-            : time / 2;
+    return (((_data(context).data.values.length*2 + 9) / 9) ~/ 1).toDouble();
   }
 
   List<LineTooltipItem> tooltipItem(
@@ -95,7 +99,7 @@ class HeaterChart extends StatelessWidget {
 
       String time = DateFormat('HH:mm').format(
           DateTime.fromMillisecondsSinceEpoch(
-              _data(context).data.keys.toList()[touchedSpot.x.toInt()] *
+              _data(context).data.keys.toList()[touchedSpot.x.round().toInt()] *
                   1000));
 
       return LineTooltipItem(
@@ -132,7 +136,12 @@ class HeaterChart extends StatelessWidget {
       ),
       borderData: FlBorderData(show: false),
       minY: 0,
-      maxY: context.read<ThingControllerCubit>().state.config!.heaterConfig.toDouble(),
+      maxY: context
+          .read<ThingControllerCubit>()
+          .state
+          .config!
+          .heaterConfig
+          .toDouble(),
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(

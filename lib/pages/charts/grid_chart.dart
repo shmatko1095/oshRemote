@@ -20,10 +20,10 @@ class MainsChart extends StatelessWidget {
   );
 
   final List<Color> gradientColors = [
-    Color(0xFFFFA500),
-    Color(0xFFFFC500),
-    Color(0xFFFFDB00),
-    Color(0xFFFFED00),
+    const Color(0xFFFFA500),
+    const Color(0xFFFFC500),
+    const Color(0xFFFFDB00),
+    const Color(0xFFFFED00),
   ];
 
   ChartData _data(BuildContext context) =>
@@ -85,19 +85,21 @@ class MainsChart extends StatelessWidget {
   }
 
   Widget getTitles(BuildContext context, double value, TitleMeta meta) {
-    return Text(
-        DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
-            _data(context).data.keys.toList()[value.toInt()] * 1000)),
-        style: _chartTestStyle);
+    bool isLast = value == _data(context).data.keys.length - 1;
+    bool isPreLast =
+        value + getTitlesInterval(context) > _data(context).data.keys.length;
+    if (!isLast && isPreLast) {
+      return const Text("");
+    } else {
+      return Text(
+          DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(
+              _data(context).data.keys.toList()[value.toInt()] * 1000)),
+          style: _chartTestStyle);
+    }
   }
 
   double getTitlesInterval(BuildContext context) {
-    int time = context.read<ThingControllerCubit>().state.charts!.timeOption;
-    return time == 1
-        ? 1
-        : time == 3
-            ? 3
-            : time / 2;
+    return (((_data(context).data.values.length + 9) / 9) ~/ 1).toDouble();
   }
 
   List<LineTooltipItem> tooltipItem(

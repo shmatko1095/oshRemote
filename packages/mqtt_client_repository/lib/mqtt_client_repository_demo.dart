@@ -1,17 +1,18 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
-import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:mqtt_client_repository/cert_manager.dart';
 import 'package:mqtt_client_repository/i_mqtt_client_repository.dart';
+import 'package:mqtt_client_repository/mqtt_broker_mock/mqtt_broker_mock.dart';
+import 'package:mqtt_client_repository/mqtt_broker_mock/mqtt_server_client_mock.dart';
 
-class MqttClientRepository implements IMqttClientRepository {
+class MqttClientRepositoryDemo implements IMqttClientRepository {
+  static const String TAG = "MqttClientRepositoryDemo: ";
   late final MqttServerClient _client;
 
-  MqttClientRepository(String server) {
-    _client = MqttServerClient(server, '');
+  MqttClientRepositoryDemo(MqttBrokerMock broker) {
+    _client = MqttServerClientMock(broker);
   }
 
   @override
@@ -25,45 +26,38 @@ class MqttClientRepository implements IMqttClientRepository {
       UnsubscribeCallback onUnsubscribed,
       SubscribeFailCallback onSubscribeFail,
       PongCallback onPong) async {
-    ByteData rootCA = await CertificateManager.getRootCertificate();
-
-    final SecurityContext context = SecurityContext.defaultContext;
-    context.setClientAuthoritiesBytes(rootCA.buffer.asUint8List());
-    context.useCertificateChainBytes(certificatePem!.codeUnits);
-    context.usePrivateKeyBytes(privateKey!.codeUnits);
-
-    _client.securityContext = context;
     _client.clientIdentifier = thingName;
-    _client.logging(on: true);
     _client.keepAlivePeriod = 30;
-    _client.port = 8883;
-    _client.secure = true;
-    _client.autoReconnect = true;
     _client.onConnected = onConnected;
     _client.onDisconnected = onDisconnected;
-    _client.onAutoReconnect = onDisconnected;
-    _client.onAutoReconnected = onConnected;
     _client.onSubscribed = onSubscribed;
-    _client.onUnsubscribed = onUnsubscribed;
-    _client.onSubscribeFail = onSubscribeFail;
     _client.pongCallback = onPong;
-    _client.setProtocolV311();
+
+    print(TAG + "connect, thingName: $thingName");
 
     return await _client.connect();
   }
 
   @override
   void disconnect() {
+    print(TAG + "disconnect");
+
     _client.disconnect();
   }
 
   @override
   void publish(String topic, MqttQos qos, MqttClientPayloadBuilder builder) {
+    String payload = utf8.decode(builder.payload!.toList());
+    print(TAG + "publish topic: $topic");
+    print(TAG + "publish payload: $payload");
+
     _client.publishMessage(topic, qos, builder.payload!);
   }
 
   @override
   void subscribe(String topic, MqttQos qos) {
+    print(TAG + "subscribe: $topic");
+
     _client.subscribe(topic, qos);
   }
 

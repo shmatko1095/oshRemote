@@ -20,6 +20,10 @@ class SignInLoginRequested extends SignInEvent {
   const SignInLoginRequested();
 }
 
+class SignInDemo extends SignInEvent {
+  const SignInDemo();
+}
+
 class SignInLogoutRequested extends SignInEvent {
   const SignInLogoutRequested();
 }

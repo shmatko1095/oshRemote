@@ -4,7 +4,7 @@ import 'dart:core';
 
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client_repository/mqtt_client_repository.dart';
+import 'package:mqtt_client_repository/i_mqtt_client_repository.dart';
 import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
 import 'package:osh_remote/block/thing_cubit/model/charts/thing_charts.dart';
 import 'package:osh_remote/block/thing_cubit/model/settings/thing_settings.dart';
@@ -19,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'thing_controller_cubit_charts.dart';
 
 class ThingControllerCubit extends Cubit<ThingControllerState> {
-  ThingControllerCubit(MqttClientRepository mqttRepository)
+  ThingControllerCubit(IMqttClientRepository mqttRepository)
       : _mqttRepository = mqttRepository,
         super(ThingControllerState.empty()) {
     SharedPreferences.getInstance().then((value) => _prefs = value);
@@ -34,7 +34,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   late String _clientId;
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>> _stream;
 
-  final MqttClientRepository _mqttRepository;
+  final IMqttClientRepository _mqttRepository;
   final Map<String, Timer> _connectionTimer = {};
 
   final _exceptionStreamController = StreamController<Exception>.broadcast();
@@ -319,6 +319,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   }
 
   void _saveLastConnectedThing(String sn) {
+    print("_saveLastConnectedThing: $sn");
     _prefs.setString(lastConnectedPrefsKey, sn);
   }
 

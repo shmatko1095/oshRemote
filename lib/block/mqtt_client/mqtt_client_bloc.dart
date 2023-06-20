@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:aws_iot_api/iot-2015-05-28.dart' as aws;
-import 'package:aws_iot_repository/aws_iot_repository.dart';
+import 'package:aws_iot_repository/i_aws_iot_repository.dart';
 import 'package:bloc/bloc.dart';
-import 'package:mqtt_client_repository/mqtt_client_repository.dart';
+import 'package:mqtt_client_repository/i_mqtt_client_repository.dart';
 import 'package:osh_remote/block/mqtt_client/cert_provider.dart';
 import 'package:osh_remote/block/mqtt_client/exceptions.dart';
 import 'package:osh_remote/block/mqtt_client/iot_response.dart';
@@ -16,8 +16,8 @@ part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
   MqttClientBloc(
-    MqttClientRepository mqttRepository,
-    AwsIotRepository iotRepository,
+    IMqttClientRepository mqttRepository,
+    IAwsIotRepository iotRepository,
   )   : _mqttRepository = mqttRepository,
         _iotRepository = iotRepository,
         super(MqttClientState(
@@ -35,11 +35,10 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttStopEvent>(_onMqttStopInGroupRequestedEvent);
     on<MqttAddDeviceEvent>(_onMqttAddDeviceRequestedEvent);
     on<MqttRemoveDeviceEvent>(_onMqttRemoveDeviceRequestedEvent);
-    CertificateProvider.init();
   }
 
-  final MqttClientRepository _mqttRepository;
-  final AwsIotRepository _iotRepository;
+  final IMqttClientRepository _mqttRepository;
+  final IAwsIotRepository _iotRepository;
   final thingPolicyName = "OSHdev";
   final clientPrefix = "client-";
 

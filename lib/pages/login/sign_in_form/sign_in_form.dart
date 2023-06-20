@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:osh_remote/block/sign_in/sign_in_bloc.dart';
-import 'package:osh_remote/pages/home/home.dart';
 import 'package:osh_remote/pages/password_recovery/password_recovery_page.dart';
 import 'package:osh_remote/pages/user_confirmation/user_confirmation_page.dart';
 import 'package:osh_remote/utils/constants.dart';
@@ -15,6 +14,7 @@ import 'package:osh_remote/widgets/password_field.dart';
 import 'package:osh_remote/widgets/username_field.dart';
 
 part 'parts/forgot_password_button.dart';
+
 part 'parts/try_demo_button.dart';
 
 class SignInForm extends StatefulWidget {
