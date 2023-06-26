@@ -1,6 +1,4 @@
-import 'package:osh_remote/block/thing_cubit/model/calendar/thing_calendar.dart';
-
-enum Day { off, antifreeze, manual, daily, weekly }
+import 'package:mqtt_client_repository/device_emulator/app/calendar/json_constants.dart';
 
 class CalendarPoint implements Comparable<CalendarPoint> {
   int? day;
@@ -25,6 +23,22 @@ class CalendarPoint implements Comparable<CalendarPoint> {
   CalendarPoint(
       {this.day, this.min, this.hour, required this.value, this.power});
 
+  Map<String, dynamic> toJson() => {
+        CalendarKey.day: day,
+        CalendarKey.hour: hour,
+        CalendarKey.min: min,
+        CalendarKey.value: value,
+        CalendarKey.power: power,
+      };
+
+  static List<dynamic> listToJson(List<CalendarPoint> list) {
+    List<dynamic> result = [];
+    for (var element in list) {
+      result.add(element.toJson());
+    }
+    return result;
+  }
+
   CalendarPoint.fromJson(Map<String, dynamic> json)
       : day = json[CalendarKey.day],
         hour = json[CalendarKey.hour],
@@ -36,31 +50,13 @@ class CalendarPoint implements Comparable<CalendarPoint> {
     return json != null ? CalendarPoint.fromJson(json) : null;
   }
 
-  Map<String, dynamic> toJson() => {
-        CalendarKey.day: day,
-        CalendarKey.hour: hour,
-        CalendarKey.min: min,
-        CalendarKey.value: value,
-        CalendarKey.power: power,
-      };
-
-  static Map<int, CalendarPoint>? mapFromJson(List<dynamic>? json) {
+  static List<CalendarPoint>? listFromJson(List<dynamic>? json) {
     if (json == null) return null;
-    Map<int, CalendarPoint> map = {};
+    final List<CalendarPoint> daily = [];
     for (var element in json) {
-      CalendarPoint point = CalendarPoint.fromJson(element);
-      map[point.timeId] = point;
+      daily.add(CalendarPoint.fromJson(element));
     }
-    return map;
-  }
-
-  static List<dynamic> mapToJson(Map<int, CalendarPoint> map) {
-    List<CalendarPoint> list = map.values.toList();
-    List<dynamic> result = [];
-    for (var element in list) {
-      result.add(element.toJson());
-    }
-    return result;
+    return daily;
   }
 
   ///Used to compare two points by hours and minutes.

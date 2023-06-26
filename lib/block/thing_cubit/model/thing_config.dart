@@ -5,7 +5,8 @@ class ConfigTopic {
 
 class ConfigKey {
   static const config = "config";
-  static const clientId = "clientId";
+  static const client = "client";
+  static const clientId = "id";
   static const status = "status";
   static const heaterConfig = "heaterConfig";
   static const pumpConfig = "pumpConfig";

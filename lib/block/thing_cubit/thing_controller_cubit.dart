@@ -16,12 +16,12 @@ import 'package:osh_remote/block/thing_cubit/thing_controller_state.dart';
 import 'package:osh_remote/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'model/calendar/calendar_point.dart';
+
 part 'thing_controller_cubit_charts.dart';
 
 class ThingControllerCubit extends Cubit<ThingControllerState> {
-  ThingControllerCubit(IMqttClientRepository mqttRepository)
-      : _mqttRepository = mqttRepository,
-        super(ThingControllerState.empty()) {
+  ThingControllerCubit() : super(ThingControllerState.empty()) {
     SharedPreferences.getInstance().then((value) => _prefs = value);
   }
 
@@ -34,12 +34,16 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   late String _clientId;
   late StreamSubscription<List<MqttReceivedMessage<MqttMessage>>> _stream;
 
-  final IMqttClientRepository _mqttRepository;
+  late IMqttClientRepository _mqttRepository;
   final Map<String, Timer> _connectionTimer = {};
 
   final _exceptionStreamController = StreamController<Exception>.broadcast();
 
   Stream<Exception> get exceptionStream => _exceptionStreamController.stream;
+
+  void setRepo(IMqttClientRepository mqtt) {
+    _mqttRepository = mqtt;
+  }
 
   @override
   Future<void> close() {
@@ -54,6 +58,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       for (var element in event) {
         _handleReceivedMsg(element);
       }
+      event.clear();
     });
   }
 
@@ -144,7 +149,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       data[CalendarKey.modeManual] = state.calendar!.manual.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -157,7 +162,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       data[CalendarKey.modeAntifreeze] = state.calendar!.antifreeze.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -167,12 +172,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
       data[ConfigKey.clientId] = _clientId;
-      data[CalendarKey.modeWeekly] = List.generate(
-          state.calendar!.weekly.length,
-          (index) => state.calendar!.weekly[index].toJson());
+      data[CalendarKey.modeWeekly] =
+          CalendarPoint.mapToJson(state.calendar!.weekly);
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -182,11 +186,11 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       final builder = MqttClientPayloadBuilder();
       final Map<String, dynamic> data = {};
       data[ConfigKey.clientId] = _clientId;
-      data[CalendarKey.modeDaily] = List.generate(state.calendar!.daily.length,
-          (index) => state.calendar!.daily[index].toJson());
+      data[CalendarKey.modeDaily] =
+          CalendarPoint.mapToJson(state.calendar!.daily);
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -199,7 +203,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       data[CalendarKey.additionalPoint] = state.calendar!.additional!.toJson();
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -238,7 +242,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
       data[CalendarKey.currentMode] = state.calendar!.currentMode.index;
       builder.addString(jsonEncode(data));
 
-      final topic = "${state.sn!}/${CalendarTopic.set}";
+      final topic = "${state.sn!}/${CalendarTopic.update}";
       _mqttRepository.publish(topic, MqttQos.atLeastOnce, builder);
     }
   }
@@ -272,7 +276,7 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     } else if (message.topic.endsWith(InfoTopic.update)) {
       _handleInfoUpdate(sn, payload);
     } else if (message.topic.endsWith(ChartTopic.update)) {
-      handleChartsUpdate(sn, payload);
+      _handleChartsUpdate(sn, payload);
     }
   }
 
@@ -280,8 +284,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   void _handleConnect(String payload) {
     final data = jsonDecode(payload);
-    final sn = data[ConfigKey.clientId];
-    final status = data[ConfigKey.status];
+    final sn = data[ConfigKey.client][ConfigKey.clientId];
+    final status = data[ConfigKey.client][ConfigKey.status];
     final info = ThingInfo.fromNullableJson(data[InfoKey.info]);
     final config = ThingConfig.fromNullableJson(data[ConfigKey.config]);
     final setting = ThingSettings.fromNullableJson(data[SettingsKey.settings]);
@@ -308,8 +312,8 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
 
   void _handleCalendarUpdate(String sn, String payload) {
     final data = jsonDecode(payload);
-    final thingSettings = ThingCalendar.fromJson(data);
-    emit(state.copyWith(sn, calendar: thingSettings));
+    final calendar = state.calendar?.copyWithJson(data[CalendarKey.calendar]);
+    emit(state.copyWith(sn, calendar: calendar));
   }
 
   void _handleInfoUpdate(String sn, String payload) {
@@ -319,7 +323,6 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
   }
 
   void _saveLastConnectedThing(String sn) {
-    print("_saveLastConnectedThing: $sn");
     _prefs.setString(lastConnectedPrefsKey, sn);
   }
 

@@ -12,7 +12,7 @@ abstract class IMqttClientRepository {
       SubscribeFailCallback onSubscribeFail,
       PongCallback onPong);
 
-  void disconnect();
+  Future<void> disconnect();
 
   void publish(String topic, MqttQos qos, MqttClientPayloadBuilder builder);
 

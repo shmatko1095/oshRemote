@@ -51,6 +51,9 @@ class Home extends StatelessWidget {
   }
 
   Widget _buildHomePage(BuildContext context, MqttClientState state) {
+    final list = context.read<MqttClientBloc>().state.userThingsList;
+    context.read<ThingControllerCubit>().updateThingList(snList: list);
+
     return BlocListener<MqttClientBloc, MqttClientState>(
       listenWhen: (previous, current) =>
           previous.userThingsList != current.userThingsList,
@@ -72,9 +75,6 @@ class Home extends StatelessWidget {
 
     final userId = context.read<SignInBloc>().state.user.userId;
     context.read<MqttClientBloc>().add(MqttStartEvent(userId: userId));
-
-    context.read<ThingControllerCubit>().updateThingList(
-        snList: context.read<MqttClientBloc>().state.userThingsList);
 
     return BlocListener<MqttClientBloc, MqttClientState>(
       listenWhen: (previous, current) =>

@@ -15,12 +15,8 @@ part 'mqtt_client_part.dart';
 part 'mqtt_client_state.dart';
 
 class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
-  MqttClientBloc(
-    IMqttClientRepository mqttRepository,
-    IAwsIotRepository iotRepository,
-  )   : _mqttRepository = mqttRepository,
-        _iotRepository = iotRepository,
-        super(MqttClientState(
+  MqttClientBloc()
+      : super(MqttClientState(
             connectionState: MqttClientConnectionStatus.disconnected,
             userThingsList: [],
             groupName: "",
@@ -37,12 +33,17 @@ class MqttClientBloc extends Bloc<MqttEvent, MqttClientState> {
     on<MqttRemoveDeviceEvent>(_onMqttRemoveDeviceRequestedEvent);
   }
 
-  final IMqttClientRepository _mqttRepository;
-  final IAwsIotRepository _iotRepository;
+  late IMqttClientRepository _mqttRepository;
+  late IAwsIotRepository _iotRepository;
   final thingPolicyName = "OSHdev";
   final clientPrefix = "client-";
 
   final _exceptionStreamController = StreamController<Exception>.broadcast();
+
+  void setRepo(IMqttClientRepository mqtt, IAwsIotRepository iot) {
+    _mqttRepository = mqtt;
+    _iotRepository = iot;
+  }
 
   @override
   Future<void> close() {

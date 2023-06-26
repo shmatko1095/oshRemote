@@ -1,8 +1,15 @@
-
+class PublicMqttTopics {
+  static const info = "info";
+  static const config = "config";
+  static const calendar = "calendar";
+  static const settings = "settings";
+  static const connect = "command/connect";
+}
 
 class ConfigKey {
   static const config = "config";
-  static const clientId = "clientId";
+  static const client = "client";
+  static const clientId = "id";
   static const status = "status";
   static const heaterConfig = "heaterConfig";
   static const pumpConfig = "pumpConfig";

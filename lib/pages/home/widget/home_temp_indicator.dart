@@ -64,7 +64,7 @@ class HomeTempIndicator extends StatelessWidget {
     );
   }
 
-  Widget _temp(double value, TextStyle tempStyle, TextStyle unitStyle) {
+  Widget _temp(double? value, TextStyle tempStyle, TextStyle unitStyle) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,23 +75,23 @@ class HomeTempIndicator extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildContent(BuildContext context, ThingCalendar val) {
+  List<Widget> _buildContent(BuildContext context, ThingControllerState state) {
     final List<Widget> content = [];
     content.add(const Spacer(flex: 2));
     //@TODO: current temp should be instead of calendar
-    content.add(_temp(val.current.value, Constants.actualTempStyle,
+    content.add(_temp(state.info?.airTemp, Constants.actualTempStyle,
         Constants.actualTempUnitStyle));
-    content.add(_temp(val.current.value, Constants.targetTempStyle,
+    content.add(_temp(state.calendar?.current.value, Constants.targetTempStyle,
         Constants.targetUnitTempStyle));
-    if (val.next != null) {
-      content.add(Text("${val.next!.value}°C ${S.of(context)!.at} "
+    if (state.calendar?.next != null) {
+      content.add(Text("${state.calendar?.next!.value}°C ${S.of(context)!.at} "
           ""
-          "${formatTime(val.next!.hour!, val.next!.min!)}"));
+          "${formatTime(state.calendar!.next!.hour!, state.calendar!.next!.min!)}"));
     }
-    if (val.current.power != null) {
+    if (state.calendar?.current.power != null) {
       final heaterConfig =
           context.read<ThingControllerCubit>().state.config!.heaterConfig;
-      content.add(_powerLimit(val.current.power!, heaterConfig));
+      content.add(_powerLimit(state.calendar!.current.power!, heaterConfig));
     }
     content.add(const Spacer());
     return content
@@ -110,9 +110,10 @@ class HomeTempIndicator extends StatelessWidget {
           height: kHeight,
           child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
               buildWhen: (previous, current) =>
-                  previous.calendar != current.calendar,
+                  previous.calendar != current.calendar ||
+                  previous.info?.airTemp != current.info?.airTemp,
               builder: (context, st) {
-                return Column(children: _buildContent(context, st.calendar!));
+                return Column(children: _buildContent(context, st));
               }),
         ));
   }

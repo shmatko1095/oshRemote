@@ -23,21 +23,11 @@ class CalendarList extends StatefulWidget {
 
 class _CalendarListState extends State<CalendarList> {
   int _dayFilter = 0x7F;
-  late List<CalendarPoint> _points;
+  late Map<int, CalendarPoint> _points;
   late CalendarMode _mode;
 
   ThingCalendar get _calendar {
     return context.read<ThingControllerCubit>().state.calendar!;
-  }
-
-  List<CalendarPoint>? get _calendarPoints {
-    if (_mode == CalendarMode.daily) {
-      return context.read<ThingControllerCubit>().state.calendar?.daily;
-    } else if (_mode == CalendarMode.weekly) {
-      return context.read<ThingControllerCubit>().state.calendar?.weekly;
-    } else {
-      throw StateError("_mode invalid value");
-    }
   }
 
   @override
@@ -48,24 +38,18 @@ class _CalendarListState extends State<CalendarList> {
     _updateLocalPoints();
   }
 
-  void _onCalendarChange(BuildContext context, ThingControllerState state) {
-    if (state.calendar == null) {
-      Navigator.of(context).pop();
-    } else {
-      setState(() => _updateLocalPoints());
-    }
-  }
-
   void _updateLocalPoints() {
-    _points = List.from(_calendarPoints ?? []);
-    _points.sort();
-    _points = _points.where((element) {
-      if (element.day == null || element.day! == 0) {
-        return true;
-      } else {
-        return (_dayFilter & element.day! != 0);
+    _points = Map.from(_calendarPoints ?? {});
+
+    List<int> keys = _points.keys.toList()..sort();
+    _points = Map.fromEntries(keys.map((key) => MapEntry(key, _points[key]!)));
+    _points.removeWhere((key, value) {
+      bool res = false;
+      if (value.day != null) {
+        if (value.day! != 0) res = (_dayFilter & value.day! == 0);
       }
-    }).toList();
+      return res;
+    });
   }
 
   void _onBackPress() {
@@ -75,6 +59,16 @@ class _CalendarListState extends State<CalendarList> {
       context.read<ThingControllerCubit>().pushWeeklyCalendar();
     }
     Navigator.of(context).pop();
+  }
+
+  Map<int, CalendarPoint>? get _calendarPoints {
+    if (_mode == CalendarMode.daily) {
+      return context.read<ThingControllerCubit>().state.calendar?.daily;
+    } else if (_mode == CalendarMode.weekly) {
+      return context.read<ThingControllerCubit>().state.calendar?.weekly;
+    } else {
+      throw StateError("_mode invalid value");
+    }
   }
 
   void _onAdd() {
@@ -89,18 +83,19 @@ class _CalendarListState extends State<CalendarList> {
         newPoint,
         _mode,
         (newPoint) => setState(() {
-              _calendarPoints?.add(newPoint);
+              _calendarPoints?[newPoint.timeId] = newPoint;
+              _updateLocalPoints();
             })));
   }
 
   void _onEdit(CalendarPoint point) {
-    Navigator.of(context)
-        .push(EditPointScreen.route(point, _mode, (_) => setState(() {})));
+    Navigator.of(context).push(EditPointScreen.route(
+        point, _mode, (_) => setState(_updateLocalPoints)));
   }
 
   void _onRemove(CalendarPoint point) {
     setState(() {
-      _calendarPoints?.removeWhere((element) => element.timeId == point.timeId);
+      _calendarPoints?.remove(point.timeId);
       _updateLocalPoints();
     });
   }
@@ -130,44 +125,41 @@ class _CalendarListState extends State<CalendarList> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: BlocListener<ThingControllerCubit, ThingControllerState>(
-          listenWhen: (p, c) => p.calendar != c.calendar,
-          listener: _onCalendarChange,
-          child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
-              builder: (context, state) => Scaffold(
-                    appBar: AppBar(
-                      title: Text(S.of(context)!.temp),
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios),
-                        onPressed: _onBackPress,
-                      ),
-                      actions: [
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () => _onAdd(),
-                        ),
-                      ],
+      child: BlocBuilder<ThingControllerCubit, ThingControllerState>(
+          buildWhen: (p, c) => p.calendar != c.calendar,
+          builder: (context, state) => Scaffold(
+                appBar: AppBar(
+                  title: Text(S.of(context)!.temp),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: _onBackPress,
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => _onAdd(),
                     ),
-                    body: ListView.builder(
-                        padding: Constants.listPadding,
-                        itemCount: _points.length,
-                        itemBuilder: (context, index) => CalendarListTitle(
-                              point: _points[index],
-                              maxPower: context
-                                      .read<ThingControllerCubit>()
-                                      .state
-                                      .config
-                                      ?.heaterConfig ??
-                                  0,
-                              onEdit: _onEdit,
-                              onRemove: _onRemove,
-                            )),
-                    persistentFooterAlignment:
-                        AlignmentDirectional.bottomCenter,
-                    persistentFooterButtons: _mode == CalendarMode.weekly
-                        ? [_daySelector(context)]
-                        : null,
-                  ))),
+                  ],
+                ),
+                body: ListView.builder(
+                    padding: Constants.listPadding,
+                    itemCount: _points.length,
+                    itemBuilder: (context, index) => CalendarListTitle(
+                          point: _points.values.toList()[index],
+                          maxPower: context
+                                  .read<ThingControllerCubit>()
+                                  .state
+                                  .config
+                                  ?.heaterConfig ??
+                              0,
+                          onEdit: _onEdit,
+                          onRemove: _onRemove,
+                        )),
+                persistentFooterAlignment: AlignmentDirectional.bottomCenter,
+                persistentFooterButtons: _mode == CalendarMode.weekly
+                    ? [_daySelector(context)]
+                    : null,
+              )),
     );
   }
 }

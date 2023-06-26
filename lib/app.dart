@@ -1,11 +1,9 @@
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:aws_iot_api/iot-2015-05-28.dart';
 import 'package:aws_iot_repository/aws_iot_repository_factory.dart';
-import 'package:aws_iot_repository/i_aws_iot_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mqtt_client_repository/i_mqtt_client_repository.dart';
 import 'package:mqtt_client_repository/mqtt_client_repository_factory.dart';
 import 'package:osh_remote/block/authentication/sign_up_bloc.dart';
 import 'package:osh_remote/block/mqtt_client/mqtt_client_bloc.dart';
@@ -27,6 +25,12 @@ class App extends StatelessWidget {
         value: authRepo,
         child: MultiBlocProvider(
           providers: [
+            BlocProvider<MqttClientBloc>(
+              create: (_) => MqttClientBloc(),
+            ),
+            BlocProvider<ThingControllerCubit>(
+              create: (_) => ThingControllerCubit(),
+            ),
             BlocProvider<SignInBloc>(
               create: (_) => SignInBloc(authRepo),
             ),
@@ -48,8 +52,6 @@ class AppView extends StatefulWidget {
 
 class _AppViewState extends State<AppView> {
   final _navigatorKey = GlobalKey<NavigatorState>();
-  late IMqttClientRepository _mqttRepo;
-  late IAwsIotRepository _iotRepo;
 
   NavigatorState get _navigator => _navigatorKey.currentState!;
 
@@ -78,28 +80,17 @@ class _AppViewState extends State<AppView> {
     return BlocListener<SignInBloc, SignInState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: _signInStatusListener,
-        child: MultiBlocProvider(
-            providers: [
-              BlocProvider<MqttClientBloc>(
-                create: (_) => MqttClientBloc(_mqttRepo, _iotRepo),
-                lazy: true,
-              ),
-              BlocProvider<ThingControllerCubit>(
-                create: (_) => ThingControllerCubit(_mqttRepo),
-                lazy: true,
-              )
-            ],
-            child: MaterialApp(
-              title: "OSH",
-              theme: ThemeData(brightness: Brightness.light),
-              darkTheme: ThemeData(brightness: Brightness.dark),
-              themeMode: ThemeMode.system,
-              localizationsDelegates: S.localizationsDelegates,
-              supportedLocales: S.supportedLocales,
-              debugShowCheckedModeBanner: false,
-              navigatorKey: _navigatorKey,
-              onGenerateRoute: (_) => SplashPage.route(),
-            )));
+        child: MaterialApp(
+          title: "OSH",
+          theme: ThemeData(brightness: Brightness.light),
+          darkTheme: ThemeData(brightness: Brightness.dark),
+          themeMode: ThemeMode.system,
+          localizationsDelegates: S.localizationsDelegates,
+          supportedLocales: S.supportedLocales,
+          debugShowCheckedModeBanner: false,
+          navigatorKey: _navigatorKey,
+          onGenerateRoute: (_) => SplashPage.route(),
+        ));
   }
 
   void _initRepo() {
@@ -109,16 +100,22 @@ class _AppViewState extends State<AppView> {
         accessKey: "AKIAVO57NB3Y6D3TOTRF",
         secretKey: "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");
 
-    _mqttRepo = MqttRepositoryFactory.createInstance(server: server);
-    _iotRepo = AwsIotRepositoryFactory.createInstance(
+    final mqttRepo = MqttRepositoryFactory.createInstance(server: server);
+    final iotRepo = AwsIotRepositoryFactory.createInstance(
         region: region, credentials: cred);
+
+    context.read<MqttClientBloc>().setRepo(mqttRepo, iotRepo);
+    context.read<ThingControllerCubit>().setRepo(mqttRepo);
   }
 
   void _initRepoDemo() {
     final user = User(userId: "demo", email: "demo@mail.com", name: "username");
     context.read<SignInBloc>().state.user = user;
 
-    _mqttRepo = MqttRepositoryFactory.createInstance(demo: true);
-    _iotRepo = AwsIotRepositoryFactory.createInstance(demo: true);
+    final mqttRepo = MqttRepositoryFactory.createInstance(demo: true);
+    final iotRepo = AwsIotRepositoryFactory.createInstance(demo: true);
+
+    context.read<MqttClientBloc>().setRepo(mqttRepo, iotRepo);
+    context.read<ThingControllerCubit>().setRepo(mqttRepo);
   }
 }

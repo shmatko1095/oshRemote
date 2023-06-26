@@ -15,10 +15,8 @@ class MqttServerClientMock extends MqttServerClient {
 
   final MqttBrokerMock _broker;
 
-  // final _in = StreamController<MapEntry<String, MqttMessage>>.broadcast();
-  final _in = StreamController<MqttPublishMessage>.broadcast();
-  final _out =
-      StreamController<List<MqttReceivedMessage<MqttMessage>>>.broadcast();
+  late final _in = StreamController<MqttPublishMessage>();
+  late final _out = StreamController<List<MqttReceivedMessage<MqttMessage>>>();
 
   late String clientIdentifier;
   late Duration keepAliveDuration;
@@ -35,8 +33,7 @@ class MqttServerClientMock extends MqttServerClient {
 
   Stream<List<MqttReceivedMessage<MqttMessage>>> get updates => _out.stream;
 
-  // StreamSink<MapEntry<String, MqttMessage>> get sink => _in.sink;
-  StreamSink<MqttPublishMessage> get sink => _in.sink;
+  StreamSink<MqttPublishMessage>? get sink => _in.sink;
 
   MqttServerClientMock(this._broker) : super('', '');
 
@@ -53,6 +50,7 @@ class MqttServerClientMock extends MqttServerClient {
     });
 
     _in.stream.listen((inMsg) {
+      print("_out.sink.add: ${inMsg.variableHeader!.topicName}");
       _out.sink.add([
         MqttReceivedMessage<MqttMessage>(inMsg.variableHeader!.topicName, inMsg)
       ]);
@@ -61,10 +59,14 @@ class MqttServerClientMock extends MqttServerClient {
   }
 
   @override
-  void disconnect() {
+  Future<void> disconnect() async {
+    if (!_broker.isConnected(this)) return;
     _onPongTask?.cancel();
     _onConnectTask?.ignore();
     _broker.disconnect(this);
+
+    await _out.close();
+    await _in.close();
     if (onDisconnected != null) onDisconnected!();
   }
 

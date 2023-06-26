@@ -51,6 +51,6 @@ extension MqttClientPart on MqttClientBloc {
       MqttStopEvent event, Emitter<MqttClientState> emit) async {
     emit(state.copyWith(
         connectionState: MqttClientConnectionStatus.disconnecting));
-    _mqttRepository.disconnect();
+    await _mqttRepository.disconnect();
   }
 }

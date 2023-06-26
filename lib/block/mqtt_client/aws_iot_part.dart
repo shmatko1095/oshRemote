@@ -99,8 +99,7 @@ extension AwsIotPart on MqttClientBloc {
     if (cert != null) {
       try {
         result = await _iotRepository.isCertificateActive(cert.id);
-      } on Exception catch (event) {
-        _exceptionStreamController.add(event);
+      } catch (_) {
         result = false;
       }
     }

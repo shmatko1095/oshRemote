@@ -53,7 +53,7 @@ class MqttClientRepository implements IMqttClientRepository {
   }
 
   @override
-  void disconnect() {
+  Future<void> disconnect() async {
     _client.disconnect();
   }
 

@@ -1,61 +1,58 @@
-import 'dart:convert';
-
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client_repository/device_emulator/constants.dart';
+import 'package:mqtt_client_repository/device_emulator/app/heater/heater_app.dart';
+import 'package:mqtt_client_repository/device_emulator/app/heater/pump_app.dart';
+import 'package:mqtt_client_repository/device_emulator/app/i_runnable.dart';
+import 'package:mqtt_client_repository/device_emulator/device_model.dart';
 import 'package:mqtt_client_repository/mqtt_broker_mock/mqtt_broker_mock.dart';
-import 'package:mqtt_client_repository/mqtt_broker_mock/mqtt_server_client_mock.dart';
+
+import 'app/info_sender.dart';
 
 class DeviceEmulator {
-  static final TAG = "DeviceEmulator: ";
-  static final SN = "SN00000000";
-  late final MqttServerClientMock _client;
+  late final DeviceModel model;
 
-  String? _clientId;
-  bool _connected = false;
+  /**App list*/
+  late final Runnable _heaterApp;
+  late final Runnable _pumpApp;
+  late final Runnable _infoSender;
 
-  DeviceEmulator(MqttBrokerMock broker) {
-    _client = MqttServerClientMock(broker);
+  DeviceEmulator(MqttBrokerMock broker) : model = DeviceModel(broker) {
+    _infoSender = InfoSender(
+        mqttService: model.mqttService,
+        heaterStatus: model.heater,
+        pumpStatus: model.pump,
+        tempIn: model.inTemp,
+        tempOut: model.outTemp,
+        pressure: model.pressure,
+        powerUsage: model.powerUsage,
+        airTempAct: model.airTemp);
 
-    _client.clientIdentifier = SN;
-    _client.keepAlivePeriod = 30;
-    _client.onConnected = _onConnected;
-    _client.onDisconnected = _onDisconnected;
-    _client.onSubscribed = (topic) => print("$TAG Subscribed: $topic");
-    _client.pongCallback = () => print("$TAG Ping");
+    _heaterApp = HeaterApp(
+      airTemp: model.airTemp,
+      calendar: model.calendar,
+      heater: model.heater,
+    );
 
-    _client.updates.listen((event) {
-      event.forEach((element) {
-        final m = element.payload as MqttPublishMessage;
-        final pl = MqttPublishPayload.bytesToStringAsString(m.payload.message);
-        _handeMsg(element.topic, pl);
-      });
-    });
+    _pumpApp = PumpApp(
+      targetDiff: 10.0,
+      tempLimit: 45.0,
+      outTemp: model.outTemp,
+      inTemp: model.inTemp,
+      pump: model.pump,
+    );
   }
 
   void init() {
-    _client.connect();
+    model.init();
+
+    _heaterApp.start();
+    _pumpApp.start();
+    _infoSender.start();
   }
 
-  void _onConnected() {
-    print("$TAG Connected");
-    _client.subscribe("$SN/#", MqttQos.atLeastOnce);
-  }
+  void deInit() {
+    model.deInit();
 
-  void _onDisconnected() {
-    print("$TAG Disconnected");
-    _client.disconnect();
-  }
-
-  void _handeMsg(String topic, String payload) {
-    print("$TAG Msg: $topic, payload: $payload");
-    if (topic.endsWith(Constants.topicConnect)) {
-      _handleConnect(payload);
-    }
-  }
-
-  void _handleConnect(String payload) {
-    final data = jsonDecode(payload);
-    _clientId = data[ConfigKey.clientId];
-    _connected = data[ConfigKey.status];
+    _heaterApp.stop();
+    _pumpApp.stop();
+    _infoSender.stop();
   }
 }
