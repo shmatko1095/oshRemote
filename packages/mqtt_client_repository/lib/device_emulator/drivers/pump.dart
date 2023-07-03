@@ -1,8 +1,10 @@
+import 'package:mqtt_client_repository/device_emulator/drivers/i_input.dart';
 import 'package:mqtt_client_repository/device_emulator/hw/gpio.dart';
 
-abstract class Pump {
+abstract class Pump implements Input {
   void set(int val);
 
+  @override
   int get();
 }
 

@@ -1,3 +1,3 @@
 abstract class IMqttClient {
-  Map<String, Map<String, dynamic>>? handle(String topic, String payload);
+  Map<String, dynamic>? handle(String topic, String payload);
 }

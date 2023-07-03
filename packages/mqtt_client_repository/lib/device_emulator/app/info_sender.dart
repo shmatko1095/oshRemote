@@ -25,7 +25,7 @@ class InfoKey {
   static const airTempAct = "aTA";
 }
 
-class InfoSender extends Runnable implements IMqttClient {
+class InfoSender with Runnable implements IMqttClient {
   final IMqttService mqttService;
 
   final Heater heaterStatus;
@@ -45,7 +45,7 @@ class InfoSender extends Runnable implements IMqttClient {
     required this.pressure,
     required this.powerUsage,
     required this.airTempAct,
-  }) : super(period: 5000);
+  });
 
   Map<String, dynamic> _toJson() => {
         InfoKey.heaterStatus: heaterStatus.get(),

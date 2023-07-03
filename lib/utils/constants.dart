@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:osh_remote/block/thing_cubit/model/thing_config.dart';
 
 class Constants {
   static const serialNumberKey = "SN";
@@ -34,15 +35,20 @@ class Constants {
   static const minWaterTempValue = 20;
   static const maxWaterTempValue = 90;
 
+  static const minChartWaterTempValue = 0;
+  static const maxChartWaterTempValue = 50;
+
   static const minAirTempValue = 5.0;
   static const maxAirTempValue = 40.0;
   static const airTempStep = 0.5;
+
+  static const maxChartAirTempValue = 30.0;
 
   static const minGridValue = 160;
   static const maxGridValue = 230;
 
   static const minChartGridValue = minGridValue;
-  static const maxChartGridValue = 260;
+  static const maxChartGridValue = 240;
 
   static const minPumpPwmValue = 10;
   static const maxPumpPwmValue = 100;
@@ -54,4 +60,14 @@ class Constants {
   static const maxPumpDelayValue = 60;
 
   static const minHeaterConfig = 1;
+  static const minChartHeaterValue = 0;
+
+  static const minChartPressureValue = 0;
+  static const maxChartPressureValue = 3.0;
+
+  static const Map<PumpConfig, double> pumpConfigMaxValue = {
+    PumpConfig.constant: 1,
+    PumpConfig.switched: 3,
+    PumpConfig.pwm: 100,
+  };
 }

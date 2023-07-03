@@ -1,14 +1,11 @@
 import 'dart:async';
 
-abstract class Runnable {
-  int period = 100;
+mixin Runnable {
   late Timer _timer;
-
-  Runnable({this.period = 100});
 
   void run();
 
-  void start() {
+  void start({int period = 100}) {
     _timer = Timer.periodic(Duration(milliseconds: period), (_) => run());
   }
 

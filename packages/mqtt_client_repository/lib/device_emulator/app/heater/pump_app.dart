@@ -3,7 +3,7 @@ import 'package:mqtt_client_repository/device_emulator/drivers/temp_sensor.dart'
 
 import '../i_runnable.dart';
 
-class PumpApp extends Runnable {
+class PumpApp with Runnable {
   final double targetDiff;
   final double tempLimit;
   final TempSensor outTemp;

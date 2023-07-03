@@ -1,6 +1,7 @@
-import 'package:mqtt_client_repository/device_emulator/drivers/random_step.dart';
+import 'package:mqtt_client_repository/device_emulator/drivers/i_input.dart';
+import 'package:mqtt_client_repository/device_emulator/utils/random_step.dart';
 
-class TempSensor with DoubleRandomStep {
+class TempSensor with RandomStep implements Input {
   double val;
   final double min;
   final double max;
@@ -12,5 +13,6 @@ class TempSensor with DoubleRandomStep {
       double this.min = 0,
       required double this.max});
 
-  double get() => getNext(val, maxStep, max, min);
+  @override
+  double get() => RandomStep.getNextDouble(val, maxStep, max, min);
 }

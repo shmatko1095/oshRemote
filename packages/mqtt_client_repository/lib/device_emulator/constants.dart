@@ -1,6 +1,7 @@
 class PublicMqttTopics {
   static const info = "info";
   static const config = "config";
+  static const charts = "charts";
   static const calendar = "calendar";
   static const settings = "settings";
   static const connect = "command/connect";

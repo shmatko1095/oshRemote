@@ -290,12 +290,14 @@ class ThingControllerCubit extends Cubit<ThingControllerState> {
     final config = ThingConfig.fromNullableJson(data[ConfigKey.config]);
     final setting = ThingSettings.fromNullableJson(data[SettingsKey.settings]);
     final calendar = ThingCalendar.fromNullableJson(data[CalendarKey.calendar]);
+    final thingCharts = ThingCharts.fromNullableJson(data[ChartTopic.charts]);
 
     emit(state.copyWith(sn,
         info: info,
         config: config,
         settings: setting,
         calendar: calendar,
+        charts: thingCharts,
         status: status == true
             ? ThingConnectionStatus.connected
             : ThingConnectionStatus.disconnected));

@@ -5,7 +5,7 @@ import 'package:mqtt_client_repository/device_emulator/device_config.dart';
 import 'package:mqtt_client_repository/device_emulator/drivers/heater.dart';
 import 'package:mqtt_client_repository/device_emulator/drivers/temp_sensor.dart';
 
-class HeaterApp extends Runnable {
+class HeaterApp with Runnable {
   final TempSensor airTemp;
   final Calendar calendar;
   final Heater heater;

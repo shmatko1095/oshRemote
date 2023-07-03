@@ -39,7 +39,7 @@ class MqttService implements IMqttClient, IMqttService {
       event.forEach((element) {
         final m = element.payload as MqttPublishMessage;
         final pl = MqttPublishPayload.bytesToStringAsString(m.payload.message);
-        Map<String, Map<String, dynamic>> resp = {};
+        Map<String, dynamic> resp = {};
         _handlerMap.forEach((key, value) {
           if (element.topic.endsWith(key)) {
             _handlerMap[key]?.forEach((client) {
